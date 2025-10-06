@@ -1,1 +1,14 @@
-<p>register works!</p>
+<div class="register-container">
+  <h1>Registro</h1>
+
+  <p>Selecciona el tipo de usuario:</p>
+
+  <select [(ngModel)]="tipoUsuario">
+    <option value="" disabled selected>-- Elegir tipo --</option>
+    <option value="paciente">Paciente</option>
+    <option value="especialista">Especialista</option>
+  </select>
+
+  <button (click)="registrar()">Registrar</button>
+
+</div>

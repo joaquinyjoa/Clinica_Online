@@ -1,1 +1,14 @@
-<p>welcome works!</p>
+<div *ngIf="!loading" class="welcome-container">
+  <h1>Clínica Online</h1>
+  <div class="buttons">
+    <button (click)="NavegarLogin()">Login</button>
+    <button (click)="NavegarRegistro()">Registrar</button>
+  </div>
+</div>
+
+<!-- Overlay global -->
+<div class="overlay" *ngIf="loading">
+  <mat-progress-spinner mode="indeterminate" color="primary" diameter="50"></mat-progress-spinner>
+</div>
+
+
