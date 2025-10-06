@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage } from 'firebase/storage';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ export class FirebaseService {
   app;
   db;
   auth;
+  storage;
 
   constructor() {
     const firebaseConfig = {
@@ -27,5 +29,6 @@ export class FirebaseService {
     this.app = initializeApp(firebaseConfig);
     this.db = getFirestore(this.app);
     this.auth = getAuth(this.app);
+    this.storage = getStorage(this.app);
   }
 }
