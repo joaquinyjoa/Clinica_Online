@@ -1,0 +1,50 @@
+<form [formGroup]="pacienteForm">
+  <div>
+    <input placeholder="Nombre" formControlName="nombre">
+    <small *ngIf="f.nombre.touched && f.nombre.invalid">Nombre obligatorio</small>
+  </div>
+
+  <div>
+    <input placeholder="Apellido" formControlName="apellido">
+    <small *ngIf="f.apellido.touched && f.apellido.invalid">Apellido obligatorio</small>
+  </div>
+
+  <div>
+    <input type="number" placeholder="Edad" formControlName="edad">
+    <small *ngIf="f.edad.touched && f.edad.invalid">Edad inválida</small>
+  </div>
+
+  <div>
+    <input placeholder="DNI" formControlName="dni">
+    <small *ngIf="f.dni.touched && f.dni.invalid">DNI debe tener 8 números</small>
+  </div>
+
+  <div>
+    <input placeholder="Obra Social" formControlName="obraSocial">
+    <small *ngIf="f.obraSocial.touched && f.obraSocial.invalid">Obra Social obligatoria</small>
+  </div>
+
+  <div>
+    <input placeholder="Email" formControlName="email">
+    <small *ngIf="f.email.touched && f.email.invalid">Email inválido</small>
+  </div>
+
+  <div>
+    <input type="password" placeholder="Contraseña" formControlName="password">
+    <small *ngIf="f.password.touched && f.password.invalid">
+      Contraseña 6-10 caracteres, mayúscula y número
+    </small>
+  </div>
+
+  <div>
+    <label>Imagen 1:</label>
+    <input type="file" (change)="subirImagen($event, 'imagen1')">
+    <small *ngIf="f.imagen1.touched && f.imagen1.invalid">Imagen obligatoria</small>
+  </div>
+
+  <div>
+    <label>Imagen 2:</label>
+    <input type="file" (change)="subirImagen($event, 'imagen2')">
+    <small *ngIf="f.imagen2.touched && f.imagen2.invalid">Imagen obligatoria</small>
+  </div>
+</form>

@@ -4,11 +4,21 @@
   <p>Selecciona el tipo de usuario:</p>
 
   <select [(ngModel)]="tipoUsuario">
-    <option value="" disabled selected>-- Elegir tipo --</option>
+    <option value="" disabled selected>-- Elegir usuario --</option>
     <option value="paciente">Paciente</option>
     <option value="especialista">Especialista</option>
   </select>
 
-  <button (click)="registrar()">Registrar</button>
+  <div class="register-children">
+    <app-paciente [hidden]="tipoUsuario !== 'paciente'"></app-paciente>
+    <app-especialista [hidden]="tipoUsuario !== 'especialista'"></app-especialista>
+  </div>
 
+
+  <div class="terms">
+    <input type="checkbox" id="acepto" [(ngModel)]="aceptoCondiciones">
+    <label for="acepto">Acepto las condiciones de uso</label>
+  </div>
+
+  <button (click)="registrar()" [disabled]="!aceptoCondiciones">Registrarse</button>
 </div>

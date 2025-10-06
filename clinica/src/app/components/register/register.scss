@@ -24,3 +24,17 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+.register-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.register-children {
+  margin-top: 1.5rem;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}

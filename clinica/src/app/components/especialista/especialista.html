@@ -1,0 +1,58 @@
+<form [formGroup]="especialistaForm">
+  <div>
+    <input placeholder="Nombre" formControlName="nombre">
+    <small *ngIf="f.nombre.touched && f.nombre.invalid">Nombre obligatorio</small>
+  </div>
+
+  <div>
+    <input placeholder="Apellido" formControlName="apellido">
+    <small *ngIf="f.apellido.touched && f.apellido.invalid">Apellido obligatorio</small>
+  </div>
+
+  <div>
+    <input type="number" placeholder="Edad" formControlName="edad">
+    <small *ngIf="f.edad.touched && f.edad.invalid">Edad inválida</small>
+  </div>
+
+  <div>
+    <input placeholder="DNI" formControlName="dni">
+    <small *ngIf="f.dni.touched && f.dni.invalid">DNI debe tener 8 números</small>
+  </div>
+
+  <div>
+    <label>Especialidad</label>
+    <select formControlName="especialidad">
+      <option value="" disabled>-- Elegir especialidad --</option>
+      <option *ngFor="let e of especialidadesDisponibles" [value]="e">{{ e }}</option>
+    </select>
+    <small *ngIf="f.especialidad.touched && f.especialidad.invalid">Especialidad obligatoria</small>
+
+    <div>
+      <input placeholder="Agregar nueva especialidad" [(ngModel)]="nuevaEspecialidad">
+      <button type="button" (click)="agregarEspecialidad()">Agregar</button>
+    </div>
+  </div>
+
+  <div>
+    <input placeholder="Email" formControlName="email">
+    <small *ngIf="f.email.touched && f.email.invalid">Email inválido</small>
+  </div>
+
+  <div>
+    <input type="password" placeholder="Contraseña" formControlName="password">
+    <small *ngIf="f.password.touched && f.password.invalid">
+      Contraseña 6-10 caracteres, mayúscula y número
+    </small>
+  </div>
+
+  <div>
+    <label>Imagen de perfil</label>
+    <input type="file" (change)="subirImagen($event)">
+    <small *ngIf="f.imagenPerfil.touched && f.imagenPerfil.invalid">Imagen obligatoria</small>
+
+    <!-- ✅ vista previa -->
+    <div *ngIf="imagenPreview" style="margin-top:10px;">
+      <img [src]="imagenPreview" alt="Vista previa" width="120" style="border-radius:8px; border:1px solid #ccc;">
+    </div>
+  </div>
+</form>
