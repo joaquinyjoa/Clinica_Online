@@ -23,6 +23,10 @@ export class Register {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
+  volver() {
+    this.router.navigate(['/']); // Navega al home
+  }
+
   async registrar() {
     if (!this.aceptoCondiciones) {
       alert('Debes aceptar las condiciones para registrarte');
@@ -33,18 +37,15 @@ export class Register {
       if (this.tipoUsuario === 'paciente') {
         if (!this.pacienteComp.validarFormulario()) return;
         const pacienteCreado = await this.pacienteComp.crearPaciente();
+        if (pacienteCreado === 0) return; // ❌ Validación fallida
         alert(`Paciente creado con ID: ${pacienteCreado}`);
       } else if (this.tipoUsuario === 'especialista') {
-        if (!this.especialistaComp.especialistaForm.valid) {
-          this.especialistaComp.especialistaForm.markAllAsTouched();
-          alert(`Por favor completa todos los campos correctamente`);
-          return;
-        }
         const especialistaCreado = await this.especialistaComp.crearEspecialista();
+        if (especialistaCreado === 0) return; // ❌ Validación fallida
         alert(`Especialista creado con ID: ${especialistaCreado}`);
       }
 
-      this.router.navigate(['/login']); // o donde quieras redirigir
+      this.router.navigate(['/login']); // ✅ Solo si se creó correctamente
     } catch (error) {
       console.error(error);
       alert('Error al crear el usuario');

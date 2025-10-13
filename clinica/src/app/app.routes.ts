@@ -9,4 +9,5 @@ export const routes: Routes = [
       {path: 'especialista', loadComponent: () => import('./components/especialista/especialista.component').then(m => m.EspecialistaComponent)}
     ],
    },
+   { path: 'panel-admin', loadComponent: () => import('./components/panel-admin/panel-admin.component').then(m => m.PanelAdminComponent) },
 ];

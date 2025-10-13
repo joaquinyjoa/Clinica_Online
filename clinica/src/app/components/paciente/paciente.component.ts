@@ -57,7 +57,28 @@ export class PacienteComponent {
 
   // Crear paciente y subir imágenes
   async crearPaciente() {
-    if (!this.validarFormulario()) return;
+    if (!this.validarFormulario()) return 0; // ❌ Detener si no es válido
+
+    const email = this.pacienteForm.value.email ;
+    const dni = Number(this.pacienteForm.value.dni) ;
+    const contraseña = this.pacienteForm.value.password;
+
+    const duplicados = await this.pacientesService.validarDuplicados(email, dni, contraseña);
+
+     if (duplicados.dni) {
+      alert('❌ Ya existe un paciente con este DNI.');
+      return 0;
+    }
+
+    if (duplicados.email) {
+      alert('❌ Ya existe un paciente con este email.');
+      return 0;
+    }
+   
+    if (duplicados.contraseña) {
+      alert('❌ Ya existe un paciente con esta contraseña.');
+      return 0;
+    }
 
     const formValues = this.pacienteForm.value;
 
@@ -90,9 +111,11 @@ export class PacienteComponent {
       const pacienteCreado = await this.pacientesService.crearPaciente(nuevoPaciente);
       alert(`Paciente creado con ID: ${pacienteCreado.id}`);
       this.pacienteForm.reset();
+      return pacienteCreado.id || 0;
     } catch (error) {
       console.error(error);
       alert('Error al crear el paciente');
+       return 0; 
     }
   }
 }

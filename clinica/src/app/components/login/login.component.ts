@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { PacientesService, Paciente } from '../../services/pacientes.service';
-import { EspecialistasService, Especialista } from '../../services/especialistas.service';
+import { EmpleadoService, Empleado } from '../../services/empleados.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -24,42 +25,70 @@ export class LoginComponent {
 
   constructor(
     private pacientesService: PacientesService,
-    private especialistasService: EspecialistasService
+    private empleadoService: EmpleadoService,
+    private router: Router
   ) {}
 
   async onSubmit() {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      alert('⚠️ Por favor, completá todos los campos correctamente.');
+  if (this.loginForm.invalid) {
+    this.loginForm.markAllAsTouched();
+    alert('⚠️ Por favor, completá todos los campos correctamente.');
+    return;
+  }
+
+  const { email: rawEmail, password: rawPassword } = this.loginForm.value;
+  const email: string = rawEmail || '';
+  const password: string = rawPassword || '';
+
+  try {
+    // Buscar en pacientes
+    const paciente: Paciente | null = await this.pacientesService.buscarPaciente(email, password);
+
+    if (paciente) {
+      // Verifico que el mail esté verificado
+      if (!paciente.emailVerificado) {
+        alert('⚠️ Tu cuenta no fue verificada por mail. Revisá tu correo.');
+        return;
+      }
+
+      alert(`✅ Bienvenido paciente ${paciente.nombre}`);
+      // Aquí podrías redirigir al home de pacientes
       return;
     }
 
-    const { email: rawEmail, password: rawPassword } = this.loginForm.value;
-    const email: string = rawEmail || '';
-    const password: string = rawPassword || '';
+    // Buscar en especialistas
+    const empleado: Empleado | null = await this.empleadoService.buscarEspecialista(email, password);
 
-    try {
-      // Primero busco en pacientes
-      const paciente: Paciente | null = await this.pacientesService.buscarPaciente(email, password);
-      if (paciente) {
-        alert(`✅ Login paciente: ${paciente.nombre}`);
+    if (empleado) {
+      // Validar ambas condiciones
+      if (!empleado.emailVerificado) {
+        alert('⚠️ Tu cuenta de especialista no fue verificada por mail.');
         return;
       }
 
-      // Si no está, busco en especialistas
-      const especialista: Especialista | null = await this.especialistasService.buscarEspecialista(email, password);
-      if (especialista) {
-        alert(`✅ Login especialista: ${especialista.nombre}`);
+      if (!empleado.aprobado) {
+        alert('⚠️ Tu cuenta aún no fue aprobada por el administrador.');
         return;
       }
 
-      alert('❌ Usuario o contraseña incorrecta');
+      if (empleado.especialidad?.toLowerCase() === 'administrador') {
+          this.router.navigate(['/panel-admin']);
+      }
 
-    } catch (error) {
-      console.error(error);
-      alert('Error al iniciar sesión');
+
+      alert(`✅ Bienvenido especialista ${empleado.nombre}`);
+      // Aquí podrías redirigir al home de especialistas
+      return;
     }
+
+    alert('❌ Usuario o contraseña incorrecta');
+
+  } catch (error) {
+    console.error(error);
+    alert('Error al iniciar sesión');
   }
+}
+
 
   // Acceso rápido
   loginRapido(email: string, password: string) {

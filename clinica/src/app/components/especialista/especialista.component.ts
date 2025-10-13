@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { EspecialistasService, Especialista } from '../../services/especialistas.service';
+import { EmpleadoService, Empleado } from '../../services/empleados.service';
 
 @Component({
   selector: 'app-especialista',
@@ -38,7 +38,7 @@ export class EspecialistaComponent {
     imagenPerfil: [null as File | null, Validators.required]
   });
 
-  constructor(private especialistasService: EspecialistasService) {}
+  constructor(private empleadoService: EmpleadoService) {}
 
   get f() { return this.especialistaForm.controls; }
 
@@ -63,9 +63,14 @@ export class EspecialistaComponent {
     }
   }
 
-  async onSubmit() {
-    try {
-      await this.crearEspecialista();
+ async onSubmit() {
+  try {
+      const id = await this.crearEspecialista();
+      if (id === 0) return; // ❌ Detener la ejecución si hubo error
+
+      // ✅ Si id es válido, continuar con la lógica, por ejemplo:
+      alert('Especialista creado correctamente, ID: ' + id);
+      // aquí podrías navegar al login solo si id != 0
     } catch (error) {
       console.error(error);
     }
@@ -83,11 +88,23 @@ export class EspecialistaComponent {
     // Validación email/DNI duplicados
     const email = this.especialistaForm.value.email;
     const dni = Number(this.especialistaForm.value.dni);
-    const yaExiste = await this.especialistasService.existeEspecialista(email, dni);
-    if (yaExiste) {
-      alert('❌ Ya existe un especialista con el mismo email o DNI.');
-      return 0;
-    }
+    const contraseña = this.especialistaForm.value.password;
+    const duplicados = await this.empleadoService.validarDuplicados(email, dni, contraseña);
+
+      if (duplicados.dni) {
+          alert('❌ Ya existe un especialista con este DNI.');
+          return 0;
+        }
+
+      if (duplicados.email) {
+        alert('❌ Ya existe un especialista con este email.');
+        return 0;
+      }
+      
+      if (duplicados.contraseña) {
+        alert('❌ Ya existe un especialista con esta contraseña.');
+        return 0;
+      }
 
     // Validación: si se eligió agregar nueva especialidad, asegurarnos que no esté vacía
     if (this.agregarNuevaEspecialidad) {
@@ -111,10 +128,10 @@ export class EspecialistaComponent {
     if (imagenFile) {
       // Eliminamos caracteres problemáticos del nombre del archivo
       const nombreArchivo = `perfil-${Date.now()}-${imagenFile.name.replace(/\s/g, '_')}`;
-      fotoUrl = await this.especialistasService.subirImagen(imagenFile, nombreArchivo);
+      fotoUrl = await this.empleadoService.subirImagen(imagenFile, nombreArchivo);
     }
 
-    const nuevoEspecialista: Especialista = {
+    const nuevoEspecialista: Empleado = {
     nombre: formValues.nombre || '',        // nunca será undefined
     apellido: formValues.apellido || null,  // opcional
     edad: Number(formValues.edad) || null,
@@ -128,7 +145,7 @@ export class EspecialistaComponent {
 
     try {
       
-      const especialistaCreado = await this.especialistasService.crearEspecialista(nuevoEspecialista);
+      const especialistaCreado = await this.empleadoService.crearEspecialista(nuevoEspecialista);
       alert(`✅ Especialista creado con ID: ${especialistaCreado.id}`);
       // Reset completo del formulario
       this.especialistaForm.reset();

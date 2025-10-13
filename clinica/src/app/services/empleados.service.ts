@@ -9,6 +9,8 @@ export interface Especialista {
   dni?: number | null;
   especialidad: string;    // obligatorio
   email: string;           // obligatorio
+  emailVerificado?: boolean;
+  aprobado?: boolean;
   contraseña: string;      // obligatorio
   imagenPerfil?: string | null;
 }
@@ -58,12 +60,41 @@ export class EspecialistasService {
     return data || null;
   }
   
-  async existeEspecialista(email: string | null | undefined, dni: number): Promise<boolean> {
-    const { data, error } = await supabase
-      .from(this.table)
-      .select('*')
-      .or(`email.eq.${email},dni.eq.${dni}`);
-    if (error) throw error;
-    return (data && data.length > 0);
+ 
+  async validarDuplicados(email: string | null | undefined, dni: number, contraseña: string | null | undefined): Promise<{ email?: boolean, dni?: boolean, contraseña?: boolean }> {
+    const result: { email?: boolean, dni?: boolean, contraseña?: boolean } = {};
+
+    if (email) {
+      const { data: dataEmail, error: errorEmail } = await supabase
+        .from(this.table)
+        .select('id')
+        .eq('email', email);
+
+      if (errorEmail) throw errorEmail;
+      result.email = (dataEmail && dataEmail.length > 0);
+    }
+
+    if (dni) {
+      const { data: dataDni, error: errorDni } = await supabase
+        .from(this.table)
+        .select('id')
+        .eq('dni', dni);
+
+      if (errorDni) throw errorDni;
+      result.dni = (dataDni && dataDni.length > 0);
+    }
+
+    if (contraseña) {
+      const { data: dataPassword, error: errorPassword } = await supabase
+        .from(this.table)
+        .select('id')
+        .eq('contraseña', contraseña);
+
+      if (errorPassword) throw errorPassword;
+      result.contraseña = (dataPassword && dataPassword.length > 0);
+    }
+
+    return result;
   }
+
 }

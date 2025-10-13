@@ -9,6 +9,7 @@ export interface Paciente {
   obraSocial?: string;
   email?: string;
   contraseña?: string;
+  emailVerificado?: boolean;
   foto1?: string;
   foto2?: string;
 }
@@ -66,5 +67,46 @@ export class PacientesService {
     if (error) return null;
     return data || null;
   }
+
+ // ✅ Validación de duplicados por campo
+  async validarDuplicados(email: string | null | undefined,
+    dni: number, contraseña: string | null | undefined) : 
+    Promise<{ email?: boolean, dni?: boolean, contraseña?: boolean }> {
+    
+    const result: { email?: boolean, dni?: boolean, contraseña?: boolean } = {};
+
+    if (email) {
+      const { data: dataEmail, error: errorEmail } = await supabase
+        .from(this.table)
+        .select('id')
+        .eq('email', email);
+
+      if (errorEmail) throw errorEmail;
+      result.email = (dataEmail && dataEmail.length > 0);
+    }
+
+    if (dni) {
+      const { data: dataDni, error: errorDni } = await supabase
+        .from(this.table)
+        .select('id')
+        .eq('dni', dni);
+
+      if (errorDni) throw errorDni;
+      result.dni = (dataDni && dataDni.length > 0);
+    }
+
+    if (contraseña) {
+      const { data: dataPassword, error: errorPassword } = await supabase
+        .from(this.table)
+        .select('id')
+        .eq('contraseña', contraseña);
+
+      if (errorPassword) throw errorPassword;
+      result.contraseña = (dataPassword && dataPassword.length > 0);
+    }
+
+    return result;
+  }
+
 
 }
