@@ -1,0 +1,27 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+  <!-- Email -->
+  <div>
+    <input placeholder="Email" formControlName="email" />
+    <small *ngIf="f.email.touched && f.email.errors?.['required']">Email obligatorio</small>
+    <small *ngIf="f.email.touched && f.email.errors?.['email']">Formato de email inválido</small>
+  </div>
+
+  <!-- Contraseña -->
+  <div>
+    <input type="password" placeholder="Contraseña" formControlName="password" />
+    <small *ngIf="f.password.touched && f.password.errors?.['required']">Contraseña obligatoria</small>
+    <small *ngIf="f.password.touched && f.password.errors?.['minlength']">Mínimo 6 caracteres</small>
+  </div>
+
+  <button type="submit">Ingresar</button>
+
+  <hr>
+
+  <!-- Botones de acceso rápido -->
+  <div style="margin-top: 10px;">
+    <button type="button" (click)="loginRapido('joaquinalfredogreco@gmail.com','123456A')">Acceso rápido paciente</button>
+    <button type="button" (click)="loginRapido('usuario2@example.com','123456')">Acceso rápido administrador</button>
+  </div>
+
+</form>

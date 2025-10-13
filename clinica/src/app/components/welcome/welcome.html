@@ -1,14 +1,24 @@
-<div *ngIf="!loading" class="welcome-container">
-  <h1>Clínica Online</h1>
+<div class="welcome-container">
+  <h1 class="title">Clínica Online</h1>
   <div class="buttons">
-    <button (click)="NavegarLogin()">Login</button>
-    <button (click)="NavegarRegistro()">Registrar</button>
+    <button 
+      type="button" 
+      class="btn btn-primary btn-lg toggle-btn login-btn" 
+      data-toggle="button" 
+      aria-pressed="false" 
+      autocomplete="off"
+      (click)="NavegarLogin()">
+      Login
+    </button>
+
+    <button 
+      type="button" 
+      class="btn btn-outline-light btn-lg toggle-btn register-btn" 
+      data-toggle="button" 
+      aria-pressed="false" 
+      autocomplete="off"
+      (click)="NavegarRegistro()">
+      Registrarse
+    </button>
   </div>
 </div>
-
-<!-- Overlay global -->
-<div class="overlay" *ngIf="loading">
-  <mat-progress-spinner mode="indeterminate" color="primary" diameter="50"></mat-progress-spinner>
-</div>
-
-

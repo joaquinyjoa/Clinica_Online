@@ -1,0 +1,78 @@
+<form [formGroup]="especialistaForm" (ngSubmit)="onSubmit()" novalidate>
+
+  <!-- Nombre -->
+  <div>
+    <input placeholder="Nombre" formControlName="nombre" />
+    <small *ngIf="f.nombre.touched && f.nombre.errors?.['required']">Nombre obligatorio</small>
+    <small *ngIf="f.nombre.touched && f.nombre.errors?.['pattern']">Solo letras y espacios</small>
+  </div>
+
+  <!-- Apellido -->
+  <div>
+    <input placeholder="Apellido" formControlName="apellido" />
+    <small *ngIf="f.apellido.touched && f.apellido.errors?.['required']">Apellido obligatorio</small>
+    <small *ngIf="f.apellido.touched && f.apellido.errors?.['pattern']">Solo letras y espacios</small>
+  </div>
+
+  <!-- Edad -->
+  <div>
+    <input type="number" placeholder="Edad" formControlName="edad" />
+    <small *ngIf="f.edad.touched && f.edad.errors?.['required']">Edad obligatoria</small>
+    <small *ngIf="f.edad.touched && f.edad.errors?.['min']">Debe ser mayor de 18</small>
+    <small *ngIf="f.edad.touched && f.edad.errors?.['max']">Edad máxima 120</small>
+  </div>
+
+  <!-- DNI -->
+  <div>
+    <input placeholder="DNI" formControlName="dni" maxlength="8" />
+    <small *ngIf="f.dni.touched && f.dni.errors?.['required']">DNI obligatorio</small>
+    <small *ngIf="f.dni.touched && f.dni.errors?.['pattern']">Debe tener 8 números</small>
+  </div>
+
+   <!-- Especialidad -->
+  <div>
+    <label>Especialidad</label>
+    <select formControlName="especialidad" (change)="onEspecialidadChange($event)">
+      <option value="" disabled>-- Elegir especialidad --</option>
+      <option *ngFor="let e of especialidadesDisponibles" [value]="e">{{ e }}</option>
+      <option value="agregar">Agregar nueva especialidad...</option>
+    </select>
+    <small *ngIf="f.especialidad.touched && f.especialidad.errors?.['required']">Especialidad obligatoria</small>
+
+    <!-- Input solo si eligió "Agregar nueva especialidad..." -->
+    <div style="margin-top: 8px;" *ngIf="agregarNuevaEspecialidad">
+      <input placeholder="Escribí tu especialidad"
+            [(ngModel)]="nuevaEspecialidad"
+            (ngModelChange)="f.especialidad.setValue(nuevaEspecialidad)"
+            name="nuevaEspecialidad" />
+    </div>
+  </div>
+
+  <!-- Email -->
+  <div>
+    <input placeholder="Email" formControlName="email" />
+    <small *ngIf="f.email.touched && f.email.errors?.['required']">Email obligatorio</small>
+    <small *ngIf="f.email.touched && f.email.errors?.['email']">Formato de email inválido</small>
+  </div>
+
+  <!-- Password -->
+  <div>
+    <input type="password" placeholder="Contraseña" formControlName="password" />
+    <small *ngIf="f.password.touched && f.password.errors?.['required']">Contraseña obligatoria</small>
+    <small *ngIf="f.password.touched && f.password.errors?.['minlength']">Mínimo 6 caracteres</small>
+    <small *ngIf="f.password.touched && f.password.errors?.['maxlength']">Máximo 10 caracteres</small>
+    <small *ngIf="f.password.touched && f.password.errors?.['pattern']">Debe incluir una mayúscula y un número</small>
+  </div>
+
+  <!-- Imagen de perfil -->
+  <div>
+    <label>Imagen de perfil</label>
+    <input type="file" (change)="subirImagen($event)" accept="image/*" />
+    <small *ngIf="f.imagenPerfil.touched && f.imagenPerfil.errors?.['required']">Imagen obligatoria</small>
+
+    <div *ngIf="imagenPreview" style="margin-top:10px;">
+      <img [src]="imagenPreview" alt="Vista previa" width="120" style="border-radius:8px; border:1px solid #ccc;">
+    </div>
+  </div>
+
+</form>
