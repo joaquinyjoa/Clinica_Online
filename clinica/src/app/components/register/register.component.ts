@@ -6,6 +6,7 @@ import { PacienteComponent } from '../paciente/paciente.component';
 import { EspecialistaComponent } from '../especialista/especialista.component';
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { NgIf } from '@angular/common';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -28,6 +29,7 @@ export class Register {
 
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private toastService = inject(ToastService);
 
   // Getter para verificar si el formulario actual es válido
   get formularioValido(): boolean {
@@ -50,12 +52,12 @@ export class Register {
 
   async registrar() {
     if (!this.aceptoCondiciones) {
-      alert('⚠️ Debes aceptar las condiciones para registrarte');
+      this.toastService.warning('⚠️ Debes aceptar las condiciones para registrarte');
       return;
     }
 
     if (!this.formularioValido) {
-      alert('⚠️ Por favor, completa todos los campos correctamente antes de registrarte');
+      this.toastService.warning('⚠️ Por favor, completa todos los campos correctamente antes de registrarte');
       return;
     }
 
@@ -71,21 +73,21 @@ export class Register {
           this.loading = false;
           return; // ❌ Validación fallida
         }
-        alert(`Paciente creado con ID: ${pacienteCreado}`);
+        // El toast ya se muestra desde el componente paciente
       } else if (this.tipoUsuario === 'especialista') {
         const especialistaCreado = await this.especialistaComp.crearEspecialista();
         if (especialistaCreado === 0) {
           this.loading = false;
           return; // ❌ Validación fallida
         }
-        alert(`Especialista creado con ID: ${especialistaCreado}`);
+        // El toast ya se muestra desde el componente especialista
       }
 
       // Navegar mostrando spinner
       await this.navigateWithSpinner('/login');
     } catch (error) {
       console.error(error);
-      alert('Error al crear el usuario');
+      this.toastService.error('❌ Error al crear el usuario. Intente nuevamente.');
       this.loading = false;
     }
   }

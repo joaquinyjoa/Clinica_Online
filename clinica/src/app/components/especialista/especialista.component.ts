@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { EmpleadosService, Empleado } from '../../services/empleados.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-especialista',
@@ -44,7 +45,10 @@ export class EspecialistaComponent {
     imagenPerfil: [null as File | null, Validators.required]
   });
 
-  constructor(private empleadoService: EmpleadosService) {
+  constructor(
+    private empleadoService: EmpleadosService,
+    private toastService: ToastService
+  ) {
     this.cargarEspecialidades();
   }
 
@@ -148,17 +152,20 @@ export class EspecialistaComponent {
     const duplicados = await this.empleadoService.validarDuplicados(email, dni, contraseña);
 
       if (duplicados.dni) {
-          alert('❌ Ya existe un especialista con este DNI.');
+          this.toastService.dniDuplicado();
+          this.loading = false;
           return 0;
         }
 
       if (duplicados.email) {
-        alert('❌ Ya existe un especialista con este email.');
+        this.toastService.emailDuplicado();
+        this.loading = false;
         return 0;
       }
       
       if (duplicados.contraseña) {
-        alert('❌ Ya existe un especialista con esta contraseña.');
+        this.toastService.passwordDuplicado();
+        this.loading = false;
         return 0;
       }
 
@@ -166,10 +173,22 @@ export class EspecialistaComponent {
     if (this.agregarNuevaEspecialidad) {
       if (!this.nuevaEspecialidad.trim()) {
         alert('⚠️ Debes escribir la nueva especialidad antes de enviar.');
+        this.loading = false;
         return 0;
       }
       // Actualizamos el FormControl para que Angular lo considere válido
       this.especialistaForm.patchValue({ especialidad: this.nuevaEspecialidad.trim() });
+    }
+
+    // Validación: no permitir registro como administrador
+    const especialidadFinal = this.agregarNuevaEspecialidad 
+      ? this.nuevaEspecialidad.trim().toLowerCase() 
+      : this.especialistaForm.value.especialidad?.toLowerCase();
+    
+    if (especialidadFinal === 'administrador' || especialidadFinal === 'admin') {
+      this.toastService.especialidadAdministrador();
+      this.loading = false;
+      return 0;
     }
 
     if (this.especialistaForm.invalid) {
@@ -203,16 +222,15 @@ export class EspecialistaComponent {
       
       const especialistaCreado = await this.empleadoService.crearEmpleado(nuevoEspecialista);
       
-      // Si se agregó una nueva especialidad, guardarla en la lista
+      // Toast de éxito médico
+      this.toastService.cuentaCreada('especialista', `${nuevoEspecialista.nombre} ${nuevoEspecialista.apellido}`);
+      
+      // Si se agregó una nueva especialidad, guardarla en la lista y mostrar mensaje adicional
       if (this.agregarNuevaEspecialidad && this.nuevaEspecialidad.trim()) {
         const especialidadGuardada = this.guardarEspecialidad(this.nuevaEspecialidad);
         if (especialidadGuardada) {
-          alert(`✅ Especialista creado con ID: ${especialistaCreado.id}\n🆕 Nueva especialidad "${this.nuevaEspecialidad.trim()}" agregada a la lista`);
-        } else {
-          alert(`✅ Especialista creado con ID: ${especialistaCreado.id}`);
+          this.toastService.success(`🆕 Nueva especialidad "${this.nuevaEspecialidad.trim()}" agregada a la lista`);
         }
-      } else {
-        alert(`✅ Especialista creado con ID: ${especialistaCreado.id}`);
       }
       
       // Reset completo del formulario
@@ -223,7 +241,8 @@ export class EspecialistaComponent {
       return especialistaCreado.id || 0;
     } catch (error) {
       console.error(error);
-      alert('❌ Error al crear el especialista');
+      this.toastService.error('❌ Error al crear la cuenta de especialista. Intente nuevamente.');
+      this.loading = false;
       throw error;
     }
   }

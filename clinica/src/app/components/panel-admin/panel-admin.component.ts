@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators, AbstractCont
 import { EmpleadosService, Empleado } from '../../services/empleados.service';
 import { PacientesService, Paciente } from '../../services/pacientes.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-panel-admin',
@@ -112,7 +113,7 @@ export class PanelAdminComponent implements OnInit {
       this.cargarEmpleados();
     } catch (error) {
       console.error(error);
-      alert('Error al actualizar el empleado');
+      this.toastService.error('❌ Error al actualizar el estado del empleado');
     }
   }
 
@@ -143,7 +144,8 @@ export class PanelAdminComponent implements OnInit {
 
   constructor(
     private empleadosService: EmpleadosService,
-    private pacientesService: PacientesService
+    private pacientesService: PacientesService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -189,7 +191,10 @@ export class PanelAdminComponent implements OnInit {
   }
 
   async crearAdmin() {
-    if (this.nuevoAdminForm.invalid) return alert('Completa todos los campos del administrador');
+    if (this.nuevoAdminForm.invalid) {
+      this.toastService.warning('⚠️ Completa todos los campos del administrador');
+      return;
+    }
     
     const form = this.nuevoAdminForm.value;
     
@@ -199,22 +204,22 @@ export class PanelAdminComponent implements OnInit {
     const dniUnico = await this.dniUnicoValidator(form.dni!);
     
     if (!emailUnico) {
-      alert('❌ El email ya está registrado por otro usuario.');
+      this.toastService.emailDuplicado();
       return;
     }
     
     if (!contraseñaUnica) {
-      alert('❌ La contraseña ya está en uso por otro usuario.');
+      this.toastService.passwordDuplicado();
       return;
     }
     
     if (!dniUnico) {
-      alert('❌ El DNI ya está registrado por otro usuario.');
+      this.toastService.dniDuplicado();
       return;
     }
     
     if (!form.imagenPerfil) {
-      alert('❌ Debe seleccionar una imagen de perfil.');
+      this.toastService.error('❌ Debe seleccionar una imagen de perfil.');
       return;
     }
     
@@ -226,26 +231,29 @@ export class PanelAdminComponent implements OnInit {
       }
 
       // Aquí llamás tu servicio para crear Admin
-      await this.empleadosService.crearAdmin({ ...form, imagenPerfil: fotoUrl });
-      alert('Administrador creado!');
+      const adminCreado = await this.empleadosService.crearAdmin({ ...form, imagenPerfil: fotoUrl });
+      this.toastService.cuentaCreada('administrador', `${form.nombre} ${form.apellido}`);
       this.nuevoAdminForm.reset();
       this.imagenPreview = null;
       this.cargarAdministradores(); // Recargar lista de administradores
     } catch (error) {
       console.error(error);
-      alert('Error al crear el administrador');
+      this.toastService.error('❌ Error al crear el administrador. Intente nuevamente.');
     }
   }
 
   async crearEmpleado() {
-    if (this.nuevoEmpleadoForm.invalid) return alert('Completa todos los campos del empleado');
+    if (this.nuevoEmpleadoForm.invalid) {
+      this.toastService.warning('⚠️ Completa todos los campos del empleado');
+      return;
+    }
     
     const form = this.nuevoEmpleadoForm.value;
     
     // Validación adicional para evitar especialidad "administrador"
     const especialidad = form.especialidad?.toLowerCase();
     if (especialidad === 'administrador') {
-      alert('❌ No se puede crear un empleado con especialidad "administrador". Use el formulario correspondiente.');
+      this.toastService.especialidadAdministrador();
       return;
     }
     
@@ -255,22 +263,22 @@ export class PanelAdminComponent implements OnInit {
     const dniUnico = await this.dniUnicoValidator(form.dni!);
     
     if (!emailUnico) {
-      alert('❌ El email ya está registrado por otro usuario.');
+      this.toastService.emailDuplicado();
       return;
     }
     
     if (!contraseñaUnica) {
-      alert('❌ La contraseña ya está en uso por otro usuario.');
+      this.toastService.passwordDuplicado();
       return;
     }
     
     if (!dniUnico) {
-      alert('❌ El DNI ya está registrado por otro usuario.');
+      this.toastService.dniDuplicado();
       return;
     }
     
     if (!form.imagenPerfil) {
-      alert('❌ Debe seleccionar una imagen de perfil.');
+      this.toastService.error('❌ Debe seleccionar una imagen de perfil.');
       return;
     }
     
@@ -281,19 +289,22 @@ export class PanelAdminComponent implements OnInit {
         fotoUrl = await this.empleadosService.subirImagen(form.imagenPerfil, `perfil-${Date.now()}`);
       }
 
-      await this.empleadosService.crearEmpleado({ ...form, imagenPerfil: fotoUrl });
-      alert('Empleado creado!');
+      const empleadoCreado = await this.empleadosService.crearEmpleado({ ...form, imagenPerfil: fotoUrl });
+      this.toastService.cuentaCreada('especialista', `${form.nombre} ${form.apellido}`);
       this.nuevoEmpleadoForm.reset();
       this.imagenPreview = null;
       this.cargarEmpleados();
     } catch (error) {
       console.error(error);
-      alert('Error al crear el empleado');
+      this.toastService.error('❌ Error al crear el empleado. Intente nuevamente.');
     }
   }
 
   async crearPaciente() {
-    if (this.nuevoPacienteForm.invalid) return alert('Completa todos los campos del paciente');
+    if (this.nuevoPacienteForm.invalid) {
+      this.toastService.warning('⚠️ Completa todos los campos del paciente');
+      return;
+    }
     
     const form = this.nuevoPacienteForm.value;
     
@@ -303,22 +314,22 @@ export class PanelAdminComponent implements OnInit {
     const dniUnico = await this.dniUnicoValidator(form.dni!);
     
     if (!emailUnico) {
-      alert('❌ El email ya está registrado por otro usuario.');
+      this.toastService.emailDuplicado();
       return;
     }
     
     if (!contraseñaUnica) {
-      alert('❌ La contraseña ya está en uso por otro usuario.');
+      this.toastService.passwordDuplicado();
       return;
     }
     
     if (!dniUnico) {
-      alert('❌ El DNI ya está registrado por otro usuario.');
+      this.toastService.dniDuplicado();
       return;
     }
     
     if (!form.foto1 || !form.foto2) {
-      alert('❌ Debe seleccionar ambas fotos del paciente.');
+      this.toastService.error('❌ Debe seleccionar ambas fotos del paciente.');
       return;
     }
     
@@ -333,7 +344,7 @@ export class PanelAdminComponent implements OnInit {
         foto2Url = await this.pacientesService.subirImagen(form.foto2, `foto2-${Date.now()}`);
       }
 
-      await this.pacientesService.crearPaciente({ 
+      const pacienteCreado = await this.pacientesService.crearPaciente({ 
         nombre: form.nombre!,   // ! asegura que no es null/undefined
         apellido: form.apellido || '',
         dni: form.dni || 0,
@@ -343,12 +354,12 @@ export class PanelAdminComponent implements OnInit {
         foto1: foto1Url,
         foto2: foto2Url
       });
-      alert('Paciente creado!');
+      this.toastService.cuentaCreada('paciente', `${form.nombre} ${form.apellido}`);
       this.nuevoPacienteForm.reset();
       this.cargarPacientes();
     } catch (error) {
       console.error(error);
-      alert('Error al crear el paciente');
+      this.toastService.error('❌ Error al crear el paciente. Intente nuevamente.');
     }
   }
 

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { PacientesService, Paciente } from '../../services/pacientes.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-paciente',
@@ -16,7 +17,10 @@ export class PacienteComponent {
   imagen1Preview: string | null = null;
   imagen2Preview: string | null = null;
 
-  constructor(private pacientesService: PacientesService) { }
+  constructor(
+    private pacientesService: PacientesService,
+    private toastService: ToastService
+  ) { }
 
   pacienteForm = this.fb.group({
     nombre: ['', Validators.required],
@@ -82,17 +86,20 @@ export class PacienteComponent {
     const duplicados = await this.pacientesService.validarDuplicados(email, dni, contraseña);
 
      if (duplicados.dni) {
-      alert('❌ Ya existe un paciente con este DNI.');
+      this.toastService.dniDuplicado();
+      this.loading = false;
       return 0;
     }
 
     if (duplicados.email) {
-      alert('❌ Ya existe un paciente con este email.');
+      this.toastService.emailDuplicado();
+      this.loading = false;
       return 0;
     }
    
     if (duplicados.contraseña) {
-      alert('❌ Ya existe un paciente con esta contraseña.');
+      this.toastService.passwordDuplicado();
+      this.loading = false;
       return 0;
     }
 
@@ -125,12 +132,18 @@ export class PacienteComponent {
 
     try {
       const pacienteCreado = await this.pacientesService.crearPaciente(nuevoPaciente);
-      alert(`Paciente creado con ID: ${pacienteCreado.id}`);
+      
+      // Toast de éxito médico
+      this.toastService.cuentaCreada('paciente', `${nuevoPaciente.nombre} ${nuevoPaciente.apellido}`);
+      
       this.pacienteForm.reset();
+      this.imagen1Preview = null;
+      this.imagen2Preview = null;
       return pacienteCreado.id || 0;
     } catch (error) {
       console.error(error);
-      alert('Error al crear el paciente');
+      this.toastService.error('❌ Error al crear la cuenta de paciente. Intente nuevamente.');
+      this.loading = false;
       return 0;
     } finally {
       this.loading = false;
