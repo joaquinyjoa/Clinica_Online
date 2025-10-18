@@ -1,1 +1,371 @@
-<p>panel-admin works!</p>
+<div class="panel-admin">
+
+  <!-- Overlay con Spinner Material -->
+  <div *ngIf="loading" class="overlay">
+    <mat-progress-spinner 
+      class="spinner-center" 
+      mode="indeterminate" 
+      diameter="50" 
+      strokeWidth="4" 
+      color="primary">
+    </mat-progress-spinner>
+  </div>
+
+  <h1>Panel de Administrador</h1>
+
+  <!-- Selector de tipo de usuario -->
+  <section class="tipo-usuario">
+    <label>
+      <input type="radio" name="tipo" value="admin" [(ngModel)]="crearTipo"> Crear Administrador
+    </label>
+    <label>
+      <input type="radio" name="tipo" value="empleado" [(ngModel)]="crearTipo"> Crear Empleado
+    </label>
+    <label>
+      <input type="radio" name="tipo" value="paciente" [(ngModel)]="crearTipo"> Crear Paciente
+    </label>
+  </section>
+
+  <hr>
+
+  <!-- Lista de Administradores -->
+  <section class="administradores-list" *ngIf="administradores.length && crearTipo === 'admin'">
+    <h2>Administradores Registrados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Edad</th>
+          <th>DNI</th>
+          <th>Email</th>
+          <th>Imagen Perfil</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let admin of administradores">
+          <td>{{ admin.nombre }}</td>
+          <td>{{ admin.apellido }}</td>
+          <td>{{ admin.edad }}</td>
+          <td>{{ admin.dni }}</td>
+          <td>{{ admin.email }}</td>
+          <td>
+            <img *ngIf="admin.imagenPerfil && admin.imagenPerfil.trim() !== ''" 
+                 [src]="admin.imagenPerfil" 
+                 alt="Perfil" 
+                 width="50" 
+                 height="50" 
+                 style="border-radius: 50%; object-fit: cover;"
+                 (error)="$event.target.style.display='none'">
+            <span *ngIf="!admin.imagenPerfil || admin.imagenPerfil.trim() === ''">Sin imagen</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Lista de Empleados -->
+  <section class="empleados-list" *ngIf="empleados.length && crearTipo === 'empleado'">
+    <h2>Empleados Registrados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Edad</th>
+          <th>DNI</th>
+          <th>Especialidad</th>
+          <th>Email</th>
+          <th>Imagen Perfil</th>
+          <th>Aprobado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let empleado of empleados">
+          <td>{{ empleado.nombre }}</td>
+          <td>{{ empleado.apellido }}</td>
+          <td>{{ empleado.edad }}</td>
+          <td>{{ empleado.dni }}</td>
+          <td>{{ empleado.especialidad }}</td>
+          <td>{{ empleado.email }}</td>
+          <td>
+            <img *ngIf="empleado.imagenPerfil && empleado.imagenPerfil.trim() !== ''" 
+                 [src]="empleado.imagenPerfil" 
+                 alt="Perfil" 
+                 width="50" 
+                 height="50" 
+                 style="border-radius: 50%; object-fit: cover;"
+                 (error)="$event.target.style.display='none'">
+            <span *ngIf="!empleado.imagenPerfil || empleado.imagenPerfil.trim() === ''">Sin imagen</span>
+          </td>
+          <td>{{ empleado.aprobado ? 'Sí' : 'No' }}</td>
+          <td>
+            <button (click)="toggleAprobado(empleado)" [disabled]="loading">
+              <span>{{ empleado.aprobado ? 'Desaprobar' : 'Aprobar' }}</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Lista de Pacientes -->
+  <section class="pacientes-list" *ngIf="pacientes.length && crearTipo === 'paciente'">
+    <h2>Pacientes Registrados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>DNI</th>
+          <th>Email</th>
+          <th>Obra Social</th>
+          <th>Foto 1</th>
+          <th>Foto 2</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let paciente of pacientes">
+          <td>{{ paciente.nombre }}</td>
+          <td>{{ paciente.apellido }}</td>
+          <td>{{ paciente.dni }}</td>
+          <td>{{ paciente.email }}</td>
+          <td>{{ paciente.obraSocial }}</td>
+          <td>
+            <img *ngIf="paciente.foto1 && paciente.foto1.trim() !== ''" 
+                 [src]="paciente.foto1" 
+                 alt="Foto 1" 
+                 width="50" 
+                 height="50" 
+                 style="border-radius: 10%; object-fit: cover;"
+                 (error)="$event.target.style.display='none'">
+            <span *ngIf="!paciente.foto1 || paciente.foto1.trim() === ''">Sin foto</span>
+          </td>
+          <td>
+            <img *ngIf="paciente.foto2 && paciente.foto2.trim() !== ''" 
+                 [src]="paciente.foto2" 
+                 alt="Foto 2" 
+                 width="50" 
+                 height="50" 
+                 style="border-radius: 10%; object-fit: cover;"
+                 (error)="$event.target.style.display='none'">
+            <span *ngIf="!paciente.foto2 || paciente.foto2.trim() === ''">Sin foto</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr>
+
+  <!-- Formulario Nuevo Administrador -->
+  <section *ngIf="crearTipo === 'admin'" class="nuevo-admin">
+    <h2>Crear Nuevo Administrador</h2>
+    <form [formGroup]="nuevoAdminForm" (ngSubmit)="crearAdmin()">
+      <div>
+        <label>Nombre</label>
+        <input type="text" formControlName="nombre">
+        <small *ngIf="nuevoAdminForm.get('nombre')?.touched && nuevoAdminForm.get('nombre')?.invalid">
+          Nombre obligatorio
+        </small>
+      </div>
+      <div>
+        <label>Apellido</label>
+        <input type="text" formControlName="apellido">
+        <small *ngIf="nuevoAdminForm.get('apellido')?.touched && nuevoAdminForm.get('apellido')?.invalid">
+          Apellido obligatorio
+        </small>
+      </div>
+      <div>
+        <label>Edad</label>
+        <input type="number" formControlName="edad">
+        <small *ngIf="nuevoAdminForm.get('edad')?.touched && nuevoAdminForm.get('edad')?.invalid">
+          Edad entre 18 y 120
+        </small>
+      </div>
+      <div>
+        <label>DNI</label>
+        <input type="number" formControlName="dni">
+        <small *ngIf="nuevoAdminForm.get('dni')?.touched && nuevoAdminForm.get('dni')?.hasError('required')">
+          DNI obligatorio
+        </small>
+        <small *ngIf="nuevoAdminForm.get('dni')?.touched && nuevoAdminForm.get('dni')?.hasError('dniInvalido')" class="error-dni">
+          ❌ El DNI debe tener máximo 8 dígitos y ser mayor a 0
+        </small>
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" formControlName="email">
+        <small *ngIf="nuevoAdminForm.get('email')?.touched && nuevoAdminForm.get('email')?.invalid">
+          Email inválido
+        </small>
+      </div>
+      <div>
+        <label>Contraseña</label>
+        <input type="password" formControlName="contraseña">
+        <small *ngIf="nuevoAdminForm.get('contraseña')?.touched && nuevoAdminForm.get('contraseña')?.invalid">
+          Contraseña mínima 6 caracteres
+        </small>
+      </div>
+      <div>
+        <label>Imagen de Perfil</label>
+        <input type="file" (change)="subirImagenEmpleado($event, 'administrador')" >
+        <small *ngIf="nuevoAdminForm.get('imagenPerfil')?.touched && nuevoAdminForm.get('imagenPerfil')?.invalid">
+          ❌ Imagen de perfil obligatoria
+        </small>
+        <div *ngIf="imagenPreview" class="preview">
+          <img [src]="imagenPreview" alt="Imagen de perfil" width="100">
+        </div>
+      </div>
+      <button type="submit" [disabled]="nuevoAdminForm.invalid || loading">
+        <span>Crear Administrador</span>
+      </button>
+    </form>
+  </section>
+
+  <!-- Formulario Nuevo Empleado -->
+  <section *ngIf="crearTipo === 'empleado'" class="nuevo-empleado">
+    <h2>Crear Nuevo Especialista</h2>
+    <form [formGroup]="nuevoEmpleadoForm" (ngSubmit)="crearEmpleado()">
+      <div>
+        <label>Nombre</label>
+        <input type="text" formControlName="nombre">
+        <small *ngIf="nuevoEmpleadoForm.get('nombre')?.touched && nuevoEmpleadoForm.get('nombre')?.invalid">
+          Nombre obligatorio
+        </small>
+      </div>
+      <div>
+        <label>Apellido</label>
+        <input type="text" formControlName="apellido">
+        <small *ngIf="nuevoEmpleadoForm.get('apellido')?.touched && nuevoEmpleadoForm.get('apellido')?.invalid">
+          Apellido obligatorio
+        </small>
+      </div>
+      <div>
+        <label>Edad</label>
+        <input type="number" formControlName="edad">
+        <small *ngIf="nuevoEmpleadoForm.get('edad')?.touched && nuevoEmpleadoForm.get('edad')?.invalid">
+          Edad debe ser entre 18 y 120
+        </small>
+      </div>
+      <div>
+        <label>DNI</label>
+        <input type="number" formControlName="dni">
+        <small *ngIf="nuevoEmpleadoForm.get('dni')?.touched && nuevoEmpleadoForm.get('dni')?.hasError('required')">
+          DNI obligatorio
+        </small>
+        <small *ngIf="nuevoEmpleadoForm.get('dni')?.touched && nuevoEmpleadoForm.get('dni')?.hasError('dniInvalido')" class="error-dni">
+          ❌ El DNI debe tener máximo 8 dígitos y ser mayor a 0
+        </small>
+      </div>
+      <div>
+        <label>Especialidad</label>
+        <input type="text" formControlName="especialidad">
+        <small *ngIf="nuevoEmpleadoForm.get('especialidad')?.touched && nuevoEmpleadoForm.get('especialidad')?.hasError('required')">
+          Especialidad obligatoria
+        </small>
+        <small *ngIf="nuevoEmpleadoForm.get('especialidad')?.touched && nuevoEmpleadoForm.get('especialidad')?.hasError('noAdministrador')" class="error-administrador">
+          ❌ No se puede registrar como "administrador". Use el formulario correspondiente.
+        </small>
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" formControlName="email">
+        <small *ngIf="nuevoEmpleadoForm.get('email')?.touched && nuevoEmpleadoForm.get('email')?.invalid">
+          Email inválido
+        </small>
+      </div>
+      <div>
+        <label>Contraseña</label>
+        <input type="password" formControlName="contraseña">
+        <small *ngIf="nuevoEmpleadoForm.get('contraseña')?.touched && nuevoEmpleadoForm.get('contraseña')?.invalid">
+          Contraseña mínima 6 caracteres
+        </small>
+      </div>
+      <div>
+        <label>Imagen de Perfil</label>
+        <input type="file" (change)="subirImagenEmpleado($event, 'empleado')" >
+        <small *ngIf="nuevoEmpleadoForm.get('imagenPerfil')?.touched && nuevoEmpleadoForm.get('imagenPerfil')?.invalid">
+          ❌ Imagen de perfil obligatoria
+        </small>
+        <div *ngIf="imagenPreview" class="preview">
+          <img [src]="imagenPreview" alt="Imagen de perfil" width="100">
+        </div>
+      </div>
+      <button type="submit" [disabled]="nuevoEmpleadoForm.invalid || loading">
+        <span>Crear Empleado</span>
+      </button>
+    </form>
+  </section>
+
+  <!-- Formulario Nuevo Paciente -->
+  <section *ngIf="crearTipo === 'paciente'" class="nuevo-paciente">
+    <h2>Crear Nuevo Paciente</h2>
+    <form [formGroup]="nuevoPacienteForm" (ngSubmit)="crearPaciente()">
+      <div>
+        <label>Nombre</label>
+        <input type="text" formControlName="nombre">
+        <small *ngIf="nuevoPacienteForm.get('nombre')?.touched && nuevoPacienteForm.get('nombre')?.invalid">
+          Nombre obligatorio
+        </small>
+      </div>
+      <div>
+        <label>Apellido</label>
+        <input type="text" formControlName="apellido">
+        <small *ngIf="nuevoPacienteForm.get('apellido')?.touched && nuevoPacienteForm.get('apellido')?.invalid">
+          Apellido obligatorio
+        </small>
+      </div>
+      <div>
+        <label>DNI</label>
+        <input type="number" formControlName="dni">
+        <small *ngIf="nuevoPacienteForm.get('dni')?.touched && nuevoPacienteForm.get('dni')?.hasError('required')">
+          DNI obligatorio
+        </small>
+        <small *ngIf="nuevoPacienteForm.get('dni')?.touched && nuevoPacienteForm.get('dni')?.hasError('dniInvalido')" class="error-dni">
+          ❌ El DNI debe tener máximo 8 dígitos y ser mayor a 0
+        </small>
+      </div>
+      <div>
+        <label>Obra Social</label>
+        <input type="text" formControlName="obraSocial">
+        <small *ngIf="nuevoPacienteForm.get('obraSocial')?.touched && nuevoPacienteForm.get('obraSocial')?.invalid">
+          Obra Social obligatoria
+        </small>
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" formControlName="email">
+        <small *ngIf="nuevoPacienteForm.get('email')?.touched && nuevoPacienteForm.get('email')?.invalid">
+          Email inválido
+        </small>
+      </div>
+      <div>
+        <label>Contraseña</label>
+        <input type="password" formControlName="contraseña">
+        <small *ngIf="nuevoPacienteForm.get('contraseña')?.touched && nuevoPacienteForm.get('contraseña')?.invalid">
+          Contraseña mínima 6 caracteres
+        </small>
+      </div>
+      <div>
+        <label>Foto 1</label>
+        <input type="file" (change)="subirImagenPaciente($event,'foto1')">
+        <small *ngIf="nuevoPacienteForm.get('foto1')?.touched && nuevoPacienteForm.get('foto1')?.invalid">
+          ❌ Primera foto obligatoria
+        </small>
+      </div>
+      <div>
+        <label>Foto 2</label>
+        <input type="file" (change)="subirImagenPaciente($event,'foto2')">
+        <small *ngIf="nuevoPacienteForm.get('foto2')?.touched && nuevoPacienteForm.get('foto2')?.invalid">
+          ❌ Segunda foto obligatoria
+        </small>
+      </div>
+      <button type="submit" [disabled]="nuevoPacienteForm.invalid || loading">
+        <span>Crear Paciente</span>
+      </button>
+    </form>
+  </section>
+
+</div>

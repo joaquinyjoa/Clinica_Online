@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { EmpleadoService, Empleado } from '../../services/empleados.service';
+import { EmpleadosService, Empleado } from '../../services/empleados.service';
 
 @Component({
   selector: 'app-especialista',
@@ -12,6 +12,9 @@ import { EmpleadoService, Empleado } from '../../services/empleados.service';
   styleUrls: ['./especialista.component.scss']
 })
 export class EspecialistaComponent {
+
+  // Indicador global de carga para este componente (por ejemplo, cuando se envía el formulario)
+  loading = false;
 
   fb = new FormBuilder();
   especialidadesDisponibles = ['Cardiología', 'Dermatología', 'Odontología'];
@@ -38,7 +41,7 @@ export class EspecialistaComponent {
     imagenPerfil: [null as File | null, Validators.required]
   });
 
-  constructor(private empleadoService: EmpleadoService) {}
+  constructor(private empleadoService: EmpleadosService) {}
 
   get f() { return this.especialistaForm.controls; }
 
@@ -64,17 +67,20 @@ export class EspecialistaComponent {
   }
 
  async onSubmit() {
-  try {
-      const id = await this.crearEspecialista();
-      if (id === 0) return; // ❌ Detener la ejecución si hubo error
+   this.loading = true;
+   try {
+     const id = await this.crearEspecialista();
+     if (id === 0) return; // ❌ Detener la ejecución si hubo error
 
-      // ✅ Si id es válido, continuar con la lógica, por ejemplo:
-      alert('Especialista creado correctamente, ID: ' + id);
-      // aquí podrías navegar al login solo si id != 0
-    } catch (error) {
-      console.error(error);
-    }
-  }
+     // ✅ Si id es válido, continuar con la lógica, por ejemplo:
+     alert('Especialista creado correctamente, ID: ' + id);
+     // aquí podrías navegar al login solo si id != 0
+   } catch (error) {
+     console.error(error);
+   } finally {
+     this.loading = false;
+   }
+ }
 
   async crearEspecialista(): Promise<number> {
 
@@ -145,7 +151,7 @@ export class EspecialistaComponent {
 
     try {
       
-      const especialistaCreado = await this.empleadoService.crearEspecialista(nuevoEspecialista);
+      const especialistaCreado = await this.empleadoService.crearEmpleado(nuevoEspecialista);
       alert(`✅ Especialista creado con ID: ${especialistaCreado.id}`);
       // Reset completo del formulario
       this.especialistaForm.reset();

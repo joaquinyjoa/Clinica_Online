@@ -4,9 +4,6 @@
     <button 
       type="button" 
       class="btn btn-primary btn-lg toggle-btn login-btn" 
-      data-toggle="button" 
-      aria-pressed="false" 
-      autocomplete="off"
       (click)="NavegarLogin()">
       Login
     </button>
@@ -14,11 +11,18 @@
     <button 
       type="button" 
       class="btn btn-outline-light btn-lg toggle-btn register-btn" 
-      data-toggle="button" 
-      aria-pressed="false" 
-      autocomplete="off"
       (click)="NavegarRegistro()">
       Registrarse
     </button>
+  </div>
+
+  <!-- Overlay con Spinner Material -->
+  <div class="overlay" *ngIf="loading">
+    <mat-progress-spinner 
+      mode="indeterminate" 
+      color="primary" 
+      diameter="50" 
+      strokeWidth="4">
+    </mat-progress-spinner>
   </div>
 </div>

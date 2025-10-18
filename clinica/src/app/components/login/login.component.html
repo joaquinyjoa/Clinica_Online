@@ -14,14 +14,30 @@
     <small *ngIf="f.password.touched && f.password.errors?.['minlength']">Mínimo 6 caracteres</small>
   </div>
 
-  <button type="submit">Ingresar</button>
+  <button type="submit" [disabled]="loading">
+    <span>Ingresar</span>
+  </button>
 
   <hr>
 
   <!-- Botones de acceso rápido -->
   <div style="margin-top: 10px;">
-    <button type="button" (click)="loginRapido('joaquinalfredogreco@gmail.com','123456A')">Acceso rápido paciente</button>
-    <button type="button" (click)="loginRapido('usuario2@example.com','123456')">Acceso rápido administrador</button>
+      <button type="button" (click)="loginRapido('joaquinalfredogreco@gmail.com','123456A')" [disabled]="loading">
+        <span>Acceso rápido paciente</span>
+      </button>
+      <button type="button" (click)="loginRapido('a@gmail.com','123456E')" [disabled]="loading">  
+        <span>Acceso rápido administrador</span>
+      </button>
+  </div>
+
+  <!-- Overlay con Spinner Material -->
+  <div class="overlay" *ngIf="loading">
+    <mat-progress-spinner 
+      mode="indeterminate" 
+      color="primary" 
+      diameter="50" 
+      strokeWidth="4">
+    </mat-progress-spinner>
   </div>
 
 </form>

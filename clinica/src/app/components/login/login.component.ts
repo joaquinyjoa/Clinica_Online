@@ -3,14 +3,16 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { PacientesService, Paciente } from '../../services/pacientes.service';
-import { EmpleadoService, Empleado } from '../../services/empleados.service';
+import { EmpleadosService, Empleado } from '../../services/empleados.service';
 import { Router } from '@angular/router';
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
-  templateUrl: './login.component.html'
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatProgressSpinnerModule],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
 
@@ -25,9 +27,22 @@ export class LoginComponent {
 
   constructor(
     private pacientesService: PacientesService,
-    private empleadoService: EmpleadoService,
+    private empleadosService: EmpleadosService,
     private router: Router
   ) {}
+  loading = false;
+
+  private async navigateWithSpinner(target: string): Promise<void> {
+    this.loading = true;
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        void this.router.navigate([target]).finally(() => {
+          this.loading = false;
+          resolve();
+        });
+      }, 3000);
+    });
+  }
 
   async onSubmit() {
   if (this.loginForm.invalid) {
@@ -35,6 +50,7 @@ export class LoginComponent {
     alert('⚠️ Por favor, completá todos los campos correctamente.');
     return;
   }
+    this.loading = true;
 
   const { email: rawEmail, password: rawPassword } = this.loginForm.value;
   const email: string = rawEmail || '';
@@ -42,7 +58,7 @@ export class LoginComponent {
 
   try {
     // Buscar en pacientes
-    const paciente: Paciente | null = await this.pacientesService.buscarPaciente(email, password);
+    const paciente: Paciente | null = await this.pacientesService.login(email, password);
 
     if (paciente) {
       // Verifico que el mail esté verificado
@@ -57,7 +73,7 @@ export class LoginComponent {
     }
 
     // Buscar en especialistas
-    const empleado: Empleado | null = await this.empleadoService.buscarEspecialista(email, password);
+    const empleado: Empleado | null = await this.empleadosService.login(email, password);
 
     if (empleado) {
       // Validar ambas condiciones
@@ -72,12 +88,14 @@ export class LoginComponent {
       }
 
       if (empleado.especialidad?.toLowerCase() === 'administrador') {
-          this.router.navigate(['/panel-admin']);
+          alert (`✅ Bienvenido administrador ${empleado.nombre}`);
+          await this.navigateWithSpinner('/panel-admin');
       }
-
-
-      alert(`✅ Bienvenido especialista ${empleado.nombre}`);
-      // Aquí podrías redirigir al home de especialistas
+      else
+        {
+          alert(`✅ Bienvenido especialista ${empleado.nombre}`);
+        }
+     
       return;
     }
 
@@ -86,6 +104,8 @@ export class LoginComponent {
   } catch (error) {
     console.error(error);
     alert('Error al iniciar sesión');
+    } finally {
+      this.loading = false;
   }
 }
 

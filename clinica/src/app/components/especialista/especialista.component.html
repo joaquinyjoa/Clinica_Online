@@ -75,4 +75,10 @@
     </div>
   </div>
 
+  <div style="margin-top: 12px;">
+    <button type="button" (click)="onSubmit()" [disabled]="loading || especialistaForm.invalid">
+      <span *ngIf="loading" class="spinner"></span>
+      <span *ngIf="!loading">Crear Especialista</span>
+    </button>
+  </div>
 </form>

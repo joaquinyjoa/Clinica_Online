@@ -12,6 +12,7 @@ import { PacientesService, Paciente } from '../../services/pacientes.service';
 })
 export class PacienteComponent {
   fb = new FormBuilder();
+  loading = false;
 
   constructor(private pacientesService: PacientesService) { }
 
@@ -58,6 +59,7 @@ export class PacienteComponent {
   // Crear paciente y subir imágenes
   async crearPaciente() {
     if (!this.validarFormulario()) return 0; // ❌ Detener si no es válido
+    this.loading = true;
 
     const email = this.pacienteForm.value.email ;
     const dni = Number(this.pacienteForm.value.dni) ;
@@ -115,7 +117,10 @@ export class PacienteComponent {
     } catch (error) {
       console.error(error);
       alert('Error al crear el paciente');
-       return 0; 
+      return 0;
+    } finally {
+      this.loading = false;
     }
   }
+
 }

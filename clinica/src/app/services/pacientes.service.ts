@@ -21,6 +21,7 @@ export class PacientesService {
 
   private table = 'pacientes';
   private storageBucket = 'pacientes-images'; // nombre del bucket en Supabase Storage
+  public usuarioActual: Paciente | null = null;
 
   constructor() { }
 
@@ -28,18 +29,31 @@ export class PacientesService {
   async subirImagen(file: File, nombreArchivo: string): Promise<string> {
     // Reemplazamos espacios en el nombre
     nombreArchivo = nombreArchivo.replace(/\s/g, '_');
+    const archivoCompleto = `foto-${Date.now()}-${nombreArchivo}`;
 
     // Subimos
-    const { error: uploadError } = await supabase
+    const { data, error: uploadError } = await supabase
       .storage
       .from(this.storageBucket)
-      .upload(`foto1-${Date.now()}-${file.name}`, file, { upsert: true });
+      .upload(archivoCompleto, file, { upsert: true });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('Error subiendo imagen:', uploadError);
+      throw uploadError;
+    }
 
-    // Obtenemos URL pública
-    const { data } = supabase.storage.from(this.storageBucket).getPublicUrl(nombreArchivo);
-    return data?.publicUrl || '';
+    // Intentar primero URL pública
+    const { data: urlData } = supabase.storage
+      .from(this.storageBucket)
+      .getPublicUrl(archivoCompleto);
+    
+    // Si falla, usar URL firmada (válida por 1 año)
+    const { data: signedData, error: signedError } = await supabase.storage
+      .from(this.storageBucket)
+      .createSignedUrl(archivoCompleto, 31536000); // 1 año en segundos
+    
+    const finalUrl = urlData.publicUrl || signedData?.signedUrl || '';
+    return finalUrl;
   }
 
 
@@ -106,6 +120,32 @@ export class PacientesService {
     }
 
     return result;
+  }
+
+  // 🔹 Login de paciente
+  async login(email: string, password: string): Promise<Paciente | null> {
+    const paciente = await this.buscarPaciente(email, password);
+    if (paciente) {
+      this.usuarioActual = paciente; // guardamos el paciente logueado
+      return paciente;
+    }
+    this.usuarioActual = null;
+    return null;
+  }
+
+  // 🔹 Logout
+  logout() {
+    this.usuarioActual = null;
+  }
+
+  // 🔹 Obtener todos los pacientes
+  async obtenerTodos(): Promise<Paciente[]> {
+    const { data, error } = await supabase
+      .from(this.table)
+      .select('*');
+    
+    if (error) throw error;
+    return data || [];
   }
 
 

@@ -1,22 +1,34 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-welcome',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, MatProgressSpinnerModule],
   templateUrl: './welcome.html',
   styleUrls: ['./welcome.scss']
 })
 export class Welcome {
 
   constructor(private router: Router) { }
+  loading = false;
+  private async navigateWithSpinner(target: string) {
+    this.loading = true;
+    // Espera un pequeño tiempo para que el spinner se muestre
+    setTimeout(() => {
+      this.router.navigate([target]).finally(() => {
+        this.loading = false;
+      });
+    }, 3000);
+  }
 
   NavegarLogin() {
-    this.router.navigate(['/login']);
+    void this.navigateWithSpinner('/login');
   }
 
   NavegarRegistro() {
-    this.router.navigate(['/register']);
+    void this.navigateWithSpinner('/register');
   }
 }

@@ -22,6 +22,18 @@
     <label for="acepto">Acepto las condiciones de uso</label>
   </div>
 
-  <button (click)="registrar()" [disabled]="!aceptoCondiciones">Registrarse</button>
-   <button (click)="volver()" [disabled]="!aceptoCondiciones">Volver al home</button>
+  <button (click)="registrar()" [disabled]="!aceptoCondiciones || loading">
+    <span>Registrarse</span>
+  </button>
+  <button (click)="volver()">Volver al home</button>
+
+  <!-- Overlay con Spinner Material -->
+  <div class="overlay" *ngIf="loading">
+    <mat-progress-spinner 
+      mode="indeterminate" 
+      color="primary" 
+      diameter="50" 
+      strokeWidth="4">
+    </mat-progress-spinner>
+  </div>
 </div>
