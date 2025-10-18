@@ -22,6 +22,9 @@ export class EspecialistaComponent {
   agregarNuevaEspecialidad = false; // controla si mostramos el input
   imagenPreview: string | null = null;
 
+  // Key para localStorage
+  private readonly ESPECIALIDADES_KEY = 'especialidades_disponibles';
+
   especialistaForm = this.fb.group({
     nombre: ['', Validators.required],
     apellido: ['', Validators.required],
@@ -41,9 +44,56 @@ export class EspecialistaComponent {
     imagenPerfil: [null as File | null, Validators.required]
   });
 
-  constructor(private empleadoService: EmpleadosService) {}
+  constructor(private empleadoService: EmpleadosService) {
+    this.cargarEspecialidades();
+  }
+
+  // Cargar especialidades desde localStorage
+  private cargarEspecialidades() {
+    const especialidadesGuardadas = localStorage.getItem(this.ESPECIALIDADES_KEY);
+    if (especialidadesGuardadas) {
+      this.especialidadesDisponibles = JSON.parse(especialidadesGuardadas);
+    }
+  }
+
+  // Guardar nueva especialidad en localStorage
+  private guardarEspecialidad(nuevaEspecialidad: string) {
+    const especialidadTrimmed = nuevaEspecialidad.trim();
+    
+    // Verificar que no exista ya (case insensitive)
+    const existe = this.especialidadesDisponibles.some(
+      esp => esp.toLowerCase() === especialidadTrimmed.toLowerCase()
+    );
+    
+    if (!existe && especialidadTrimmed !== '') {
+      this.especialidadesDisponibles.push(especialidadTrimmed);
+      // Ordenar alfabéticamente
+      this.especialidadesDisponibles.sort();
+      // Guardar en localStorage
+      localStorage.setItem(this.ESPECIALIDADES_KEY, JSON.stringify(this.especialidadesDisponibles));
+      console.log(`✅ Nueva especialidad agregada: ${especialidadTrimmed}`);
+      return true;
+    }
+    return false;
+  }
 
   get f() { return this.especialistaForm.controls; }
+
+  // Método público para validar desde el componente padre
+  validarFormulario(): boolean {
+    if (this.especialistaForm.invalid) {
+      this.especialistaForm.markAllAsTouched();
+      return false;
+    }
+    
+    // Validación adicional para nueva especialidad
+    if (this.agregarNuevaEspecialidad && !this.nuevaEspecialidad.trim()) {
+      alert('⚠️ Debes escribir la nueva especialidad antes de continuar.');
+      return false;
+    }
+    
+    return true;
+  }
 
   // Cambiar especialidad
   onEspecialidadChange(event: Event) {
@@ -152,7 +202,19 @@ export class EspecialistaComponent {
     try {
       
       const especialistaCreado = await this.empleadoService.crearEmpleado(nuevoEspecialista);
-      alert(`✅ Especialista creado con ID: ${especialistaCreado.id}`);
+      
+      // Si se agregó una nueva especialidad, guardarla en la lista
+      if (this.agregarNuevaEspecialidad && this.nuevaEspecialidad.trim()) {
+        const especialidadGuardada = this.guardarEspecialidad(this.nuevaEspecialidad);
+        if (especialidadGuardada) {
+          alert(`✅ Especialista creado con ID: ${especialistaCreado.id}\n🆕 Nueva especialidad "${this.nuevaEspecialidad.trim()}" agregada a la lista`);
+        } else {
+          alert(`✅ Especialista creado con ID: ${especialistaCreado.id}`);
+        }
+      } else {
+        alert(`✅ Especialista creado con ID: ${especialistaCreado.id}`);
+      }
+      
       // Reset completo del formulario
       this.especialistaForm.reset();
       this.imagenPreview = null;

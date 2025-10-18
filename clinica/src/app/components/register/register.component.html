@@ -1,31 +1,50 @@
 <div class="register-container">
-  <h1>Registro</h1>
+  <div class="register-card">
+    <h1 class="title">🏥 Registro Clínica Online</h1>
 
-  <!-- Solo mostramos por defecto paciente -->
-  <div class="register-children">
-    <app-paciente *ngIf="tipoUsuario === 'paciente'"></app-paciente>
-    <app-especialista *ngIf="tipoUsuario === 'especialista'"></app-especialista>
+    <!-- Selector de tipo de usuario -->
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="tipoUsuario" value="paciente" 
+               [checked]="tipoUsuario === 'paciente'" 
+               (change)="tipoUsuario='paciente'">
+        👤 Paciente
+      </label>
+      <label>
+        <input type="radio" name="tipoUsuario" value="especialista" 
+               [checked]="tipoUsuario === 'especialista'" 
+               (change)="tipoUsuario='especialista'">
+        👨‍⚕️ Especialista
+      </label>
+    </div>
+
+    <!-- Componentes de registro -->
+    <div class="register-children">
+      <app-paciente *ngIf="tipoUsuario === 'paciente'"></app-paciente>
+      <app-especialista *ngIf="tipoUsuario === 'especialista'"></app-especialista>
+    </div>
+
+    <!-- Términos y condiciones -->
+    <div class="form-group" style="margin-top: 20px;">
+      <label style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+        <input type="checkbox" id="acepto" [(ngModel)]="aceptoCondiciones" 
+               style="width: 18px; height: 18px; accent-color: #17a2b8;">
+        📋 Acepto las condiciones de uso
+      </label>
+    </div>
+
+    <!-- Botones -->
+    <div class="form-buttons">
+      <button class="btn btn-primary" (click)="registrar()" 
+              [disabled]="!puedeRegistrarse">
+        <span *ngIf="!loading">✅ Registrarse</span>
+        <span *ngIf="loading">⏳ Registrando...</span>
+      </button>
+      <button class="btn btn-secondary" (click)="volver()" [disabled]="loading">
+        🏠 Volver al inicio
+      </button>
+    </div>
   </div>
-
-  <!-- Botón opcional para cambiar a especialista -->
-  <div style="margin: 12px 0;">
-    <button *ngIf="tipoUsuario === 'paciente'" (click)="tipoUsuario='especialista'">
-      Quiero registrarme como especialista
-    </button>
-    <button *ngIf="tipoUsuario === 'especialista'" (click)="tipoUsuario='paciente'">
-      Quiero registrarme como paciente
-    </button>
-  </div>
-
-  <div class="terms">
-    <input type="checkbox" id="acepto" [(ngModel)]="aceptoCondiciones">
-    <label for="acepto">Acepto las condiciones de uso</label>
-  </div>
-
-  <button (click)="registrar()" [disabled]="!aceptoCondiciones || loading">
-    <span>Registrarse</span>
-  </button>
-  <button (click)="volver()">Volver al home</button>
 
   <!-- Overlay con Spinner Material -->
   <div class="overlay" *ngIf="loading">

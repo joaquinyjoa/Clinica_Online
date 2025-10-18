@@ -13,6 +13,8 @@ import { PacientesService, Paciente } from '../../services/pacientes.service';
 export class PacienteComponent {
   fb = new FormBuilder();
   loading = false;
+  imagen1Preview: string | null = null;
+  imagen2Preview: string | null = null;
 
   constructor(private pacientesService: PacientesService) { }
 
@@ -42,7 +44,19 @@ export class PacienteComponent {
   subirImagen(event: Event, controlName: 'imagen1' | 'imagen2') {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length) {
-      this.pacienteForm.patchValue({ [controlName]: input.files[0] });
+      const file = input.files[0];
+      this.pacienteForm.patchValue({ [controlName]: file });
+      
+      // Generar preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (controlName === 'imagen1') {
+          this.imagen1Preview = reader.result as string;
+        } else {
+          this.imagen2Preview = reader.result as string;
+        }
+      };
+      reader.readAsDataURL(file);
     }
   }
 

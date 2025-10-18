@@ -1,0 +1,157 @@
+/* DISEÑO CLÍNICA ONLINE - PACIENTE COMPONENT */
+
+.paciente-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Secciones del formulario */
+.form-section {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border: 1px solid rgba(23, 162, 184, 0.2);
+}
+
+.section-title {
+  color: #17a2b8;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 2px solid #17a2b8;
+  padding-bottom: 8px;
+}
+
+/* Filas de formulario */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+/* Grupos de campos */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Campos de entrada */
+.form-group input,
+.form-group select {
+  padding: 12px 15px;
+  border: 2px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #17a2b8;
+  box-shadow: 0 0 10px rgba(23, 162, 184, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Estados de validación */
+.form-group input.ng-invalid.ng-touched,
+.form-group select.ng-invalid.ng-touched {
+  border-color: #e74c3c;
+  background: rgba(231, 76, 60, 0.05);
+}
+
+.form-group input.ng-valid.ng-touched,
+.form-group select.ng-valid.ng-touched {
+  border-color: #27ae60;
+  background: rgba(39, 174, 96, 0.05);
+}
+
+/* Mensajes de error */
+.error-message {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 5px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Contenedor de archivos */
+.file-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.file-input-container input[type="file"] {
+  padding: 10px;
+  border: 2px dashed #17a2b8;
+  border-radius: 10px;
+  background: rgba(23, 162, 184, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-input-container input[type="file"]:hover {
+  border-color: #138496;
+  background: rgba(23, 162, 184, 0.1);
+}
+
+/* Preview de imágenes */
+.file-preview {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.preview-img {
+  max-width: 120px;
+  max-height: 120px;
+  border-radius: 10px;
+  border: 3px solid #17a2b8;
+  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.preview-img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(23, 162, 184, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-title {
+    font-size: 1.1rem;
+  }
+  
+  .form-group input {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+  
+  .preview-img {
+    max-width: 100px;
+    max-height: 100px;
+  }
+}

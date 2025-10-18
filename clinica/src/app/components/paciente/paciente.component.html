@@ -1,50 +1,111 @@
-<form [formGroup]="pacienteForm">
-  <div>
-    <input placeholder="Nombre" formControlName="nombre">
-    <small *ngIf="f.nombre.touched && f.nombre.invalid">Nombre obligatorio</small>
+<form [formGroup]="pacienteForm" class="paciente-form">
+  
+  <!-- Datos personales -->
+  <div class="form-section">
+    <h3 class="section-title">👤 Datos Personales</h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="nombre">📝 Nombre</label>
+        <input id="nombre" type="text" placeholder="Ingresa tu nombre" formControlName="nombre">
+        <div class="error-message" *ngIf="f.nombre.touched && f.nombre.invalid">
+          ⚠️ El nombre es obligatorio
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="apellido">📝 Apellido</label>
+        <input id="apellido" type="text" placeholder="Ingresa tu apellido" formControlName="apellido">
+        <div class="error-message" *ngIf="f.apellido.touched && f.apellido.invalid">
+          ⚠️ El apellido es obligatorio
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="edad">🎂 Edad</label>
+        <input id="edad" type="number" placeholder="Tu edad" formControlName="edad" min="18" max="120">
+        <div class="error-message" *ngIf="f.edad.touched && f.edad.invalid">
+          ⚠️ Edad inválida (mínimo 18 años)
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dni">🆔 DNI</label>
+        <input id="dni" type="number" placeholder="Tu DNI (8 dígitos)" formControlName="dni">
+        <div class="error-message" *ngIf="f.dni.touched && f.dni.invalid">
+          ⚠️ DNI debe tener exactamente 8 números
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div>
-    <input placeholder="Apellido" formControlName="apellido">
-    <small *ngIf="f.apellido.touched && f.apellido.invalid">Apellido obligatorio</small>
+  <!-- Datos médicos -->
+  <div class="form-section">
+    <h3 class="section-title">🏥 Datos Médicos</h3>
+    
+    <div class="form-group">
+      <label for="obraSocial">🩺 Obra Social</label>
+      <input id="obraSocial" type="text" placeholder="Tu obra social" formControlName="obraSocial">
+      <div class="error-message" *ngIf="f.obraSocial.touched && f.obraSocial.invalid">
+        ⚠️ La obra social es obligatoria
+      </div>
+    </div>
   </div>
 
-  <div>
-    <input type="number" placeholder="Edad" formControlName="edad">
-    <small *ngIf="f.edad.touched && f.edad.invalid">Edad inválida</small>
+  <!-- Acceso -->
+  <div class="form-section">
+    <h3 class="section-title">🔐 Datos de Acceso</h3>
+    
+    <div class="form-group">
+      <label for="email">📧 Email</label>
+      <input id="email" type="email" placeholder="tu-email@ejemplo.com" formControlName="email">
+      <div class="error-message" *ngIf="f.email.touched && f.email.invalid">
+        ⚠️ Email inválido
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">🔑 Contraseña</label>
+      <input id="password" type="password" placeholder="Mínimo 6 caracteres" formControlName="password">
+      <div class="error-message" *ngIf="f.password.touched && f.password.invalid">
+        ⚠️ Contraseña: 6-10 caracteres, mayúscula y número
+      </div>
+    </div>
   </div>
 
-  <div>
-    <input placeholder="DNI" formControlName="dni">
-    <small *ngIf="f.dni.touched && f.dni.invalid">DNI debe tener 8 números</small>
+  <!-- Imágenes -->
+  <div class="form-section">
+    <h3 class="section-title">📸 Imágenes de Identificación</h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="imagen1">📷 Imagen 1 (Frontal)</label>
+        <div class="file-input-container">
+          <input id="imagen1" type="file" (change)="subirImagen($event, 'imagen1')" accept="image/*">
+          <div class="file-preview" *ngIf="imagen1Preview">
+            <img [src]="imagen1Preview" alt="Preview Imagen 1" class="preview-img">
+          </div>
+        </div>
+        <div class="error-message" *ngIf="f.imagen1.touched && f.imagen1.invalid">
+          ⚠️ La primera imagen es obligatoria
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="imagen2">📷 Imagen 2 (Perfil)</label>
+        <div class="file-input-container">
+          <input id="imagen2" type="file" (change)="subirImagen($event, 'imagen2')" accept="image/*">
+          <div class="file-preview" *ngIf="imagen2Preview">
+            <img [src]="imagen2Preview" alt="Preview Imagen 2" class="preview-img">
+          </div>
+        </div>
+        <div class="error-message" *ngIf="f.imagen2.touched && f.imagen2.invalid">
+          ⚠️ La segunda imagen es obligatoria
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div>
-    <input placeholder="Obra Social" formControlName="obraSocial">
-    <small *ngIf="f.obraSocial.touched && f.obraSocial.invalid">Obra Social obligatoria</small>
-  </div>
-
-  <div>
-    <input placeholder="Email" formControlName="email">
-    <small *ngIf="f.email.touched && f.email.invalid">Email inválido</small>
-  </div>
-
-  <div>
-    <input type="password" placeholder="Contraseña" formControlName="password">
-    <small *ngIf="f.password.touched && f.password.invalid">
-      Contraseña 6-10 caracteres, mayúscula y número
-    </small>
-  </div>
-
-  <div>
-    <label>Imagen 1:</label>
-    <input type="file" (change)="subirImagen($event, 'imagen1')">
-    <small *ngIf="f.imagen1.touched && f.imagen1.invalid">Imagen obligatoria</small>
-  </div>
-
-  <div>
-    <label>Imagen 2:</label>
-    <input type="file" (change)="subirImagen($event, 'imagen2')">
-    <small *ngIf="f.imagen2.touched && f.imagen2.invalid">Imagen obligatoria</small>
-  </div>
 </form>

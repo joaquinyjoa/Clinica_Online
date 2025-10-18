@@ -29,15 +29,36 @@ export class Register {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
+  // Getter para verificar si el formulario actual es válido
+  get formularioValido(): boolean {
+    if (this.tipoUsuario === 'paciente' && this.pacienteComp) {
+      return this.pacienteComp.pacienteForm.valid;
+    } else if (this.tipoUsuario === 'especialista' && this.especialistaComp) {
+      return this.especialistaComp.especialistaForm.valid;
+    }
+    return false;
+  }
+
+  // Getter para verificar si se puede registrar (formulario válido + condiciones aceptadas)
+  get puedeRegistrarse(): boolean {
+    return this.formularioValido && this.aceptoCondiciones && !this.loading;
+  }
+
   volver() {
     this.router.navigate(['/']); // Navega al home
   }
 
   async registrar() {
     if (!this.aceptoCondiciones) {
-      alert('Debes aceptar las condiciones para registrarte');
+      alert('⚠️ Debes aceptar las condiciones para registrarte');
       return;
     }
+
+    if (!this.formularioValido) {
+      alert('⚠️ Por favor, completa todos los campos correctamente antes de registrarte');
+      return;
+    }
+
     this.loading = true;
     try {
       if (this.tipoUsuario === 'paciente') {

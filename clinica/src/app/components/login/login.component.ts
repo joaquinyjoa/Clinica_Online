@@ -115,4 +115,9 @@ export class LoginComponent {
     this.loginForm.patchValue({ email, password });
   }
 
+  // Método para volver al welcome
+  async volver() {
+    await this.navigateWithSpinner('/welcome');
+  }
+
 }

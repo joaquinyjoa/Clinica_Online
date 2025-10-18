@@ -1,42 +1,172 @@
+/* DISEÑO CLÍNICA ONLINE - REGISTER */
+
+/* Contenedor principal con fondo */
 .register-container {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background: url('/fondoWelcome.jpg') no-repeat center center;
+  background-size: cover;
+  font-family: Arial, sans-serif;
+  animation: fadeIn 1.5s ease-in-out;
+  position: relative;
+  padding: 20px;
+  background-color: #f0f8ff; /* Fallback si no carga la imagen */
 }
 
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card principal */
+.register-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+  max-width: 500px;
+  width: 100%;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(23, 162, 184, 0.3);
+}
+
+/* Título */
+.title {
+  text-align: center;
+  font-size: 2.2rem;
+  color: #17a2b8;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  font-weight: bold;
+  line-height: 1.3;
+  word-spacing: 0.1em;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* Selector de tipo de usuario */
 .radio-group {
-  margin: 1rem 0;
+  margin: 20px 0;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 20px;
+  padding: 15px;
+  background: rgba(23, 162, 184, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(23, 162, 184, 0.2);
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #2c3e50;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.radio-group label:hover {
+  color: #17a2b8;
+  transform: scale(1.05);
+}
+
+.radio-group input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #17a2b8;
+}
+
+/* Botones */
+.form-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
 }
 
 button {
-  padding: 0.5rem 1rem;
+  padding: 15px;
   border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 4px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
-}
-button:hover {
-  background-color: #0056b3;
-}
-
-.register-container {
-  max-width: 500px;
-  margin: 2rem auto;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+.btn-primary {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+  box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.6);
+  background: linear-gradient(135deg, #138496, #117a8b);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(108, 117, 125, 0.6);
+  background: linear-gradient(135deg, #5a6268, #545b62);
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  background: #6c757d !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  position: relative;
+}
+
+/* Indicador de estado del formulario */
+.form-status {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+  border: 1px solid rgba(23, 162, 184, 0.2);
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 0.9rem;
+  color: #e74c3c;
+  transition: color 0.3s ease;
+}
+
+.status-item.valid {
+  color: #27ae60;
+}
+
+/* Contenedor para componentes hijos */
 .register-children {
-  margin-top: 1.5rem;
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(23, 162, 184, 0.05);
+  border-radius: 15px;
+  border: 1px solid rgba(23, 162, 184, 0.2);
 }
 
 /* Overlay para centrar el mat-progress-spinner */
@@ -46,10 +176,31 @@ button:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3); /* Fondo semi-transparente */
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10000;
-  pointer-events: auto; /* Bloquea interacciones mientras carga */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .register-card {
+    margin: 10px;
+    padding: 30px 20px;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  button {
+    font-size: 1rem;
+    padding: 12px;
+  }
+  
+  .radio-group {
+    flex-direction: column;
+    gap: 10px;
+  }
 }

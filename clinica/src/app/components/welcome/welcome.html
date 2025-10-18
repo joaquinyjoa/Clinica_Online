@@ -1,19 +1,63 @@
 <div class="welcome-container">
-  <h1 class="title">Clínica Online</h1>
-  <div class="buttons">
+  
+  <!-- Logo y título principal -->
+  <div class="welcome-header">
+    <div class="logo-container">
+      <h1 class="title">Clínica Online</h1>
+      <p class="subtitle">Tu salud, nuestra prioridad</p>
+    </div>
+  </div>
+
+  <!-- Tarjeta de bienvenida -->
+  <div class="welcome-card">
+    <div class="card-content">
+      <h2 class="welcome-text">🩺 Bienvenido a tu plataforma médica</h2>
+      <p class="description">
+        Accede a nuestros servicios médicos especializados, 
+        agenda citas con profesionales certificados y 
+        mantén un seguimiento completo de tu salud.
+      </p>
+      
+      <!-- Características destacadas -->
+      <div class="features">
+        <div class="feature-item">
+          <span class="feature-icon">👨‍⚕️</span>
+          <span>Especialistas certificados</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">📅</span>
+          <span>Turnos online</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🔒</span>
+          <span>Información segura</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones de acceso -->
+  <div class="access-buttons">
     <button 
       type="button" 
-      class="btn btn-primary btn-lg toggle-btn login-btn" 
+      class="btn btn-primary login-btn" 
       (click)="NavegarLogin()">
-      Login
+      <span class="btn-icon">🔑</span>
+      <span class="btn-text">Iniciar Sesión</span>
     </button>
 
     <button 
       type="button" 
-      class="btn btn-outline-light btn-lg toggle-btn register-btn" 
+      class="btn btn-secondary register-btn" 
       (click)="NavegarRegistro()">
-      Registrarse
+      <span class="btn-icon">📝</span>
+      <span class="btn-text">Registrarse</span>
     </button>
+  </div>
+
+  <!-- Footer informativo -->
+  <div class="welcome-footer">
+    <p>✨ Plataforma médica digital de última generación</p>
   </div>
 
   <!-- Overlay con Spinner Material -->
@@ -25,4 +69,5 @@
       strokeWidth="4">
     </mat-progress-spinner>
   </div>
+  
 </div>
