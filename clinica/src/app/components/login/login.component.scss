@@ -1,6 +1,6 @@
 
-/* Importación de fuentes médicas */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Importación de fuentes médicas optimizada */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 /* Contenedor principal */
 .login-container {
@@ -22,6 +22,16 @@
   text-align: center;
   margin-bottom: 30px;
   animation: slideDown 1.5s ease-out;
+}
+
+/* Contenedor principal horizontal */
+.main-content {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
 }
 
 .logo-container {
@@ -369,12 +379,163 @@ input.error:focus {
     padding: 12px 20px;
     font-size: 1rem;
   }
+}
+
+/* Estilos para el panel de acceso rápido */
+.quick-access-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(23, 162, 184, 0.2);
+  min-width: 350px;
+  animation: slideInRight 1.8s ease-out;
+}
+
+.quick-title {
+  color: #17a2b8;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 25px 0;
+  border-bottom: 2px solid rgba(23, 162, 184, 0.2);
+  padding-bottom: 15px;
+}
+
+.users-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(23, 162, 184, 0.2);
+  border-radius: 15px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.user-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border-color: #17a2b8;
+}
+
+.user-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.user-btn.patient {
+  border-left: 4px solid #28a745;
+}
+
+.user-btn.specialist {
+  border-left: 4px solid #17a2b8;
+}
+
+.user-btn.admin {
+  border-left: 4px solid #dc3545;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  transition: all 0.3s ease;
   
-  .btn-text {
-    font-size: 0.9rem;
+}
+
+.avatar-fallback {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #17a2b8, #20c997);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.user-type {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 400;
+}
+
+/* Animaciones adicionales */
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive para el panel de acceso rápido */
+@media (max-width: 1024px) {
+  .main-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
   }
   
-  input {
-    padding: 12px 15px;
+  .quick-access-panel {
+    min-width: auto;
+    width: 100%;
+    max-width: 450px;
+  }
+  
+  .users-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+}
+
+@media (max-width: 640px) {
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .user-btn {
+    padding: 12px;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
   }
 }

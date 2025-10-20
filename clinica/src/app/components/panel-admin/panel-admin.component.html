@@ -8,6 +8,13 @@
         <h1 class="title">Panel Administrativo</h1>
         <p class="subtitle">Gestión de usuarios del sistema médico</p>
       </div>
+      <button class="logout-btn" 
+              (click)="volverAlLogin()" 
+              [disabled]="loading"
+              title="Volver al Login">
+        <span class="logout-icon">🚪</span>
+        <span class="logout-text">Volver al Login</span>
+      </button>
     </div>
   </div>
 
@@ -111,7 +118,7 @@
             </td>
             <td class="status-cell">
               <span class="status-badge" [class.approved]="empleado.aprobado" [class.pending]="!empleado.aprobado">
-                {{ empleado.aprobado ? '✅ Aprobado' : 'Pendiente' }}
+                {{ empleado.aprobado ? 'Aprobado' : 'Pendiente' }}
               </span>
             </td>
             <td class="action-cell">
@@ -147,6 +154,8 @@
             <th>🏥 Obra Social</th>
             <th>📸 Foto 1</th>
             <th>📸 Foto 2</th>
+            <th>✅ Email Verificado</th>
+            <th>⚙️ Acción</th>
           </tr>
         </thead>
         <tbody>
@@ -171,6 +180,23 @@
                    class="patient-image"
                    (error)="$event.target.style.display='none'">
               <span *ngIf="!paciente.foto2 || paciente.foto2.trim() === ''" class="no-image">📷</span>
+            </td>
+            <td class="status-cell">
+              <span class="status-badge" 
+                    [class.verified]="paciente.emailVerificado === true" 
+                    [class.pending]="paciente.emailVerificado === null || paciente.emailVerificado === false">
+                {{ paciente.emailVerificado === true ? 'Verificado' : 'Pendiente' }}
+              </span>
+            </td>
+            <td class="action-cell">
+              <button class="action-btn" 
+                      [class.verify]="paciente.emailVerificado !== true" 
+                      [class.verified]="paciente.emailVerificado === true"
+                      (click)="toggleEmailVerificado(paciente)" 
+                      [disabled]="loading">
+                <span class="btn-icon">{{ paciente.emailVerificado === true ? '✅' : '📧' }}</span>
+                <span class="btn-text">{{ paciente.emailVerificado === true ? 'Verificado' : 'Verificar' }}</span>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -543,6 +569,9 @@
       </button>
     </form>
   </div>
+
+  <!-- Toast Component -->
+  <app-toast></app-toast>
 
   <!-- Overlay con Spinner Material -->
   <div class="overlay" *ngIf="loading">

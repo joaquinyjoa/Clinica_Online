@@ -5,11 +5,13 @@ import { EmpleadosService, Empleado } from '../../services/empleados.service';
 import { PacientesService, Paciente } from '../../services/pacientes.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ToastService } from '../../services/toast.service';
+import { ToastComponent } from '../toast/toast.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-panel-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatProgressSpinnerModule, ToastComponent],
   templateUrl: './panel-admin.component.html',
   styleUrls: ['./panel-admin.component.scss']
 })
@@ -117,6 +119,32 @@ export class PanelAdminComponent implements OnInit {
     }
   }
 
+  async toggleEmailVerificado(paciente: Paciente) {
+    this.loading = true;
+    try {
+      // Cambia el estado de verificación del email
+      paciente.emailVerificado = !paciente.emailVerificado;
+
+      // Llama al servicio para actualizar en la base de datos
+      await this.pacientesService.actualizarPaciente(paciente);
+
+      // Muestra mensaje de éxito
+      if (paciente.emailVerificado) {
+        this.toastService.success('✅ Email verificado correctamente');
+      } else {
+        this.toastService.info('📧 Email marcado como pendiente');
+      }
+
+      // Recarga la lista para reflejar cambios
+      this.cargarPacientes();
+    } catch (error) {
+      console.error(error);
+      this.toastService.error('❌ Error al actualizar el estado del email');
+    } finally {
+      this.loading = false;
+    }
+  }
+
 
   // Formulario Empleado
   nuevoEmpleadoForm = this.fb.group({
@@ -145,7 +173,8 @@ export class PanelAdminComponent implements OnInit {
   constructor(
     private empleadosService: EmpleadosService,
     private pacientesService: PacientesService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -360,6 +389,19 @@ export class PanelAdminComponent implements OnInit {
     } catch (error) {
       console.error(error);
       this.toastService.error('❌ Error al crear el paciente. Intente nuevamente.');
+    }
+  }
+
+  // Método para volver al login
+  async volverAlLogin() {
+    this.loading = true;
+    try {
+      await this.router.navigate(['/login']);
+      this.toastService.info('👋 Sesión de administrador cerrada');
+    } catch (error) {
+      this.toastService.error('❌ Error al navegar al login');
+    } finally {
+      this.loading = false;
     }
   }
 

@@ -25,6 +25,22 @@ export class PacientesService {
 
   constructor() { }
 
+  // Normaliza distintos tipos que pueda devolver la DB a un booleano claro
+  private coerceBoolean(value: any): boolean {
+    return value === true || value === 'true' || value === 1 || value === '1' || value === 't' || value === 'T';
+  }
+
+  private normalizePaciente(data: any): Paciente {
+    if (!data) return data;
+    try {
+      // Aseguramos que emailVerificado exista y sea booleano
+      data.emailVerificado = this.coerceBoolean(data.emailVerificado);
+    } catch (e) {
+      data.emailVerificado = false;
+    }
+    return data as Paciente;
+  }
+
     // Subir una imagen a Supabase Storage y devolver la URL pública
   async subirImagen(file: File, nombreArchivo: string): Promise<string> {
     // Reemplazamos espacios en el nombre
@@ -66,7 +82,7 @@ export class PacientesService {
       .single();
 
     if (error) throw error;
-    return data;
+    return this.normalizePaciente(data);
   }
 
   // Métodos auxiliares para buscar usuario en Supabase
@@ -79,7 +95,7 @@ export class PacientesService {
       .single();
 
     if (error) return null;
-    return data || null;
+    return this.normalizePaciente(data) || null;
   }
 
  // ✅ Validación de duplicados por campo
@@ -145,7 +161,30 @@ export class PacientesService {
       .select('*');
     
     if (error) throw error;
-    return data || [];
+    if (!data) return [];
+    return data.map((d: any) => this.normalizePaciente(d)) || [];
+  }
+
+  // 🔹 Actualizar paciente
+  async actualizarPaciente(paciente: Paciente): Promise<Paciente> {
+    const { data, error } = await supabase
+      .from(this.table)
+      .update({
+        nombre: paciente.nombre,
+        apellido: paciente.apellido,
+        dni: paciente.dni,
+        obraSocial: paciente.obraSocial,
+        email: paciente.email,
+        emailVerificado: paciente.emailVerificado,
+        foto1: paciente.foto1,
+        foto2: paciente.foto2
+      })
+      .eq('id', paciente.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return this.normalizePaciente(data);
   }
 
 

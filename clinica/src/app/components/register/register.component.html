@@ -2,26 +2,47 @@
   <div class="register-card">
     <h1 class="title">🏥 Registro Clínica Online</h1>
 
-    <!-- Selector de tipo de usuario -->
-    <div class="radio-group">
-      <label>
-        <input type="radio" name="tipoUsuario" value="paciente" 
-               [checked]="tipoUsuario === 'paciente'" 
-               (change)="tipoUsuario='paciente'">
-        👤 Paciente
-      </label>
-      <label>
-        <input type="radio" name="tipoUsuario" value="especialista" 
-               [checked]="tipoUsuario === 'especialista'" 
-               (change)="tipoUsuario='especialista'">
-        👨‍⚕️ Especialista
-      </label>
+    <!-- Selector de tipo de usuario con imágenes -->
+    <div class="user-type-selector">
+      <h2 class="selector-title">🎯 Selecciona tu tipo de cuenta</h2>
+      
+      <div class="type-buttons">
+        <!-- Botón Paciente -->
+        <button 
+          type="button"
+          class="type-btn"
+          [class.active]="tipoUsuario === 'paciente'"
+          (click)="tipoUsuario='paciente'">
+          <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop&crop=face" alt="Paciente" class="type-image">
+          <div class="type-info">
+            <h3>Paciente</h3>
+            <p>Agenda citas y consulta tu historial médico</p>
+          </div>
+        </button>
+
+        <!-- Botón Especialista -->
+        <button 
+          type="button"
+          class="type-btn"
+          [class.active]="tipoUsuario === 'especialista'"
+          (click)="tipoUsuario='especialista'">
+          <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200&h=200&fit=crop&crop=face" alt="Especialista" class="type-image">
+          <div class="type-info">
+            <h3>Especialista</h3>
+            <p>Gestiona consultas y atiende pacientes</p>
+          </div>
+        </button>
+      </div>
     </div>
 
     <!-- Componentes de registro -->
     <div class="register-children">
-      <app-paciente *ngIf="tipoUsuario === 'paciente'"></app-paciente>
-      <app-especialista *ngIf="tipoUsuario === 'especialista'"></app-especialista>
+      @if (tipoUsuario === 'paciente') {
+        <app-paciente></app-paciente>
+      }
+      @if (tipoUsuario === 'especialista') {
+        <app-especialista></app-especialista>
+      }
     </div>
 
     <!-- Términos y condiciones -->
@@ -37,22 +58,32 @@
     <div class="form-buttons">
       <button class="btn btn-primary" (click)="registrar()" 
               [disabled]="!puedeRegistrarse">
-        <span *ngIf="!loading">✅ Registrarse</span>
-        <span *ngIf="loading">⏳ Registrando...</span>
+        @if (!loading) {
+          <span>Registrarse</span>
+        }
+        @if (loading) {
+          <span>Registrando...</span>
+        }
       </button>
       <button class="btn btn-secondary" (click)="volver()" [disabled]="loading">
-        🏠 Volver al inicio
+        Volver al inicio
       </button>
     </div>
   </div>
 
   <!-- Overlay con Spinner Material -->
-  <div class="overlay" *ngIf="loading">
-    <mat-progress-spinner 
-      mode="indeterminate" 
-      color="primary" 
-      diameter="50" 
-      strokeWidth="4">
-    </mat-progress-spinner>
-  </div>
+  @if (loading) {
+    <div class="overlay">
+      <mat-progress-spinner 
+        mode="indeterminate" 
+        color="primary" 
+        diameter="50" 
+        strokeWidth="4">
+      </mat-progress-spinner>
+    </div>
+  }
+
+  <!-- Sistema de toasts médicos -->
+  <app-toast></app-toast>
+
 </div>

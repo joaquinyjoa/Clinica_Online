@@ -1,5 +1,5 @@
-/* Importación de fuentes médicas */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Importación de fuentes médicas optimizada */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 /* Contenedor principal */
 .admin-container {
@@ -64,6 +64,49 @@
   margin: 5px 0 0 0;
   font-weight: 400;
   font-style: italic;
+}
+
+/* Botón volver al login */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.35);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.25);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.logout-icon {
+  font-size: 1.1rem;
+  animation: bounce 2s infinite;
+}
+
+.logout-text {
+  font-weight: 600;
 }
 
 /* Selector de tipo de usuario */
@@ -679,4 +722,179 @@
     width: 40px;
     height: 40px;
   }
+}
+
+/* ===== ESTILOS PARA VERIFICACIÓN DE EMAIL ===== */
+
+.status-cell {
+  text-align: center;
+  padding: 8px 12px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.status-badge.verified {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border-color: #28a745;
+  box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+}
+
+.status-badge.pending {
+  background: linear-gradient(135deg, #ffc107, #fd7e14);
+  color: #212529;
+  border-color: #ffc107;
+  box-shadow: 0 2px 10px rgba(255, 193, 7, 0.3);
+}
+
+.action-cell {
+  text-align: center;
+  padding: 8px 12px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.action-btn:hover::before {
+  left: 100%;
+}
+
+.action-btn.verify {
+  background: linear-gradient(135deg, #17a2b8, #0056b3);
+  color: white;
+  border: 2px solid #17a2b8;
+}
+
+.action-btn.verify:hover {
+  background: linear-gradient(135deg, #138496, #004085);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
+}
+
+.action-btn.verified {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: 2px solid #28a745;
+  cursor: default;
+}
+
+.action-btn.verified:hover {
+  background: linear-gradient(135deg, #218838, #1e7e34);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.btn-text {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Animaciones para cambios de estado */
+.status-badge,
+.action-btn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive para nuevos elementos */
+@media (max-width: 768px) {
+  .action-btn {
+    min-width: 100px;
+    padding: 8px 12px;
+  }
+  
+  .btn-text {
+    font-size: 0.8rem;
+  }
+  
+  .status-badge {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .action-btn {
+    min-width: 80px;
+    padding: 6px 10px;
+  }
+  
+  .btn-icon {
+    font-size: 1rem;
+  }
+  
+  .btn-text {
+    font-size: 0.75rem;
+  }
+  
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 3px 6px;
+  }
+}
+
+/* Animaciones adicionales */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-3px); }
+  60% { transform: translateY(-2px); }
 }

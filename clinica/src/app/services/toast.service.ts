@@ -24,7 +24,10 @@ export class ToastService {
 
   private addToast(toast: ToastMessage): void {
     const currentToasts = this.toastSubject.value;
-    this.toastSubject.next([...currentToasts, toast]);
+    const newToasts = [...currentToasts, toast];
+    
+    // Emitir inmediatamente el nuevo estado
+    this.toastSubject.next(newToasts);
 
     // Auto remove toast after duration
     if (toast.duration !== 0) {
@@ -36,43 +39,47 @@ export class ToastService {
 
   // Métodos públicos para mostrar diferentes tipos de toast
   success(message: string, duration: number = 4000): void {
-    this.addToast({
+    const toast: ToastMessage = {
       id: this.generateId(),
       message,
       type: 'success',
       duration,
       icon: '✅'
-    });
+    };
+    this.addToast(toast);
   }
 
   error(message: string, duration: number = 6000): void {
-    this.addToast({
+    const toast: ToastMessage = {
       id: this.generateId(),
       message,
       type: 'error',
       duration,
       icon: '❌'
-    });
+    };
+    this.addToast(toast);
   }
 
   warning(message: string, duration: number = 5000): void {
-    this.addToast({
+    const toast: ToastMessage = {
       id: this.generateId(),
       message,
       type: 'warning',
       duration,
       icon: '⚠️'
-    });
+    };
+    this.addToast(toast);
   }
 
   info(message: string, duration: number = 4000): void {
-    this.addToast({
+    const toast: ToastMessage = {
       id: this.generateId(),
       message,
       type: 'info',
       duration,
       icon: 'ℹ️'
-    });
+    };
+    this.addToast(toast);
   }
 
   // Métodos específicos para la clínica médica

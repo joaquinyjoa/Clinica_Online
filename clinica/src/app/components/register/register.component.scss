@@ -29,7 +29,7 @@
   border-radius: 20px;
   padding: 40px;
   box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-  max-width: 500px;
+  max-width: 700px;
   width: 100%;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(23, 162, 184, 0.3);
@@ -188,6 +188,7 @@ button:disabled,
   .register-card {
     margin: 10px;
     padding: 30px 20px;
+    max-width: 500px;
   }
   
   .title {
@@ -199,8 +200,105 @@ button:disabled,
     padding: 12px;
   }
   
-  .radio-group {
+  .type-buttons {
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
   }
+  
+  .type-btn {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+    min-width: auto;
+    max-width: none;
+  }
+  
+  .type-image {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+  }
+}
+
+/* Estilos para el selector de tipo de usuario */
+.user-type-selector {
+  margin-bottom: 30px;
+}
+
+.selector-title {
+  text-align: center;
+  color: #17a2b8;
+  font-size: 1.4rem;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+.type-buttons {
+  display: flex;
+  gap: 25px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.type-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid rgba(23, 162, 184, 0.3);
+  border-radius: 15px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  max-width: 320px;
+  min-width: 250px;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.type-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  border-color: #17a2b8;
+}
+
+.type-btn.active {
+  border-color: #17a2b8;
+  background: rgba(23, 162, 184, 0.1);
+  box-shadow: 0 10px 25px rgba(23, 162, 184, 0.3);
+  transform: translateY(-3px);
+}
+
+.type-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.type-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+
+.type-info h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.type-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+  line-height: 1.4;
 }

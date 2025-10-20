@@ -5,16 +5,15 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { PacienteComponent } from '../paciente/paciente.component';
 import { EspecialistaComponent } from '../especialista/especialista.component';
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { NgIf } from '@angular/common';
 import { ToastService } from '../../services/toast.service';
+import { ToastComponent } from '../toast/toast.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule,
      FormsModule,
-     NgIf,
-      RouterModule, PacienteComponent, EspecialistaComponent, MatProgressSpinnerModule],
+      RouterModule, PacienteComponent, EspecialistaComponent, MatProgressSpinnerModule, ToastComponent],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })

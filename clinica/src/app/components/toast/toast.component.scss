@@ -1,5 +1,5 @@
-/* Importación de fuentes médicas */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Importación de fuentes médicas optimizada */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 /* Contenedor principal de toasts */
 .toast-container {
@@ -24,10 +24,12 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   overflow: hidden;
   pointer-events: auto;
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: all 0.15s ease-out;
+  animation: slideInRight 0.2s ease-out;
   position: relative;
   font-family: 'Inter', sans-serif;
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .toast-item:hover {
@@ -243,5 +245,17 @@
   }
   50% {
     box-shadow: 0 15px 40px rgba(220, 53, 69, 0.3);
+  }
+}
+
+/* Animación de entrada rápida */
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
   }
 }

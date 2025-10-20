@@ -27,6 +27,23 @@ export class EmpleadosService {
 
   constructor() { }
 
+  // Normaliza distintos tipos que pueda devolver la DB a un booleano claro
+  private coerceBoolean(value: any): boolean {
+    return value === true || value === 'true' || value === 1 || value === '1' || value === 't' || value === 'T';
+  }
+
+  private normalizeEmpleado(data: any): Empleado {
+    if (!data) return data;
+    try {
+      data.emailVerificado = this.coerceBoolean(data.emailVerificado);
+      data.aprobado = this.coerceBoolean(data.aprobado);
+    } catch (e) {
+      data.emailVerificado = false;
+      data.aprobado = false;
+    }
+    return data as Empleado;
+  }
+
   // 🔹 Login y guarda el usuario actual
   async login(email: string, password: string): Promise<Empleado | null> {
     const { data, error } = await supabase
@@ -36,8 +53,9 @@ export class EmpleadosService {
       .eq('contraseña', password)
       .single();
 
-    if (data) this.usuarioActual = data;
-    return data || null;
+    const empleado = this.normalizeEmpleado(data);
+    if (empleado) this.usuarioActual = empleado;
+    return empleado || null;
   }
 
   logout() {
@@ -83,7 +101,7 @@ export class EmpleadosService {
       .single();
 
     if (error) throw error;
-    return data;
+    return this.normalizeEmpleado(data);
   }
 
   // 🔹 Crear un empleado
@@ -94,7 +112,7 @@ export class EmpleadosService {
       .select()
       .single();
     if (error) throw error;
-    return data;
+    return this.normalizeEmpleado(data);
   }
 
   // 🔹 Actualizar un empleado (por ejemplo para aprobar/desaprobar)
@@ -107,7 +125,7 @@ export class EmpleadosService {
       .select()
       .single();
     if (error) throw error;
-    return data;
+    return this.normalizeEmpleado(data);
   }
 
   // 🔹 Traer todos los empleados
@@ -116,7 +134,8 @@ export class EmpleadosService {
       .from(this.table)
       .select('*');
     if (error) throw error;
-    return data || [];
+    if (!data) return [];
+    return data.map((d: any) => this.normalizeEmpleado(d)) || [];
   }
 
   // 🔹 Buscar por email y contraseña (para validar duplicados en registro)
