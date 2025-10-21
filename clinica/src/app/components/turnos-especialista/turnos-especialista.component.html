@@ -1,0 +1,291 @@
+<div class="turnos-container">
+  
+  <!-- Header -->
+  <div class="turnos-header">
+    <div class="header-content">
+      <span class="turnos-icon">🩺</span>
+      <div class="title-section">
+        <h1 class="title">Mis Turnos</h1>
+        <p class="subtitle">Gestiona tus consultas médicas</p>
+      </div>
+    </div>
+    
+    <button class="btn-back" (click)="volver()" title="Volver al menú">
+      <span class="back-icon">🏠</span>
+      Volver
+    </button>
+  </div>
+
+  <!-- Sección de filtros -->
+  <div class="filters-section">
+    <h2 class="section-title">🔍 Filtrar Turnos</h2>
+    
+    <div class="filters-grid">
+      <!-- Filtro por Especialidad -->
+      <div class="filter-group">
+        <label for="especialidad">Especialidad</label>
+        <input 
+          type="text" 
+          id="especialidad"
+          [(ngModel)]="filtroEspecialidad"
+          (ngModelChange)="aplicarFiltros()"
+          placeholder="Ej: cardiología, dermatología..."
+          class="filter-input">
+      </div>
+
+      <!-- Filtro por Paciente -->
+      <div class="filter-group">
+        <label for="paciente">Paciente</label>
+        <input 
+          type="text" 
+          id="paciente"
+          [(ngModel)]="filtroPaciente"
+          (ngModelChange)="aplicarFiltros()"
+          placeholder="Nombre del paciente..."
+          class="filter-input">
+      </div>
+
+      <!-- Botón limpiar -->
+      <div class="filter-actions">
+        <button class="btn-clear" (click)="limpiarFiltros()">
+          <span class="clear-icon">🗑️</span>
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Turnos -->
+  <div class="turnos-list" *ngIf="!loading">
+    <div class="list-header">
+      <h2 class="section-title">📅 Turnos Asignados ({{ turnosFiltrados.length }})</h2>
+    </div>
+
+    <div *ngIf="turnosFiltrados.length === 0" class="no-turnos">
+      <span class="no-turnos-icon">📭</span>
+      <p>No se encontraron turnos que coincidan con los filtros.</p>
+      <button class="btn-secondary" (click)="limpiarFiltros()">Ver todos los turnos</button>
+    </div>
+
+    <div class="turnos-grid">
+      <div *ngFor="let turno of turnosFiltrados" class="turno-card">
+        
+        <!-- Header de la tarjeta -->
+        <div class="turno-header">
+          <div class="turno-info">
+            <h3 class="paciente-name">👤 {{ turno.pacienteNombre }}</h3>
+            <p class="especialidad">🏥 {{ turno.especialidad }}</p>
+          </div>
+          <div class="estado-badge" [style.background-color]="getEstadoColor(turno.estado)">
+            {{ turno.estado.toUpperCase() }}
+          </div>
+        </div>
+
+        <!-- Detalles del turno -->
+        <div class="turno-details">
+          <div class="detail-item">
+            <span class="detail-label">📅 Fecha:</span>
+            <span class="detail-value">{{ turno.fecha }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">🕒 Horario:</span>
+            <span class="detail-value">{{ turno.horario }}</span>
+          </div>
+        </div>
+
+        <!-- Comentarios/Reseñas existentes -->
+        <div *ngIf="turno.comentarioEspecialista" class="turno-comments">
+          <div class="comment-section">
+            <span class="comment-label">💬 Tu comentario:</span>
+            <p class="comment-text">{{ turno.comentarioEspecialista }}</p>
+          </div>
+        </div>
+
+        <!-- Acciones disponibles -->
+        <div class="turno-actions">
+          
+          <!-- Aceptar turno -->
+          <button 
+            *ngIf="puedeAceptar(turno)" 
+            class="btn-action accept" 
+            (click)="aceptarTurno(turno)"
+            [disabled]="loading">
+            <span class="action-icon">✅</span>
+            Aceptar
+          </button>
+
+          <!-- Rechazar turno -->
+          <button 
+            *ngIf="puedeRechazar(turno)" 
+            class="btn-action reject" 
+            (click)="abrirModalRechazar(turno)"
+            [disabled]="loading">
+            <span class="action-icon">❌</span>
+            Rechazar
+          </button>
+
+          <!-- Cancelar turno -->
+          <button 
+            *ngIf="puedeCancelar(turno)" 
+            class="btn-action cancel" 
+            (click)="abrirModalCancelar(turno)"
+            [disabled]="loading">
+            <span class="action-icon">🚫</span>
+            Cancelar
+          </button>
+
+          <!-- Finalizar turno -->
+          <button 
+            *ngIf="puedeFinalizar(turno)" 
+            class="btn-action complete" 
+            (click)="abrirModalFinalizar(turno)"
+            [disabled]="loading">
+            <span class="action-icon">✅</span>
+            Finalizar
+          </button>
+
+          <!-- Ver reseña -->
+          <button 
+            *ngIf="puedeVerResena(turno)" 
+            class="btn-action view" 
+            (click)="abrirModalResena(turno)">
+            <span class="action-icon">👁️</span>
+            Ver Reseña
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner 
+      mode="indeterminate" 
+      color="primary" 
+      diameter="50" 
+      strokeWidth="4">
+    </mat-progress-spinner>
+    <p>Cargando turnos...</p>
+  </div>
+
+  <!-- MODALES -->
+
+  <!-- Modal para cancelar turno -->
+  <div *ngIf="mostrarModalCancelar" class="modal-overlay" (click)="cerrarModales()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>🚫 Cancelar Turno</h3>
+        <button class="modal-close" (click)="cerrarModales()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Paciente:</strong> {{ turnoSeleccionado?.pacienteNombre }}</p>
+        <p><strong>Turno:</strong> {{ turnoSeleccionado?.fecha }} - {{ turnoSeleccionado?.horario }}</p>
+        
+        <div class="form-group">
+          <label for="comentarioCancelacion">Motivo de la cancelación *</label>
+          <textarea 
+            id="comentarioCancelacion"
+            [(ngModel)]="comentarioCancelacion"
+            placeholder="Explica por qué cancelas este turno..."
+            rows="4"
+            class="form-textarea"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="cerrarModales()">Cerrar</button>
+        <button class="btn-danger" (click)="cancelarTurno()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner"></span>
+          Cancelar Turno
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para rechazar turno -->
+  <div *ngIf="mostrarModalRechazar" class="modal-overlay" (click)="cerrarModales()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>❌ Rechazar Turno</h3>
+        <button class="modal-close" (click)="cerrarModales()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Paciente:</strong> {{ turnoSeleccionado?.pacienteNombre }}</p>
+        <p><strong>Turno:</strong> {{ turnoSeleccionado?.fecha }} - {{ turnoSeleccionado?.horario }}</p>
+        
+        <div class="form-group">
+          <label for="comentarioRechazo">Motivo del rechazo *</label>
+          <textarea 
+            id="comentarioRechazo"
+            [(ngModel)]="comentarioRechazo"
+            placeholder="Explica por qué rechazas este turno..."
+            rows="4"
+            class="form-textarea"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="cerrarModales()">Cerrar</button>
+        <button class="btn-danger" (click)="rechazarTurno()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner"></span>
+          Rechazar Turno
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para finalizar turno -->
+  <div *ngIf="mostrarModalFinalizar" class="modal-overlay" (click)="cerrarModales()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>✅ Finalizar Turno</h3>
+        <button class="modal-close" (click)="cerrarModales()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Paciente:</strong> {{ turnoSeleccionado?.pacienteNombre }}</p>
+        <p><strong>Turno:</strong> {{ turnoSeleccionado?.fecha }} - {{ turnoSeleccionado?.horario }}</p>
+        
+        <div class="form-group">
+          <label for="resenaConsulta">Reseña de la consulta y diagnóstico *</label>
+          <textarea 
+            id="resenaConsulta"
+            [(ngModel)]="resenaConsulta"
+            placeholder="Describe el diagnóstico y tratamiento realizado..."
+            rows="6"
+            class="form-textarea"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="cerrarModales()">Cerrar</button>
+        <button class="btn-primary" (click)="finalizarTurno()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner"></span>
+          Finalizar Turno
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver reseña -->
+  <div *ngIf="mostrarModalResena" class="modal-overlay" (click)="cerrarModales()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>👁️ Reseña de la Consulta</h3>
+        <button class="modal-close" (click)="cerrarModales()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Paciente:</strong> {{ turnoSeleccionado?.pacienteNombre }}</p>
+        <p><strong>Turno:</strong> {{ turnoSeleccionado?.fecha }} - {{ turnoSeleccionado?.horario }}</p>
+        
+        <div class="resena-content">
+          <h4>💬 Tu reseña:</h4>
+          <p>{{ turnoSeleccionado?.comentarioEspecialista }}</p>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" (click)="cerrarModales()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sistema de toasts médicos -->
+  <app-toast></app-toast>
+
+</div>
