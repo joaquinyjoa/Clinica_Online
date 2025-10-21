@@ -302,3 +302,33 @@ button:disabled,
   color: #6c757d;
   line-height: 1.4;
 }
+
+/* Captcha styles */
+.captcha-group {
+  margin-top: 12px;
+}
+
+.captcha-box {
+  background: #f8f9fa;
+  border: 1px solid rgba(23,162,184,0.15);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.captcha-input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  width: 100px;
+  text-align: center;
+}
+
+.btn-tertiary {
+  background: transparent;
+  border: 1px dashed rgba(0,0,0,0.08);
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}

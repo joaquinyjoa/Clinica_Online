@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
@@ -17,10 +17,14 @@ import { ToastComponent } from '../toast/toast.component';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class Register {
+export class Register implements OnInit {
   tipoUsuario: 'paciente' | 'especialista' = 'paciente';
   aceptoCondiciones = false;
   loading = false;
+  // Captcha simple (pregunta matemática)
+  captchaQuestion: string = '';
+  private captchaExpected: number = 0;
+  captchaInput: string = '';
 
   // 🔹 Referencia al componente hijo
   @ViewChild(PacienteComponent) pacienteComp!: PacienteComponent;
@@ -45,11 +49,38 @@ export class Register {
     return this.formularioValido && this.aceptoCondiciones && !this.loading;
   }
 
+  // Generar una pregunta matemática sencilla (suma o multiplicación pequeña)
+  generarCaptcha() {
+    const a = Math.floor(Math.random() * 9) + 1; // 1..9
+    const b = Math.floor(Math.random() * 9) + 1; // 1..9
+    const op = Math.random() > 0.6 ? 'x' : '+'; // 40% multiplicación
+    if (op === 'x') {
+      this.captchaExpected = a * b;
+      this.captchaQuestion = `${a} x ${b} = ?`;
+    } else {
+      this.captchaExpected = a + b;
+      this.captchaQuestion = `${a} + ${b} = ?`;
+    }
+    this.captchaInput = '';
+  }
+
   volver() {
     this.router.navigate(['/']); // Navega al home
   }
 
   async registrar() {
+    // Validar captcha antes de cualquier otra cosa
+    if (this.captchaInput.trim() === '') {
+      this.toastService.warning('🔒 Resolvé el captcha para continuar');
+      return;
+    }
+    if (Number(this.captchaInput) !== this.captchaExpected) {
+      this.toastService.error('❌ Captcha incorrecto. Intentá nuevamente');
+      // regenerar para evitar reintentos con la misma respuesta
+      this.generarCaptcha();
+      return;
+    }
+
     if (!this.aceptoCondiciones) {
       this.toastService.warning('⚠️ Debes aceptar las condiciones para registrarte');
       return;
@@ -102,6 +133,10 @@ export class Register {
         });
       }, 3000);
     });
+  }
+  
+  ngOnInit(): void {
+    this.generarCaptcha();
   }
     
 }

@@ -73,8 +73,8 @@ export class LoginComponent {
         }
 
         this.toastService.success(`🏥 Bienvenido paciente ${paciente.nombre}`);
-        // Aquí podrías redirigir al home de pacientes
-        this.loading = false;
+        // Redirigir al panel de turnos del paciente
+        await this.navigateWithSpinner('/mis-turnos');
         return;
       }
 

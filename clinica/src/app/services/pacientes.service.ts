@@ -165,6 +165,18 @@ export class PacientesService {
     return data.map((d: any) => this.normalizePaciente(d)) || [];
   }
 
+  // 🔹 Obtener paciente por ID
+  async obtenerPorId(id: number): Promise<Paciente | null> {
+    const { data, error } = await supabase
+      .from(this.table)
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) return null;
+    return this.normalizePaciente(data) || null;
+  }
+
   // 🔹 Actualizar paciente
   async actualizarPaciente(paciente: Paciente): Promise<Paciente> {
     const { data, error } = await supabase

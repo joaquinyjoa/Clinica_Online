@@ -138,6 +138,18 @@ export class EmpleadosService {
     return data.map((d: any) => this.normalizeEmpleado(d)) || [];
   }
 
+  // 🔹 Obtener empleado por ID
+  async obtenerPorId(id: number): Promise<Empleado | null> {
+    const { data, error } = await supabase
+      .from(this.table)
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) return null;
+    return this.normalizeEmpleado(data) || null;
+  }
+
   // 🔹 Buscar por email y contraseña (para validar duplicados en registro)
   async buscarEspecialista(email: string, password: string): Promise<Empleado | null> {
     const { data, error } = await supabase

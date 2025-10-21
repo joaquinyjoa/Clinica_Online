@@ -54,6 +54,15 @@
       </label>
     </div>
 
+    <!-- Captcha simple -->
+    <div class="form-group captcha-group" style="margin-top: 12px; text-align:center;">
+      <label style="display:flex; align-items:center; justify-content:center; gap:12px;">
+        <div class="captcha-box">{{ captchaQuestion }}</div>
+        <input type="text" placeholder="Respuesta" [(ngModel)]="captchaInput" class="captcha-input">
+        <button type="button" class="btn btn-tertiary" (click)="generarCaptcha()">↻</button>
+      </label>
+    </div>
+
     <!-- Botones -->
     <div class="form-buttons">
       <button class="btn btn-primary" (click)="registrar()" 

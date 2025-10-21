@@ -13,4 +13,6 @@ export const routes: Routes = [
    {path: 'panel-admin', 
     loadComponent: () => import('./components/panel-admin/panel-admin.component').then(m => m.PanelAdminComponent),
     canActivate: [AdminGuard]},
+   {path: 'mis-turnos', 
+    loadComponent: () => import('./components/mis-turnos/mis-turnos.component').then(m => m.MisTurnosComponent)},
 ];
