@@ -1,0 +1,162 @@
+<div class="solicitar-turno-container">
+  
+  <!-- Header -->
+  <div class="turno-header">
+    <div class="header-content">
+      <span class="turno-icon">📅</span>
+      <div class="title-section">
+        <h1 class="title">Solicitar Turno</h1>
+        <p class="subtitle" *ngIf="esAdmin">Modo Administrador - Solicitar para paciente</p>
+        <p class="subtitle" *ngIf="!esAdmin">Reserva tu cita médica</p>
+      </div>
+    </div>
+    
+    <button class="btn-back" (click)="volver()" title="Volver">
+      <span class="back-icon">🏠</span>
+      Volver
+    </button>
+  </div>
+
+  <!-- Información del usuario actual -->
+  <div class="user-info" *ngIf="usuarioActual">
+    <div class="info-card">
+      <span class="user-icon" [innerHTML]="esAdmin ? '👨‍💼' : '👤'"></span>
+      <div class="user-details">
+        <h3>{{ usuarioActual.nombre }} {{ usuarioActual.apellido }}</h3>
+        <p *ngIf="esAdmin">Administrador del sistema</p>
+        <p *ngIf="!esAdmin">Paciente</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de solicitud de turno -->
+  <div class="turno-form">
+    <h2 class="section-title">📋 Datos del Turno</h2>
+    
+    <!-- Selector de paciente (solo para admin) -->
+    <div class="form-section" *ngIf="esAdmin">
+      <h3 class="step-title">1️⃣ Seleccionar Paciente</h3>
+      <div class="step-content">
+        <p class="step-description">Selecciona el paciente para quien solicitas el turno</p>
+        <!-- Implementaremos esto en la tarea 7 -->
+        <div class="placeholder-section">
+          <p class="placeholder-text">🚧 Selector de paciente - Por implementar</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selector de especialidad -->
+    <div class="form-section">
+      <h3 class="step-title" [innerHTML]="esAdmin ? '2️⃣ Seleccionar Especialidad' : '1️⃣ Seleccionar Especialidad'"></h3>
+      <div class="step-content">
+        <p class="step-description">Elige la especialidad médica que necesitas</p>
+        <!-- Implementaremos esto en la tarea 3 -->
+        <div class="placeholder-section">
+          <p class="placeholder-text">🚧 Selector de especialidad - Por implementar</p>
+          <div class="selected-info" *ngIf="especialidadSeleccionada">
+            <span class="selected-label">Seleccionado:</span>
+            <span class="selected-value">{{ especialidadSeleccionada }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selector de especialista -->
+    <div class="form-section" [class.disabled]="!especialidadSeleccionada">
+      <h3 class="step-title" [innerHTML]="esAdmin ? '3️⃣ Seleccionar Especialista' : '2️⃣ Seleccionar Especialista'"></h3>
+      <div class="step-content">
+        <p class="step-description">Elige el profesional de tu preferencia</p>
+        <!-- Implementaremos esto en la tarea 4 -->
+        <div class="placeholder-section">
+          <p class="placeholder-text">🚧 Selector de especialista - Por implementar</p>
+          <div class="selected-info" *ngIf="especialistaSeleccionado">
+            <span class="selected-label">Seleccionado:</span>
+            <span class="selected-value">{{ especialistaSeleccionado }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selector de fecha -->
+    <div class="form-section" [class.disabled]="!especialistaSeleccionado">
+      <h3 class="step-title" [innerHTML]="esAdmin ? '4️⃣ Seleccionar Fecha' : '3️⃣ Seleccionar Fecha'"></h3>
+      <div class="step-content">
+        <p class="step-description">Elige una fecha disponible (próximos 15 días)</p>
+        <!-- Implementaremos esto en la tarea 5 -->
+        <div class="placeholder-section">
+          <p class="placeholder-text">🚧 Selector de fecha - Por implementar</p>
+          <div class="selected-info" *ngIf="fechaSeleccionada">
+            <span class="selected-label">Seleccionado:</span>
+            <span class="selected-value">{{ fechaSeleccionada }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selector de horario -->
+    <div class="form-section" [class.disabled]="!fechaSeleccionada">
+      <h3 class="step-title" [innerHTML]="esAdmin ? '5️⃣ Seleccionar Horario' : '4️⃣ Seleccionar Horario'"></h3>
+      <div class="step-content">
+        <p class="step-description">Elige un horario disponible</p>
+        <!-- Implementaremos esto en la tarea 6 -->
+        <div class="placeholder-section">
+          <p class="placeholder-text">🚧 Selector de horario - Por implementar</p>
+          <div class="selected-info" *ngIf="horarioSeleccionado">
+            <span class="selected-label">Seleccionado:</span>
+            <span class="selected-value">{{ horarioSeleccionado }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen y confirmación -->
+    <div class="form-section summary-section" *ngIf="horarioSeleccionado">
+      <h3 class="step-title">✅ Confirmar Turno</h3>
+      <div class="step-content">
+        <div class="turno-summary">
+          <h4>Resumen del turno:</h4>
+          <div class="summary-item" *ngIf="esAdmin && pacienteSeleccionado">
+            <span class="summary-label">Paciente:</span>
+            <span class="summary-value">{{ pacienteSeleccionado }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Especialidad:</span>
+            <span class="summary-value">{{ especialidadSeleccionada }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Especialista:</span>
+            <span class="summary-value">{{ especialistaSeleccionado }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Fecha:</span>
+            <span class="summary-value">{{ fechaSeleccionada }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Horario:</span>
+            <span class="summary-value">{{ horarioSeleccionado }}</span>
+          </div>
+        </div>
+        
+        <button class="btn-confirmar" (click)="confirmarTurno()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner"></span>
+          <span *ngIf="!loading">📅 Confirmar Turno</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner 
+      mode="indeterminate" 
+      color="primary" 
+      diameter="50" 
+      strokeWidth="4">
+    </mat-progress-spinner>
+    <p>Procesando solicitud...</p>
+  </div>
+
+  <!-- Sistema de toasts -->
+  <app-toast></app-toast>
+
+</div>
