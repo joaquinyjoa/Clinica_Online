@@ -38,13 +38,14 @@ export class SolicitarTurnoComponent implements OnInit {
   especialistasFiltrados: any[] = [];
   fechasDisponibles: any[] = [];
   horariosDisponibles: any[] = [];
+  pacientesDisponibles: any[] = [];
 
   // Propiedades del turno
   especialidadSeleccionada = '';
   especialistaSeleccionado: any = null;
   fechaSeleccionada = '';
   horarioSeleccionado = '';
-  pacienteSeleccionado = ''; // Solo para admin
+  pacienteSeleccionado: any = null; // Solo para admin
 
   private router = inject(Router);
   private toastService = inject(ToastService);
@@ -54,6 +55,9 @@ export class SolicitarTurnoComponent implements OnInit {
   ngOnInit() {
     this.detectarTipoUsuario();
     this.cargarEspecialistas();
+    if (this.esAdmin) {
+      this.cargarPacientes();
+    }
   }
 
   detectarTipoUsuario() {
@@ -90,6 +94,19 @@ export class SolicitarTurnoComponent implements OnInit {
     } catch (error) {
       console.error('Error al cargar especialistas:', error);
       this.toastService.error('Error al cargar especialistas disponibles');
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async cargarPacientes() {
+    this.loading = true;
+    try {
+      // Obtener todos los pacientes desde el servicio
+      this.pacientesDisponibles = await this.pacientesService.obtenerTodos();
+    } catch (error) {
+      console.error('Error al cargar pacientes:', error);
+      this.toastService.error('Error al cargar pacientes disponibles');
     } finally {
       this.loading = false;
     }
@@ -223,6 +240,12 @@ export class SolicitarTurnoComponent implements OnInit {
   seleccionarHorario(horario: any) {
     this.horarioSeleccionado = horario.hora;
     this.toastService.success(`✅ Horario seleccionado: ${horario.hora} (${horario.periodo})`);
+  }
+
+  seleccionarPaciente(paciente: any) {
+    this.pacienteSeleccionado = paciente;
+    const nombreCompleto = `${paciente.nombre} ${paciente.apellido}`;
+    this.toastService.success(`✅ Paciente seleccionado: ${nombreCompleto}`);
   }
 
   confirmarTurno() {

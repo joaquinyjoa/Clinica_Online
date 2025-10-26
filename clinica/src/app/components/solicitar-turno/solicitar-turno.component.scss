@@ -532,6 +532,78 @@
   position: relative;
 }
 
+/* Selector de pacientes */
+.pacientes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.paciente-btn {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 2px solid #dee2e6;
+  border-radius: 15px;
+  padding: 20px;
+  font-size: 1rem;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: #dc3545;
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2);
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border-color: #dc3545;
+    color: white;
+    box-shadow: 0 8px 30px rgba(220, 53, 69, 0.4);
+
+    .paciente-info {
+      color: white;
+    }
+
+    &::before {
+      content: '✓';
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.paciente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paciente-nombre {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.paciente-detalle {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
 /* Información seleccionada */
 .selected-info {
   margin-top: 15px;
