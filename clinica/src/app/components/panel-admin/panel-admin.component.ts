@@ -392,6 +392,12 @@ export class PanelAdminComponent implements OnInit {
     }
   }
 
+  // Método para ir a la gestión de turnos
+  irAGestionTurnos() {
+    this.router.navigate(['/turnos']);
+    this.toastService.info('📅 Accediendo a la gestión de turnos...');
+  }
+
   // Método para volver al login
   async volverAlLogin() {
     this.loading = true;

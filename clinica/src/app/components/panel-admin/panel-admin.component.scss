@@ -109,6 +109,69 @@
   font-weight: 600;
 }
 
+/* Sección de accesos rápidos */
+.quick-access-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  animation: fadeIn 1s ease-out;
+}
+
+.quick-access-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.quick-access-btn {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
+  text-align: left;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(40, 167, 69, 0.4);
+  }
+
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+.access-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.access-info {
+  flex: 1;
+
+  h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+}
+
 /* Selector de tipo de usuario */
 .user-type-selector {
   background: rgba(255, 255, 255, 0.95);
