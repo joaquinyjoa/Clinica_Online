@@ -8,12 +8,21 @@
         <h1 class="title">Mis Turnos</h1>
         <p class="subtitle">Gestiona tus citas médicas</p>
       </div>
-      <button class="back-btn" 
-              (click)="volver()" 
-              [disabled]="loading"
-              title="Volver">
-        <span class="back-text">Volver al login</span>
-      </button>
+      <div class="header-actions">
+        <button class="solicitar-btn" 
+                (click)="irASolicitarTurno()" 
+                [disabled]="loading"
+                title="Solicitar nuevo turno">
+          <span class="solicitar-icon">📅</span>
+          <span class="solicitar-text">Solicitar Turno</span>
+        </button>
+        <button class="back-btn" 
+                (click)="volver()" 
+                [disabled]="loading"
+                title="Volver">
+          <span class="back-text">Volver al login</span>
+        </button>
+      </div>
     </div>
   </div>
 

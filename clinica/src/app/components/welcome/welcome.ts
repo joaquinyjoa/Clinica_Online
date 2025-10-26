@@ -31,4 +31,8 @@ export class Welcome {
   NavegarRegistro() {
     void this.navigateWithSpinner('/register');
   }
+
+  NavegarSolicitarTurno() {
+    void this.navigateWithSpinner('/solicitar-turno');
+  }
 }

@@ -267,4 +267,10 @@ export class MisTurnosComponent implements OnInit {
   volver() {
     this.router.navigate(['/login']);
   }
+
+  // Ir a solicitar turno
+  irASolicitarTurno() {
+    this.router.navigate(['/solicitar-turno']);
+    this.toastService.info('📅 Accediendo a solicitar turno...');
+  }
 }

@@ -225,6 +225,19 @@ body, html {
   background: linear-gradient(135deg, #218838, #1e7e34);
 }
 
+/* Botón Solicitar Turno */
+.btn-accent {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #212529;
+  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+}
+
+.btn-accent:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(255, 193, 7, 0.6);
+  background: linear-gradient(135deg, #e0a800, #d39e00);
+}
+
 /* Footer informativo */
 .welcome-footer {
   margin-top: 20px;
@@ -328,6 +341,16 @@ body, html {
   
   .description {
     font-size: 0.9rem;
+  }
+  
+  .access-buttons {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .btn {
+    width: 100%;
+    padding: 18px;
   }
   
   .access-buttons {

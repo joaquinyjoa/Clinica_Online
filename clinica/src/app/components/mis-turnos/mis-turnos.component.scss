@@ -28,6 +28,49 @@
   gap: 20px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+/* Botón solicitar turno */
+.solicitar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #212529;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.25);
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #e0a800, #d39e00);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.35);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.solicitar-icon {
+  font-size: 1.1rem;
+}
+
+.solicitar-text {
+  font-size: 0.9rem;
+}
+
 .turnos-icon {
   font-size: 4rem;
   animation: pulse 2s infinite;
@@ -548,6 +591,18 @@
     flex-direction: column;
     text-align: center;
     gap: 15px;
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+  
+  .solicitar-btn,
+  .back-btn {
+    width: 100%;
+    justify-content: center;
   }
   
   .title {
