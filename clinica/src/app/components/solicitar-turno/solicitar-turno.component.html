@@ -115,12 +115,38 @@
       <h3 class="step-title" [innerHTML]="esAdmin ? '4️⃣ Seleccionar Fecha' : '3️⃣ Seleccionar Fecha'"></h3>
       <div class="step-content">
         <p class="step-description">Elige una fecha disponible (próximos 15 días)</p>
-        <!-- Implementaremos esto en la tarea 5 -->
-        <div class="placeholder-section">
-          <p class="placeholder-text">🚧 Selector de fecha - Por implementar</p>
+        <div class="selector-container">
+          <div *ngIf="!especialistaSeleccionado" class="warning-message">
+            <span class="warning-icon">⚠️</span>
+            <span class="warning-text">Primero selecciona un especialista</span>
+          </div>
+          
+          <div *ngIf="especialistaSeleccionado && fechasDisponibles.length === 0" class="warning-message">
+            <span class="warning-icon">😔</span>
+            <span class="warning-text">No hay fechas disponibles</span>
+          </div>
+          
+          <div *ngIf="especialistaSeleccionado && fechasDisponibles.length > 0" class="fechas-grid">
+            @for (fechaObj of fechasDisponibles; track fechaObj.fechaString) {
+              <button 
+                type="button"
+                class="fecha-btn"
+                [class.selected]="fechaObj.fechaString === fechaSeleccionada"
+                [class.no-disponible]="!fechaObj.disponible"
+                [disabled]="!fechaObj.disponible"
+                (click)="seleccionarFecha(fechaObj)">
+                <div class="fecha-info">
+                  <div class="fecha-dia-semana">{{ fechaObj.diaSemana }}</div>
+                  <div class="fecha-numero">{{ fechaObj.diaMes }}</div>
+                  <div class="fecha-mes">{{ fechaObj.mes }}</div>
+                </div>
+              </button>
+            }
+          </div>
+          
           <div class="selected-info" *ngIf="fechaSeleccionada">
-            <span class="selected-label">Seleccionado:</span>
-            <span class="selected-value">{{ fechaSeleccionada }}</span>
+            <span class="selected-label">✅ Fecha seleccionada:</span>
+            <span class="selected-value">{{ obtenerFechaSeleccionadaFormateada() }}</span>
           </div>
         </div>
       </div>

@@ -36,6 +36,7 @@ export class SolicitarTurnoComponent implements OnInit {
   
   especialistasDisponibles: any[] = [];
   especialistasFiltrados: any[] = [];
+  fechasDisponibles: any[] = [];
 
   // Propiedades del turno
   especialidadSeleccionada = '';
@@ -93,6 +94,31 @@ export class SolicitarTurnoComponent implements OnInit {
     }
   }
 
+  generarFechasDisponibles() {
+    const fechas = [];
+    const hoy = new Date();
+    
+    for (let i = 1; i <= 15; i++) { // Comenzar desde mañana
+      const fecha = new Date(hoy);
+      fecha.setDate(hoy.getDate() + i);
+      
+      // Excluir domingos (0 = domingo)
+      if (fecha.getDay() !== 0) {
+        const fechaObj = {
+          fecha: fecha,
+          fechaString: fecha.toISOString().split('T')[0], // YYYY-MM-DD
+          diaSemana: fecha.toLocaleDateString('es-ES', { weekday: 'long' }),
+          diaMes: fecha.getDate(),
+          mes: fecha.toLocaleDateString('es-ES', { month: 'long' }),
+          disponible: true // Por ahora todas disponibles, luego verificaremos con turnos
+        };
+        fechas.push(fechaObj);
+      }
+    }
+    
+    this.fechasDisponibles = fechas;
+  }
+
   volver() {
     if (this.esAdmin) {
       this.router.navigate(['/panel-admin']);
@@ -128,13 +154,27 @@ export class SolicitarTurnoComponent implements OnInit {
     this.fechaSeleccionada = '';
     this.horarioSeleccionado = '';
     
+    // Generar fechas disponibles cuando se selecciona especialista
+    this.generarFechasDisponibles();
+    
     const nombreCompleto = `${especialista.nombre} ${especialista.apellido}`;
     this.toastService.success(`✅ Especialista seleccionado: Dr/a. ${nombreCompleto}`);
+    this.toastService.info(`📅 Fechas disponibles generadas (próximos 15 días, sin domingos)`);
   }
 
-  seleccionarFecha(fecha: string) {
-    this.fechaSeleccionada = fecha;
+  seleccionarFecha(fechaObj: any) {
+    this.fechaSeleccionada = fechaObj.fechaString;
     this.horarioSeleccionado = '';
+    
+    const fechaFormateada = `${fechaObj.diaSemana} ${fechaObj.diaMes} de ${fechaObj.mes}`;
+    this.toastService.success(`✅ Fecha seleccionada: ${fechaFormateada}`);
+  }
+
+  obtenerFechaSeleccionadaFormateada(): string {
+    if (!this.fechaSeleccionada) return '';
+    const fechaObj = this.fechasDisponibles.find(f => f.fechaString === this.fechaSeleccionada);
+    if (!fechaObj) return this.fechaSeleccionada;
+    return `${fechaObj.diaSemana} ${fechaObj.diaMes} de ${fechaObj.mes}`;
   }
 
   seleccionarHorario(horario: string) {

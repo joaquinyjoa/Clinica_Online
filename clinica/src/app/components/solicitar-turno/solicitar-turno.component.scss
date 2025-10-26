@@ -348,6 +348,102 @@
   color: #d35400;
 }
 
+/* Selector de fechas */
+.fechas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.fecha-btn {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 2px solid #dee2e6;
+  border-radius: 15px;
+  padding: 15px 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-3px);
+    border-color: #007bff;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-color: #007bff;
+    color: white;
+    box-shadow: 0 8px 30px rgba(0, 123, 255, 0.4);
+
+    .fecha-info {
+      color: white;
+    }
+
+    &::before {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: white;
+    }
+  }
+
+  &.no-disponible {
+    background: linear-gradient(135deg, #f1f3f4, #e1e5e9);
+    border-color: #ced4da;
+    color: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.fecha-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.fecha-dia-semana {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: #6c757d;
+}
+
+.fecha-numero {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.fecha-mes {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: #6c757d;
+}
+
 /* Información seleccionada */
 .selected-info {
   margin-top: 15px;
