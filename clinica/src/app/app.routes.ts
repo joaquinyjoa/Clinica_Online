@@ -20,4 +20,6 @@ export const routes: Routes = [
    {path: 'turnos', 
     loadComponent: () => import('./components/turnos-admin/turnos-admin.component').then(m => m.TurnosAdminComponent),
     canActivate: [AdminGuard]},
+   {path: 'solicitar-turno', 
+    loadComponent: () => import('./components/solicitar-turno/solicitar-turno.component').then(m => m.SolicitarTurnoComponent)},
 ];
