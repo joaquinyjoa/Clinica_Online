@@ -33,10 +33,13 @@ export class SolicitarTurnoComponent implements OnInit {
     'Urología',
     'Endocrinología'
   ];
+  
+  especialistasDisponibles: any[] = [];
+  especialistasFiltrados: any[] = [];
 
   // Propiedades del turno
   especialidadSeleccionada = '';
-  especialistaSeleccionado = '';
+  especialistaSeleccionado: any = null;
   fechaSeleccionada = '';
   horarioSeleccionado = '';
   pacienteSeleccionado = ''; // Solo para admin
@@ -48,6 +51,7 @@ export class SolicitarTurnoComponent implements OnInit {
 
   ngOnInit() {
     this.detectarTipoUsuario();
+    this.cargarEspecialistas();
   }
 
   detectarTipoUsuario() {
@@ -70,6 +74,25 @@ export class SolicitarTurnoComponent implements OnInit {
     }
   }
 
+  async cargarEspecialistas() {
+    this.loading = true;
+    try {
+      // Obtener todos los empleados
+      const empleados = await this.empleadosService.obtenerTodos();
+      // Filtrar solo especialistas aprobados (no administradores)
+      this.especialistasDisponibles = empleados.filter(
+        emp => emp.especialidad && 
+               emp.especialidad.toLowerCase() !== 'administrador' &&
+               emp.aprobado === true
+      );
+    } catch (error) {
+      console.error('Error al cargar especialistas:', error);
+      this.toastService.error('Error al cargar especialistas disponibles');
+    } finally {
+      this.loading = false;
+    }
+  }
+
   volver() {
     if (this.esAdmin) {
       this.router.navigate(['/panel-admin']);
@@ -82,17 +105,31 @@ export class SolicitarTurnoComponent implements OnInit {
   seleccionarEspecialidad(especialidad: string) {
     this.especialidadSeleccionada = especialidad;
     // Resetear selecciones posteriores
-    this.especialistaSeleccionado = '';
+    this.especialistaSeleccionado = null;
     this.fechaSeleccionada = '';
     this.horarioSeleccionado = '';
     
+    // Filtrar especialistas por especialidad
+    this.especialistasFiltrados = this.especialistasDisponibles.filter(
+      esp => esp.especialidad === especialidad
+    );
+    
     this.toastService.success(`✅ Especialidad seleccionada: ${especialidad}`);
+    
+    if (this.especialistasFiltrados.length === 0) {
+      this.toastService.warning(`⚠️ No hay especialistas disponibles para ${especialidad}`);
+    } else {
+      this.toastService.info(`👨‍⚕️ ${this.especialistasFiltrados.length} especialista(s) disponible(s)`);
+    }
   }
 
-  seleccionarEspecialista(especialista: string) {
+  seleccionarEspecialista(especialista: any) {
     this.especialistaSeleccionado = especialista;
     this.fechaSeleccionada = '';
     this.horarioSeleccionado = '';
+    
+    const nombreCompleto = `${especialista.nombre} ${especialista.apellido}`;
+    this.toastService.success(`✅ Especialista seleccionado: Dr/a. ${nombreCompleto}`);
   }
 
   seleccionarFecha(fecha: string) {

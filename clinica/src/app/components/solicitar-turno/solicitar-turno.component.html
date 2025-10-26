@@ -75,12 +75,36 @@
       <h3 class="step-title" [innerHTML]="esAdmin ? '3️⃣ Seleccionar Especialista' : '2️⃣ Seleccionar Especialista'"></h3>
       <div class="step-content">
         <p class="step-description">Elige el profesional de tu preferencia</p>
-        <!-- Implementaremos esto en la tarea 4 -->
-        <div class="placeholder-section">
-          <p class="placeholder-text">🚧 Selector de especialista - Por implementar</p>
+        <div class="selector-container">
+          <div *ngIf="!especialidadSeleccionada" class="warning-message">
+            <span class="warning-icon">⚠️</span>
+            <span class="warning-text">Primero selecciona una especialidad</span>
+          </div>
+          
+          <div *ngIf="especialidadSeleccionada && especialistasFiltrados.length === 0" class="warning-message">
+            <span class="warning-icon">😔</span>
+            <span class="warning-text">No hay especialistas disponibles para {{ especialidadSeleccionada }}</span>
+          </div>
+          
+          <div *ngIf="especialidadSeleccionada && especialistasFiltrados.length > 0" class="especialistas-grid">
+            @for (especialista of especialistasFiltrados; track especialista.id) {
+              <button 
+                type="button"
+                class="especialista-btn"
+                [class.selected]="especialista === especialistaSeleccionado"
+                (click)="seleccionarEspecialista(especialista)">
+                <div class="especialista-info">
+                  <div class="especialista-nombre">Dr/a. {{ especialista.nombre }} {{ especialista.apellido }}</div>
+                  <div class="especialista-especialidad">{{ especialista.especialidad }}</div>
+                  <div class="especialista-detalle" *ngIf="especialista.edad">{{ especialista.edad }} años</div>
+                </div>
+              </button>
+            }
+          </div>
+          
           <div class="selected-info" *ngIf="especialistaSeleccionado">
-            <span class="selected-label">Seleccionado:</span>
-            <span class="selected-value">{{ especialistaSeleccionado }}</span>
+            <span class="selected-label">✅ Especialista seleccionado:</span>
+            <span class="selected-value">Dr/a. {{ especialistaSeleccionado.nombre }} {{ especialistaSeleccionado.apellido }}</span>
           </div>
         </div>
       </div>

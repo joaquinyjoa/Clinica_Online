@@ -248,6 +248,106 @@
   }
 }
 
+/* Selector de especialistas */
+.especialistas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.especialista-btn {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 2px solid #dee2e6;
+  border-radius: 15px;
+  padding: 20px;
+  font-size: 1rem;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: #28a745;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.2);
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-color: #28a745;
+    color: white;
+    box-shadow: 0 8px 30px rgba(40, 167, 69, 0.4);
+
+    .especialista-info {
+      color: white;
+    }
+
+    &::before {
+      content: '✓';
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.especialista-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.especialista-nombre {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.especialista-especialidad {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #17a2b8;
+}
+
+.especialista-detalle {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Mensajes de advertencia */
+.warning-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+  border: 2px solid #f39c12;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.warning-icon {
+  font-size: 1.5rem;
+}
+
+.warning-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #d35400;
+}
+
 /* Información seleccionada */
 .selected-info {
   margin-top: 15px;
