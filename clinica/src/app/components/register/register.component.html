@@ -1,6 +1,12 @@
-<div class="register-container">
+<div class="register-container" appAnimacion="fadeIn">
   <div class="register-card">
-    <h1 class="title">🏥 Registro Clínica Online</h1>
+    <h1 class="title" appResaltar="#e3f2fd">🏥 Registro {{ nombreEjemplo | capitalizar }}</h1>
+    
+    <!-- Ejemplo de pipes -->
+    <div style="text-align: center; margin-bottom: 15px; font-size: 14px; color: #666;">
+      <p>📅 {{ fechaActual | fechaPersonalizada }}</p>
+      <p>Estado del sistema: {{ estadoEjemplo | estadoTurno }}</p>
+    </div>
 
     <!-- Selector de tipo de usuario con imágenes -->
     <div class="user-type-selector">
@@ -12,7 +18,9 @@
           type="button"
           class="type-btn"
           [class.active]="tipoUsuario === 'paciente'"
-          (click)="tipoUsuario='paciente'">
+          (click)="tipoUsuario='paciente'"
+          appResaltar="#4caf50"
+          appAnimacion="slideIn">
           <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop&crop=face" alt="Paciente" class="type-image">
           <div class="type-info">
             <h3>Paciente</h3>
@@ -25,7 +33,9 @@
           type="button"
           class="type-btn"
           [class.active]="tipoUsuario === 'especialista'"
-          (click)="tipoUsuario='especialista'">
+          (click)="tipoUsuario='especialista'"
+          appResaltar="#2196f3"
+          appAnimacion="slideIn">
           <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200&h=200&fit=crop&crop=face" alt="Especialista" class="type-image">
           <div class="type-info">
             <h3>Especialista</h3>
@@ -46,27 +56,23 @@
     </div>
 
     <!-- Términos y condiciones -->
-    <div class="form-group" style="margin-top: 20px;">
-      <label style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+    <div class="form-group" style="margin-top: 20px;" appAnimacion="bounce">
+      <label style="display: flex; align-items: center; gap: 10px; justify-content: center;"
+             [appValidacionVisual]="aceptoCondiciones ? 'valido' : 'invalido'">
         <input type="checkbox" id="acepto" [(ngModel)]="aceptoCondiciones" 
                style="width: 18px; height: 18px; accent-color: #17a2b8;">
         📋 Acepto las condiciones de uso
       </label>
     </div>
 
-    <!-- Captcha simple -->
-    <div class="form-group captcha-group" style="margin-top: 12px; text-align:center;">
-      <label style="display:flex; align-items:center; justify-content:center; gap:12px;">
-        <div class="captcha-box">{{ captchaQuestion }}</div>
-        <input type="text" placeholder="Respuesta" [(ngModel)]="captchaInput" class="captcha-input">
-        <button type="button" class="btn btn-tertiary" (click)="generarCaptcha()">↻</button>
-      </label>
-    </div>
+
 
     <!-- Botones -->
     <div class="form-buttons">
       <button class="btn btn-primary" (click)="registrar()" 
-              [disabled]="!puedeRegistrarse">
+              [disabled]="!puedeRegistrarse"
+              appResaltar="#ff9800"
+              [appValidacionVisual]="puedeRegistrarse ? 'valido' : 'invalido'">
         @if (!loading) {
           <span>Registrarse</span>
         }
@@ -74,7 +80,8 @@
           <span>Registrando...</span>
         }
       </button>
-      <button class="btn btn-secondary" (click)="volver()" [disabled]="loading">
+      <button class="btn btn-secondary" (click)="volver()" [disabled]="loading"
+              appResaltar="#607d8b">
         Volver al inicio
       </button>
     </div>

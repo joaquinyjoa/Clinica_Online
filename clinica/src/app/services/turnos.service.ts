@@ -111,6 +111,61 @@ export class TurnosService {
     }));
   }
 
+  // Obtener turnos de un especialista específico
+  async obtenerTurnosEspecialista(especialistaId?: number): Promise<Turno[]> {
+    // Si no se proporciona ID, retorna datos de prueba
+    if (!especialistaId) {
+      return [
+        {
+          id: 1,
+          pacienteid: 1,
+          pacienteNombre: 'Juan Pérez',
+          especialistaid: 1,
+          especialistaNombre: 'Dr. García',
+          especialidad: 'Cardiología',
+          fecha: '2025-10-22',
+          horario: '10:00',
+          estado: 'pendiente',
+          comentarioPaciente: '',
+          comentarioEspecialista: ''
+        },
+        {
+          id: 2,
+          pacienteid: 2,
+          especialistaid: 1,
+          pacienteNombre: 'María López',
+          especialistaNombre: 'Dr. García',
+          especialidad: 'Cardiología',
+          fecha: '2025-10-23',
+          horario: '11:00',
+          estado: 'aceptado'
+        }
+      ];
+    }
+
+    const { data, error } = await supabase
+      .from(this.table)
+      .select(`
+        *,
+        pacientes:pacienteid (nombre, apellido, email, edad, obraSocial),
+        empleados:especialistaid (nombre, apellido, especialidad)
+      `)
+      .eq('especialistaid', especialistaId)
+      .order('fecha', { ascending: true });
+
+    if (error) throw error;
+    
+    if (!data) return [];
+    
+    // Enriquecer con información completa
+    return data.map((turno: any) => this.normalizeTurno({
+      ...turno,
+      pacienteNombre: turno.pacientes ? `${turno.pacientes.nombre} ${turno.pacientes.apellido}` : '',
+      especialistaNombre: turno.empleados ? `${turno.empleados.nombre} ${turno.empleados.apellido}` : '',
+      especialidad: turno.empleados?.especialidad || turno.especialidad
+    }));
+  }
+
   // Cancelar turno (solo si no fue realizado)
   async cancelarTurno(turnoId: number, comentario: string): Promise<Turno> {
     const { data, error } = await supabase

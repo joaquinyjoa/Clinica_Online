@@ -15,4 +15,6 @@ export const routes: Routes = [
     canActivate: [AdminGuard]},
    {path: 'mis-turnos', 
     loadComponent: () => import('./components/mis-turnos/mis-turnos.component').then(m => m.MisTurnosComponent)},
+   {path: 'turnos-especialista', 
+    loadComponent: () => import('./components/turnos-especialista/turnos-especialista.component').then(m => m.TurnosEspecialistaComponent)},
 ];

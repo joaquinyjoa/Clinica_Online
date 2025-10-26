@@ -100,7 +100,7 @@ export class LoginComponent {
             await this.navigateWithSpinner('/panel-admin');
         } else {
             this.toastService.success(`👨‍⚕️ Bienvenido especialista ${empleado.nombre}`);
-            this.loading = false;
+            await this.navigateWithSpinner('/turnos-especialista');
         }
        
         return;

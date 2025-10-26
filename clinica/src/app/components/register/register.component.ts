@@ -7,13 +7,29 @@ import { EspecialistaComponent } from '../especialista/especialista.component';
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
+import { FechaPersonalizadaPipe } from '../../pipes/fecha-personalizada.pipe';
+import { CapitalizarPipe } from '../../pipes/capitalizar.pipe';
+import { EstadoTurnoPipe } from '../../pipes/estado-turno.pipe';
+import { ResaltarDirective } from '../../directives/resaltar.directive';
+import { AnimacionDirective } from '../../directives/animacion.directive';
+import { ValidacionVisualDirective } from '../../directives/validacion-visual.directive';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule,
      FormsModule,
-      RouterModule, PacienteComponent, EspecialistaComponent, MatProgressSpinnerModule, ToastComponent],
+      RouterModule, 
+      PacienteComponent, 
+      EspecialistaComponent, 
+      MatProgressSpinnerModule, 
+      ToastComponent,
+      FechaPersonalizadaPipe,
+      CapitalizarPipe,
+      EstadoTurnoPipe,
+      ResaltarDirective,
+      AnimacionDirective,
+      ValidacionVisualDirective],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
@@ -21,10 +37,11 @@ export class Register implements OnInit {
   tipoUsuario: 'paciente' | 'especialista' = 'paciente';
   aceptoCondiciones = false;
   loading = false;
-  // Captcha simple (pregunta matemática)
-  captchaQuestion: string = '';
-  private captchaExpected: number = 0;
-  captchaInput: string = '';
+  
+  // Propiedades para demostrar pipes y directivas
+  fechaActual = new Date();
+  nombreEjemplo = 'clínica online';
+  estadoEjemplo = 'confirmado';
 
   // 🔹 Referencia al componente hijo
   @ViewChild(PacienteComponent) pacienteComp!: PacienteComponent;
@@ -49,38 +66,13 @@ export class Register implements OnInit {
     return this.formularioValido && this.aceptoCondiciones && !this.loading;
   }
 
-  // Generar una pregunta matemática sencilla (suma o multiplicación pequeña)
-  generarCaptcha() {
-    const a = Math.floor(Math.random() * 9) + 1; // 1..9
-    const b = Math.floor(Math.random() * 9) + 1; // 1..9
-    const op = Math.random() > 0.6 ? 'x' : '+'; // 40% multiplicación
-    if (op === 'x') {
-      this.captchaExpected = a * b;
-      this.captchaQuestion = `${a} x ${b} = ?`;
-    } else {
-      this.captchaExpected = a + b;
-      this.captchaQuestion = `${a} + ${b} = ?`;
-    }
-    this.captchaInput = '';
-  }
+
 
   volver() {
     this.router.navigate(['/']); // Navega al home
   }
 
   async registrar() {
-    // Validar captcha antes de cualquier otra cosa
-    if (this.captchaInput.trim() === '') {
-      this.toastService.warning('🔒 Resolvé el captcha para continuar');
-      return;
-    }
-    if (Number(this.captchaInput) !== this.captchaExpected) {
-      this.toastService.error('❌ Captcha incorrecto. Intentá nuevamente');
-      // regenerar para evitar reintentos con la misma respuesta
-      this.generarCaptcha();
-      return;
-    }
-
     if (!this.aceptoCondiciones) {
       this.toastService.warning('⚠️ Debes aceptar las condiciones para registrarte');
       return;
@@ -136,7 +128,6 @@ export class Register implements OnInit {
   }
   
   ngOnInit(): void {
-    this.generarCaptcha();
   }
     
 }
