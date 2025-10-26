@@ -1,0 +1,173 @@
+<div class="turnos-container">
+  
+  <!-- Header -->
+  <div class="turnos-header">
+    <div class="header-content">
+      <span class="turnos-icon">🏥</span>
+      <div class="title-section">
+        <h1 class="title">Gestión de Turnos - Administrador</h1>
+        <p class="subtitle">Todos los turnos de la clínica</p>
+      </div>
+    </div>
+    
+    <button class="btn-back" (click)="volver()" title="Volver al panel admin">
+      <span class="back-icon">🏠</span>
+      Volver
+    </button>
+  </div>
+
+  <!-- Sección de filtros -->
+  <div class="filters-section">
+    <h2 class="section-title">🔍 Filtrar Turnos</h2>
+    
+    <div class="filters-grid">
+      <!-- Filtro por Especialidad -->
+      <div class="filter-group">
+        <label for="especialidad">Especialidad</label>
+        <input 
+          type="text" 
+          id="especialidad"
+          [(ngModel)]="filtroEspecialidad"
+          (ngModelChange)="aplicarFiltros()"
+          placeholder="Ej: cardiología, dermatología..."
+          class="filter-input">
+      </div>
+
+      <!-- Filtro por Especialista -->
+      <div class="filter-group">
+        <label for="especialista">Especialista</label>
+        <input 
+          type="text" 
+          id="especialista"
+          [(ngModel)]="filtroEspecialista"
+          (ngModelChange)="aplicarFiltros()"
+          placeholder="Nombre del especialista..."
+          class="filter-input">
+      </div>
+
+      <!-- Botón limpiar -->
+      <div class="filter-actions">
+        <button class="btn-clear" (click)="limpiarFiltros()">
+          <span class="clear-icon">🗑️</span>
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Turnos -->
+  <div class="turnos-list" *ngIf="!loading">
+    <div class="list-header">
+      <h2 class="section-title">📅 Turnos de la Clínica ({{ turnosFiltrados.length }})</h2>
+    </div>
+
+    <div *ngIf="turnosFiltrados.length === 0" class="no-turnos">
+      <span class="no-turnos-icon">📭</span>
+      <p>No se encontraron turnos que coincidan con los filtros.</p>
+      <button class="btn-secondary" (click)="limpiarFiltros()">Ver todos los turnos</button>
+    </div>
+
+    <div class="turnos-grid">
+      <div *ngFor="let turno of turnosFiltrados" class="turno-card">
+        
+        <!-- Header de la tarjeta -->
+        <div class="turno-header">
+          <div class="turno-info">
+            <h3 class="paciente-name">👤 {{ turno.pacienteNombre }}</h3>
+            <p class="especialista-name">👨‍⚕️ {{ turno.especialistaNombre }}</p>
+            <p class="especialidad">🏥 {{ turno.especialidad }}</p>
+          </div>
+          <div class="estado-badge" [style.background-color]="getEstadoColor(turno.estado)">
+            {{ turno.estado.toUpperCase() }}
+          </div>
+        </div>
+
+        <!-- Detalles del turno -->
+        <div class="turno-details">
+          <div class="detail-item">
+            <span class="detail-label">📅 Fecha:</span>
+            <span class="detail-value">{{ turno.fecha }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">🕒 Horario:</span>
+            <span class="detail-value">{{ turno.horario }}</span>
+          </div>
+        </div>
+
+        <!-- Comentarios existentes -->
+        <div *ngIf="turno.comentarioEspecialista" class="turno-comments">
+          <div class="comment-section">
+            <span class="comment-label">💬 Comentario:</span>
+            <p class="comment-text">{{ turno.comentarioEspecialista }}</p>
+          </div>
+        </div>
+
+        <!-- Acciones disponibles para admin -->
+        <div class="turno-actions">
+          
+          <!-- Cancelar turno -->
+          <button 
+            *ngIf="puedeCancelar(turno)" 
+            class="btn-action cancel" 
+            (click)="abrirModalCancelar(turno)"
+            [disabled]="loading">
+            <span class="action-icon">🚫</span>
+            Cancelar Turno
+          </button>
+
+          <!-- Mensaje si no hay acciones disponibles -->
+          <div *ngIf="!puedeCancelar(turno)" class="no-actions">
+            <span class="no-action-text">Sin acciones disponibles</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner 
+      mode="indeterminate" 
+      color="primary" 
+      diameter="50" 
+      strokeWidth="4">
+    </mat-progress-spinner>
+    <p>Cargando turnos...</p>
+  </div>
+
+  <!-- MODAL PARA CANCELAR TURNO -->
+  <div *ngIf="mostrarModalCancelar" class="modal-overlay" (click)="cerrarModales()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>🚫 Cancelar Turno (Administrador)</h3>
+        <button class="modal-close" (click)="cerrarModales()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Paciente:</strong> {{ turnoSeleccionado?.pacienteNombre }}</p>
+        <p><strong>Especialista:</strong> {{ turnoSeleccionado?.especialistaNombre }}</p>
+        <p><strong>Turno:</strong> {{ turnoSeleccionado?.fecha }} - {{ turnoSeleccionado?.horario }}</p>
+        
+        <div class="form-group">
+          <label for="comentarioCancelacion">Motivo de la cancelación *</label>
+          <textarea 
+            id="comentarioCancelacion"
+            [(ngModel)]="comentarioCancelacion"
+            placeholder="Explica por qué cancelas este turno..."
+            rows="4"
+            class="form-textarea"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="cerrarModales()">Cerrar</button>
+        <button class="btn-danger" (click)="cancelarTurno()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner"></span>
+          Cancelar Turno
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sistema de toasts -->
+  <app-toast></app-toast>
+
+</div>
