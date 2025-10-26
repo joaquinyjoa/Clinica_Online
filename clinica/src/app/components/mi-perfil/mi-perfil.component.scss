@@ -219,6 +219,317 @@
         color: #4a6741;
       }
     }
+
+    // Resumen de horarios
+    .horarios-resumen {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: linear-gradient(135deg, #f0f8f0, #e8f5e8);
+      border-radius: 12px;
+      border: 1px solid #d4edda;
+
+      .resumen-item {
+        text-align: center;
+        padding: 16px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        .resumen-numero {
+          display: block;
+          font-size: 2rem;
+          font-weight: 700;
+          color: #2d5a2d;
+          margin-bottom: 4px;
+        }
+
+        .resumen-label {
+          font-size: 0.9rem;
+          color: #666;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+
+    // Grid de horarios
+    .horarios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+
+      .dia-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+
+        &.activo {
+          border-color: #4CAF50;
+          box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+        }
+
+        &.editing {
+          border-color: #2196F3;
+        }
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .dia-header {
+          padding: 16px;
+          background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+          border-bottom: 1px solid #e0e0e0;
+
+          .dia-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            h3 {
+              margin: 0;
+              color: #333;
+              font-size: 1.1rem;
+              font-weight: 600;
+            }
+
+            .dia-toggle {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              cursor: pointer;
+              font-size: 0.9rem;
+
+              input[type="checkbox"] {
+                display: none;
+              }
+
+              .toggle-slider {
+                width: 40px;
+                height: 20px;
+                background: #ccc;
+                border-radius: 20px;
+                position: relative;
+                transition: all 0.3s ease;
+
+                &::after {
+                  content: '';
+                  width: 16px;
+                  height: 16px;
+                  background: white;
+                  border-radius: 50%;
+                  position: absolute;
+                  top: 2px;
+                  left: 2px;
+                  transition: all 0.3s ease;
+                }
+              }
+
+              input:checked + .toggle-slider {
+                background: #4CAF50;
+
+                &::after {
+                  left: 22px;
+                }
+              }
+
+              .toggle-label {
+                font-weight: 500;
+                color: #555;
+              }
+            }
+
+            .dia-status {
+              font-size: 0.9rem;
+              font-weight: 500;
+
+              &.disponible {
+                color: #4CAF50;
+              }
+
+              &.no-disponible {
+                color: #f44336;
+              }
+            }
+          }
+        }
+
+        .dia-turnos {
+          padding: 16px;
+
+          .turno-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+
+            &.activo {
+              background: linear-gradient(90deg, #e8f5e8, #f0f8f0);
+              border-color: #4CAF50;
+            }
+
+            &.disabled {
+              opacity: 0.5;
+              background: #f8f9fa;
+            }
+
+            .turno-checkbox {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              cursor: pointer;
+
+              input[type="checkbox"] {
+                display: none;
+              }
+
+              .checkbox-custom {
+                width: 18px;
+                height: 18px;
+                border: 2px solid #ccc;
+                border-radius: 4px;
+                position: relative;
+                transition: all 0.3s ease;
+
+                &::after {
+                  content: '✓';
+                  position: absolute;
+                  top: -2px;
+                  left: 2px;
+                  color: white;
+                  font-size: 14px;
+                  opacity: 0;
+                  transition: all 0.3s ease;
+                }
+              }
+
+              input:checked + .checkbox-custom {
+                background: #4CAF50;
+                border-color: #4CAF50;
+
+                &::after {
+                  opacity: 1;
+                }
+              }
+
+              input:disabled + .checkbox-custom {
+                background: #f0f0f0;
+                border-color: #ddd;
+                cursor: not-allowed;
+              }
+            }
+
+            .turno-info {
+              flex: 1;
+
+              .turno-nombre {
+                display: block;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 4px;
+              }
+
+              .turno-horario {
+                font-size: 0.85rem;
+                color: #666;
+              }
+            }
+          }
+
+          .dia-no-disponible {
+            text-align: center;
+            padding: 24px;
+            color: #999;
+
+            p {
+              margin: 0 0 8px 0;
+              font-weight: 500;
+            }
+
+            small {
+              font-size: 0.85rem;
+            }
+          }
+        }
+
+        .dia-resumen {
+          padding: 12px 16px;
+          background: #f8f9fa;
+          border-top: 1px solid #e0e0e0;
+
+          small {
+            color: #666;
+            font-size: 0.85rem;
+          }
+        }
+      }
+    }
+
+    // Información adicional
+    .horarios-info {
+      margin-top: 24px;
+
+      .info-card {
+        background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+        border: 1px solid #ffcc02;
+        border-radius: 12px;
+        padding: 20px;
+
+        h4 {
+          margin: 0 0 16px 0;
+          color: #8f5000;
+          font-size: 1.1rem;
+        }
+
+        ul {
+          margin: 0;
+          padding-left: 20px;
+
+          li {
+            margin-bottom: 8px;
+            color: #a66800;
+            line-height: 1.4;
+
+            strong {
+              color: #8f5000;
+            }
+          }
+        }
+      }
+    }
+
+    // Estado sin horarios
+    .no-horarios {
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+      border-radius: 12px;
+      border: 2px dashed #ccc;
+
+      .no-horarios-content {
+        max-width: 400px;
+        margin: 0 auto;
+
+        h4 {
+          color: #666;
+          margin-bottom: 12px;
+        }
+
+        p {
+          color: #888;
+          margin-bottom: 20px;
+          line-height: 1.5;
+        }
+      }
+    }
   }
 
   // Sección específica para info
@@ -538,6 +849,64 @@
         }
       }
     }
+
+    // Horarios responsive
+    .seccion-horarios {
+      .horarios-resumen {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding: 16px;
+
+        .resumen-item {
+          padding: 12px;
+
+          .resumen-numero {
+            font-size: 1.5rem;
+          }
+
+          .resumen-label {
+            font-size: 0.8rem;
+          }
+        }
+      }
+
+      .horarios-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+
+        .dia-card {
+          .dia-header {
+            .dia-info {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 12px;
+
+              .dia-toggle {
+                align-self: flex-end;
+              }
+            }
+          }
+        }
+      }
+
+      .horarios-info {
+        .info-card {
+          padding: 16px;
+
+          h4 {
+            font-size: 1rem;
+          }
+
+          ul {
+            padding-left: 16px;
+
+            li {
+              font-size: 0.9rem;
+            }
+          }
+        }
+      }
+    }
   }
 
   @media (max-width: 480px) {
@@ -581,6 +950,94 @@
       &.btn-edit, &.btn-save, &.btn-cancel {
         padding: 6px 12px;
         font-size: 0.85rem;
+      }
+    }
+
+    // Horarios mobile
+    .seccion-horarios {
+      .horarios-resumen {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px;
+
+        .resumen-item {
+          padding: 10px;
+        }
+      }
+
+      .horarios-grid {
+        .dia-card {
+          .dia-header {
+            padding: 12px;
+
+            .dia-info {
+              gap: 8px;
+
+              h3 {
+                font-size: 1rem;
+              }
+
+              .dia-toggle {
+                font-size: 0.8rem;
+
+                .toggle-slider {
+                  width: 32px;
+                  height: 16px;
+
+                  &::after {
+                    width: 12px;
+                    height: 12px;
+                  }
+                }
+
+                input:checked + .toggle-slider::after {
+                  left: 18px;
+                }
+              }
+            }
+          }
+
+          .dia-turnos {
+            padding: 12px;
+
+            .turno-item {
+              padding: 10px;
+              
+              .turno-checkbox {
+                gap: 8px;
+
+                .checkbox-custom {
+                  width: 16px;
+                  height: 16px;
+                }
+              }
+
+              .turno-info {
+                .turno-nombre {
+                  font-size: 0.9rem;
+                }
+
+                .turno-horario {
+                  font-size: 0.8rem;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .no-horarios {
+        padding: 24px 16px;
+
+        .no-horarios-content {
+          h4 {
+            font-size: 1rem;
+          }
+
+          p {
+            font-size: 0.9rem;
+          }
+        }
       }
     }
   }

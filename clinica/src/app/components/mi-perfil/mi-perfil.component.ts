@@ -8,6 +8,24 @@ import { ToastService } from '../../services/toast.service';
 import { Empleado } from '../../services/empleados.service';
 import { Paciente } from '../../services/pacientes.service';
 
+// Interfaces para horarios
+interface HorarioDia {
+  activo: boolean;
+  manana: boolean;
+  tarde: boolean;
+}
+
+interface HorariosEspecialista {
+  lunes: HorarioDia;
+  martes: HorarioDia;
+  miercoles: HorarioDia;
+  jueves: HorarioDia;
+  viernes: HorarioDia;
+  sabado: HorarioDia;
+}
+
+type DiaSemana = keyof HorariosEspecialista;
+
 @Component({
   selector: 'app-mi-perfil',
   standalone: true,
@@ -34,6 +52,30 @@ export class MiPerfilComponent implements OnInit {
   // Preview de imágenes
   imagen1Preview: string | null = null;
   imagen2Preview: string | null = null;
+
+  // ========== HORARIOS (Solo para especialistas) ==========
+  isEditingHorarios = false;
+  isSavingHorarios = false;
+  
+  // Estructura de horarios
+  horarios: HorariosEspecialista = {
+    lunes: { activo: false, manana: false, tarde: false },
+    martes: { activo: false, manana: false, tarde: false },
+    miercoles: { activo: false, manana: false, tarde: false },
+    jueves: { activo: false, manana: false, tarde: false },
+    viernes: { activo: false, manana: false, tarde: false },
+    sabado: { activo: false, manana: false, tarde: false }
+  };
+
+  // Días de la semana para mostrar
+  diasSemana: Array<{key: DiaSemana, label: string}> = [
+    { key: 'lunes', label: 'Lunes' },
+    { key: 'martes', label: 'Martes' },
+    { key: 'miercoles', label: 'Miércoles' },
+    { key: 'jueves', label: 'Jueves' },
+    { key: 'viernes', label: 'Viernes' },
+    { key: 'sabado', label: 'Sábado' }
+  ];
 
   constructor() {
     this.datosPersonalesForm = this.fb.group({
@@ -265,5 +307,104 @@ export class MiPerfilComponent implements OnInit {
   // Getters para validaciones del formulario
   get f() {
     return this.datosPersonalesForm.controls;
+  }
+
+  // ========== MÉTODOS PARA HORARIOS ==========
+
+  toggleEditingHorarios() {
+    this.isEditingHorarios = !this.isEditingHorarios;
+    if (!this.isEditingHorarios) {
+      // Si cancela la edición, recargar horarios originales
+      this.cargarHorariosEspecialista();
+    }
+  }
+
+  async guardarHorarios() {
+    if (!this.isEspecialista()) {
+      this.toastService.warning('Solo los especialistas pueden configurar horarios');
+      return;
+    }
+
+    this.isSavingHorarios = true;
+
+    try {
+      // Aquí implementaremos el guardado en la base de datos en la Tarea 7
+      console.log('Horarios a guardar:', this.horarios);
+      
+      // Simulación de guardado por ahora
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      this.toastService.success('Horarios actualizados correctamente');
+      this.isEditingHorarios = false;
+    } catch (error) {
+      console.error('Error al guardar horarios:', error);
+      this.toastService.error('Error al guardar los horarios');
+    } finally {
+      this.isSavingHorarios = false;
+    }
+  }
+
+  cargarHorariosEspecialista() {
+    // Aquí cargaremos los horarios desde la base de datos en la Tarea 7
+    // Por ahora, mantenemos la estructura inicial
+    console.log('Cargando horarios del especialista...');
+  }
+
+  toggleDiaCompleto(dia: DiaSemana) {
+    if (!this.isEditingHorarios) return;
+    
+    const horarioDia = this.horarios[dia];
+    horarioDia.activo = !horarioDia.activo;
+    
+    // Si se desactiva el día, también desactivar mañana y tarde
+    if (!horarioDia.activo) {
+      horarioDia.manana = false;
+      horarioDia.tarde = false;
+    }
+  }
+
+  toggleTurno(dia: DiaSemana, turno: 'manana' | 'tarde') {
+    if (!this.isEditingHorarios) return;
+    
+    const horarioDia = this.horarios[dia];
+    horarioDia[turno] = !horarioDia[turno];
+    
+    // Si se activa un turno, activar el día automáticamente
+    if (horarioDia[turno]) {
+      horarioDia.activo = true;
+    }
+    
+    // Si se desactivan ambos turnos, desactivar el día
+    if (!horarioDia.manana && !horarioDia.tarde) {
+      horarioDia.activo = false;
+    }
+  }
+
+  isEspecialista(): boolean {
+    return this.userType === 'especialista';
+  }
+
+  getHorarioTexto(dia: DiaSemana): string {
+    const horarioDia = this.horarios[dia];
+    
+    if (!horarioDia.activo) {
+      return 'No disponible';
+    }
+    
+    const turnos = [];
+    if (horarioDia.manana) turnos.push('Mañana (8:00-12:00)');
+    if (horarioDia.tarde) turnos.push('Tarde (14:00-18:00)');
+    
+    return turnos.length > 0 ? turnos.join(', ') : 'Día activo sin turnos';
+  }
+
+  contarDiasActivos(): number {
+    return Object.values(this.horarios).filter(dia => dia.activo).length;
+  }
+
+  contarTurnosActivos(): number {
+    return Object.values(this.horarios).reduce((count, dia) => {
+      return count + (dia.manana ? 1 : 0) + (dia.tarde ? 1 : 0);
+    }, 0);
   }
 }

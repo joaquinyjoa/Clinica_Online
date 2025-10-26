@@ -350,16 +350,186 @@
         @if (userType === 'especialista') {
           <section class="seccion-horarios">
             <div class="seccion-header">
-              <h2>🕒 Mis Horarios</h2>
-              <p>Gestiona tu disponibilidad horaria</p>
-            </div>
-            <div class="seccion-content">
-              <p class="placeholder-text">
-                📅 Esta sección permitirá configurar días disponibles (Lunes a Sábado) y rangos horarios (mañana y tarde).
-              </p>
-              <div class="coming-soon">
-                <em>Próximamente disponible a partir de la Tarea 4</em>
+              <div class="header-info">
+                <h2>🕒 Mis Horarios</h2>
+                <p>Gestiona tu disponibilidad horaria semanal</p>
               </div>
+              <div class="header-actions">
+                @if (!isEditingHorarios) {
+                  <button class="btn btn-edit" (click)="toggleEditingHorarios()">
+                    ✏️ Editar Horarios
+                  </button>
+                } @else {
+                  <div class="edit-actions">
+                    <button class="btn btn-save" 
+                            (click)="guardarHorarios()" 
+                            [disabled]="isSavingHorarios">
+                      @if (isSavingHorarios) {
+                        ⏳ Guardando...
+                      } @else {
+                        💾 Guardar
+                      }
+                    </button>
+                    <button class="btn btn-cancel" 
+                            (click)="toggleEditingHorarios()" 
+                            [disabled]="isSavingHorarios">
+                      ❌ Cancelar
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+            
+            <div class="seccion-content">
+              
+              <!-- Resumen de horarios -->
+              <div class="horarios-resumen">
+                <div class="resumen-item">
+                  <span class="resumen-numero">{{ contarDiasActivos() }}</span>
+                  <span class="resumen-label">Días activos</span>
+                </div>
+                <div class="resumen-item">
+                  <span class="resumen-numero">{{ contarTurnosActivos() }}</span>
+                  <span class="resumen-label">Turnos configurados</span>
+                </div>
+              </div>
+
+              <!-- Grid de horarios por día -->
+              <div class="horarios-grid">
+                @for (dia of diasSemana; track dia.key) {
+                  <div class="dia-card" 
+                       [class.activo]="horarios[dia.key].activo"
+                       [class.editing]="isEditingHorarios">
+                    
+                    <!-- Header del día -->
+                    <div class="dia-header">
+                      <div class="dia-info">
+                        <h3>{{ dia.label }}</h3>
+                        @if (isEditingHorarios) {
+                          <label class="dia-toggle">
+                            <input type="checkbox" 
+                                   [checked]="horarios[dia.key].activo"
+                                   (change)="toggleDiaCompleto(dia.key)">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Disponible</span>
+                          </label>
+                        } @else {
+                          <span class="dia-status" 
+                                [class.disponible]="horarios[dia.key].activo"
+                                [class.no-disponible]="!horarios[dia.key].activo">
+                            {{ horarios[dia.key].activo ? '✅ Disponible' : '❌ No disponible' }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Turnos del día -->
+                    <div class="dia-turnos">
+                      @if (horarios[dia.key].activo || isEditingHorarios) {
+                        
+                        <!-- Turno Mañana -->
+                        <div class="turno-item"
+                             [class.activo]="horarios[dia.key].manana"
+                             [class.disabled]="!horarios[dia.key].activo">
+                          @if (isEditingHorarios) {
+                            <label class="turno-checkbox">
+                              <input type="checkbox" 
+                                     [checked]="horarios[dia.key].manana"
+                                     [disabled]="!horarios[dia.key].activo"
+                                     (change)="toggleTurno(dia.key, 'manana')">
+                              <span class="checkbox-custom"></span>
+                              <div class="turno-info">
+                                <span class="turno-nombre">🌅 Mañana</span>
+                                <span class="turno-horario">8:00 - 12:00</span>
+                              </div>
+                            </label>
+                          } @else {
+                            <div class="turno-info">
+                              <span class="turno-nombre">
+                                @if (horarios[dia.key].manana) {
+                                  ✅ 🌅 Mañana
+                                } @else {
+                                  ❌ 🌅 Mañana
+                                }
+                              </span>
+                              <span class="turno-horario">8:00 - 12:00</span>
+                            </div>
+                          }
+                        </div>
+
+                        <!-- Turno Tarde -->
+                        <div class="turno-item"
+                             [class.activo]="horarios[dia.key].tarde"
+                             [class.disabled]="!horarios[dia.key].activo">
+                          @if (isEditingHorarios) {
+                            <label class="turno-checkbox">
+                              <input type="checkbox" 
+                                     [checked]="horarios[dia.key].tarde"
+                                     [disabled]="!horarios[dia.key].activo"
+                                     (change)="toggleTurno(dia.key, 'tarde')">
+                              <span class="checkbox-custom"></span>
+                              <div class="turno-info">
+                                <span class="turno-nombre">🌇 Tarde</span>
+                                <span class="turno-horario">14:00 - 18:00</span>
+                              </div>
+                            </label>
+                          } @else {
+                            <div class="turno-info">
+                              <span class="turno-nombre">
+                                @if (horarios[dia.key].tarde) {
+                                  ✅ 🌇 Tarde
+                                } @else {
+                                  ❌ 🌇 Tarde
+                                }
+                              </span>
+                              <span class="turno-horario">14:00 - 18:00</span>
+                            </div>
+                          }
+                        </div>
+
+                      } @else {
+                        <div class="dia-no-disponible">
+                          <p>📅 Día no disponible</p>
+                          <small>Activa el día para configurar turnos</small>
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Resumen del día (solo en modo vista) -->
+                    @if (!isEditingHorarios && horarios[dia.key].activo) {
+                      <div class="dia-resumen">
+                        <small>{{ getHorarioTexto(dia.key) }}</small>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Información adicional -->
+              @if (isEditingHorarios) {
+                <div class="horarios-info">
+                  <div class="info-card">
+                    <h4>💡 Información sobre horarios</h4>
+                    <ul>
+                      <li><strong>Mañana:</strong> 8:00 AM - 12:00 PM (turnos cada 30 minutos)</li>
+                      <li><strong>Tarde:</strong> 2:00 PM - 6:00 PM (turnos cada 30 minutos)</li>
+                      <li><strong>Días disponibles:</strong> Lunes a Sábado</li>
+                      <li>Puedes activar/desactivar días completos o turnos específicos</li>
+                    </ul>
+                  </div>
+                </div>
+              } @else if (contarDiasActivos() === 0) {
+                <div class="no-horarios">
+                  <div class="no-horarios-content">
+                    <h4>📋 Sin horarios configurados</h4>
+                    <p>Configura tus horarios de atención para que los pacientes puedan solicitar turnos contigo.</p>
+                    <button class="btn btn-primary" (click)="toggleEditingHorarios()">
+                      ⚙️ Configurar Horarios
+                    </button>
+                  </div>
+                </div>
+              }
+
             </div>
           </section>
         }
