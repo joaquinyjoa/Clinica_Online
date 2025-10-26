@@ -20,6 +20,20 @@ export class SolicitarTurnoComponent implements OnInit {
   esAdmin = false;
   usuarioActual: any = null;
 
+  // Datos disponibles
+  especialidades: string[] = [
+    'Cardiología',
+    'Dermatología',
+    'Neurología',
+    'Pediatría',
+    'Traumatología',
+    'Oftalmología',
+    'Psiquiatría',
+    'Ginecología',
+    'Urología',
+    'Endocrinología'
+  ];
+
   // Propiedades del turno
   especialidadSeleccionada = '';
   especialistaSeleccionado = '';
@@ -64,12 +78,15 @@ export class SolicitarTurnoComponent implements OnInit {
     }
   }
 
-  // Métodos placeholder que implementaremos en las siguientes tareas
+  // Métodos para selección de turno
   seleccionarEspecialidad(especialidad: string) {
     this.especialidadSeleccionada = especialidad;
+    // Resetear selecciones posteriores
     this.especialistaSeleccionado = '';
     this.fechaSeleccionada = '';
     this.horarioSeleccionado = '';
+    
+    this.toastService.success(`✅ Especialidad seleccionada: ${especialidad}`);
   }
 
   seleccionarEspecialista(especialista: string) {

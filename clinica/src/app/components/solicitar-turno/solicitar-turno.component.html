@@ -50,11 +50,20 @@
       <h3 class="step-title" [innerHTML]="esAdmin ? '2️⃣ Seleccionar Especialidad' : '1️⃣ Seleccionar Especialidad'"></h3>
       <div class="step-content">
         <p class="step-description">Elige la especialidad médica que necesitas</p>
-        <!-- Implementaremos esto en la tarea 3 -->
-        <div class="placeholder-section">
-          <p class="placeholder-text">🚧 Selector de especialidad - Por implementar</p>
+        <div class="selector-container">
+          <div class="especialidades-grid">
+            @for (especialidad of especialidades; track especialidad) {
+              <button 
+                type="button"
+                class="especialidad-btn"
+                [class.selected]="especialidad === especialidadSeleccionada"
+                (click)="seleccionarEspecialidad(especialidad)">
+                {{ especialidad }}
+              </button>
+            }
+          </div>
           <div class="selected-info" *ngIf="especialidadSeleccionada">
-            <span class="selected-label">Seleccionado:</span>
+            <span class="selected-label">✅ Especialidad seleccionada:</span>
             <span class="selected-value">{{ especialidadSeleccionada }}</span>
           </div>
         </div>
