@@ -239,14 +239,14 @@
     </div>
 
     <!-- Resumen y confirmación -->
-    <div class="form-section summary-section" *ngIf="horarioSeleccionado">
+    <div class="form-section summary-section" *ngIf="horarioSeleccionado && (!esAdmin || pacienteSeleccionado)">
       <h3 class="step-title">✅ Confirmar Turno</h3>
       <div class="step-content">
         <div class="turno-summary">
           <h4>Resumen del turno:</h4>
           <div class="summary-item" *ngIf="esAdmin && pacienteSeleccionado">
             <span class="summary-label">Paciente:</span>
-            <span class="summary-value">{{ pacienteSeleccionado }}</span>
+            <span class="summary-value">{{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Especialidad:</span>
@@ -254,11 +254,11 @@
           </div>
           <div class="summary-item">
             <span class="summary-label">Especialista:</span>
-            <span class="summary-value">{{ especialistaSeleccionado }}</span>
+            <span class="summary-value">Dr/a. {{ especialistaSeleccionado.nombre }} {{ especialistaSeleccionado.apellido }}</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Fecha:</span>
-            <span class="summary-value">{{ fechaSeleccionada }}</span>
+            <span class="summary-value">{{ obtenerFechaSeleccionadaFormateada() }}</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Horario:</span>

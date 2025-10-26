@@ -7,6 +7,7 @@ import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
 import { EmpleadosService } from '../../services/empleados.service';
 import { PacientesService } from '../../services/pacientes.service';
+import { TurnosService } from '../../services/turnos.service';
 
 @Component({
   selector: 'app-solicitar-turno',
@@ -51,6 +52,7 @@ export class SolicitarTurnoComponent implements OnInit {
   private toastService = inject(ToastService);
   private empleadosService = inject(EmpleadosService);
   private pacientesService = inject(PacientesService);
+  private turnosService = inject(TurnosService);
 
   ngOnInit() {
     this.detectarTipoUsuario();
@@ -248,8 +250,94 @@ export class SolicitarTurnoComponent implements OnInit {
     this.toastService.success(`✅ Paciente seleccionado: ${nombreCompleto}`);
   }
 
-  confirmarTurno() {
-    // Implementaremos esto en la tarea 8
-    this.toastService.info('🚧 Funcionalidad en desarrollo...');
+  async confirmarTurno() {
+    // Validar que todos los campos estén completos
+    if (!this.validarDatosCompletos()) {
+      return;
+    }
+
+    this.loading = true;
+    
+    try {
+      // Crear objeto turno
+      const turno = {
+        especialidad: this.especialidadSeleccionada,
+        especialistaid: this.especialistaSeleccionado.id,
+        especialistaNombre: `${this.especialistaSeleccionado.nombre} ${this.especialistaSeleccionado.apellido}`,
+        fecha: this.fechaSeleccionada,
+        horario: this.horarioSeleccionado,
+        pacienteid: this.esAdmin ? this.pacienteSeleccionado.id : (this.usuarioActual ? this.usuarioActual.id : null),
+        pacienteNombre: this.esAdmin ? 
+          `${this.pacienteSeleccionado.nombre} ${this.pacienteSeleccionado.apellido}` : 
+          (this.usuarioActual ? `${this.usuarioActual.nombre} ${this.usuarioActual.apellido}` : 'Usuario actual'),
+        estado: 'pendiente' as const,
+        comentarioPaciente: '',
+        comentarioEspecialista: ''
+      };
+
+      // Guardar turno usando el servicio
+      await this.turnosService.crearTurno(turno);
+      
+      this.toastService.success('✅ Turno creado exitosamente');
+      this.toastService.info('� Se ha enviado una confirmación por email');
+      
+      // Resetear formulario
+      this.resetearFormulario();
+      
+      // Redirigir según el tipo de usuario
+      setTimeout(() => {
+        if (this.esAdmin) {
+          this.router.navigate(['/panel-admin']);
+        } else {
+          this.router.navigate(['/mis-turnos']);
+        }
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error al crear turno:', error);
+      this.toastService.error('❌ Error al crear el turno. Intenta nuevamente.');
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private validarDatosCompletos(): boolean {
+    if (!this.especialidadSeleccionada) {
+      this.toastService.warning('⚠️ Selecciona una especialidad');
+      return false;
+    }
+    
+    if (!this.especialistaSeleccionado) {
+      this.toastService.warning('⚠️ Selecciona un especialista');
+      return false;
+    }
+    
+    if (!this.fechaSeleccionada) {
+      this.toastService.warning('⚠️ Selecciona una fecha');
+      return false;
+    }
+    
+    if (!this.horarioSeleccionado) {
+      this.toastService.warning('⚠️ Selecciona un horario');
+      return false;
+    }
+    
+    if (this.esAdmin && !this.pacienteSeleccionado) {
+      this.toastService.warning('⚠️ Selecciona un paciente');
+      return false;
+    }
+    
+    return true;
+  }
+
+  private resetearFormulario() {
+    this.especialidadSeleccionada = '';
+    this.especialistaSeleccionado = null;
+    this.fechaSeleccionada = '';
+    this.horarioSeleccionado = '';
+    this.pacienteSeleccionado = null;
+    this.especialistasFiltrados = [];
+    this.fechasDisponibles = [];
+    this.horariosDisponibles = [];
   }
 }
