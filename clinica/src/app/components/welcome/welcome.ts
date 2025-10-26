@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-welcome',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatProgressSpinnerModule, NgIf],
   templateUrl: './welcome.html',
   styleUrls: ['./welcome.scss']
 })
@@ -32,7 +33,4 @@ export class Welcome {
     void this.navigateWithSpinner('/register');
   }
 
-  NavegarSolicitarTurno() {
-    void this.navigateWithSpinner('/solicitar-turno');
-  }
 }

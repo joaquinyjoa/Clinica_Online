@@ -22,4 +22,6 @@ export const routes: Routes = [
     canActivate: [AdminGuard]},
    {path: 'solicitar-turno', 
     loadComponent: () => import('./components/solicitar-turno/solicitar-turno.component').then(m => m.SolicitarTurnoComponent)},
+   {path: 'mi-perfil', 
+    loadComponent: () => import('./components/mi-perfil/mi-perfil.component').then(m => m.MiPerfilComponent)},
 ];
