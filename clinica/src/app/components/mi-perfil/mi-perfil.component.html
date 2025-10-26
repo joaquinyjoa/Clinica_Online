@@ -1,0 +1,105 @@
+<div class="mi-perfil-container" [attr.data-user-type]="userType">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando perfil...</p>
+    </div>
+  }
+
+  <!-- Error State - Usuario no encontrado -->
+  @else if (!currentUser || !userType) {
+    <div class="error-state">
+      <h2>⚠️ Error al cargar perfil</h2>
+      <p>No se pudo obtener la información del usuario.</p>
+      <button class="btn btn-primary" (click)="volver()">
+        🔙 Volver al inicio
+      </button>
+    </div>
+  }
+
+  <!-- Main Content -->
+  @else {
+    <div class="perfil-content">
+      <!-- Header -->
+      <header class="perfil-header">
+        <button class="btn-back" (click)="volver()" title="Volver">
+          🔙
+        </button>
+        <div class="header-info">
+          <h1>Mi Perfil</h1>
+          <div class="user-badge" [class]="userType">
+            <span class="user-type-label">{{ getUserTypeLabel() }}</span>
+            <span class="user-name">{{ getUserDisplayName() }}</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Sections -->
+      <main class="perfil-main">
+        <!-- Datos Personales Section -->
+        <section class="seccion-datos-personales">
+          <div class="seccion-header">
+            <h2>📋 Datos Personales</h2>
+            <p>Información personal y de contacto</p>
+          </div>
+          <div class="seccion-content">
+            <p class="placeholder-text">
+              📝 Esta sección permitirá editar: nombre, apellido, edad, DNI, email e imágenes de perfil.
+            </p>
+            <div class="coming-soon">
+              <em>Próximamente disponible en la Tarea 3</em>
+            </div>
+          </div>
+        </section>
+
+        <!-- Mis Horarios Section (Solo para especialistas) -->
+        @if (userType === 'especialista') {
+          <section class="seccion-horarios">
+            <div class="seccion-header">
+              <h2>🕒 Mis Horarios</h2>
+              <p>Gestiona tu disponibilidad horaria</p>
+            </div>
+            <div class="seccion-content">
+              <p class="placeholder-text">
+                📅 Esta sección permitirá configurar días disponibles (Lunes a Sábado) y rangos horarios (mañana y tarde).
+              </p>
+              <div class="coming-soon">
+                <em>Próximamente disponible a partir de la Tarea 4</em>
+              </div>
+            </div>
+          </section>
+        }
+
+        <!-- Info Section for other user types -->
+        @else if (userType === 'admin') {
+          <section class="seccion-info">
+            <div class="seccion-header">
+              <h2>👨‍💼 Panel de Administrador</h2>
+              <p>Información adicional para administradores</p>
+            </div>
+            <div class="seccion-content">
+              <p class="placeholder-text">
+                🛠️ Como administrador, puedes gestionar usuarios, turnos y configuraciones del sistema desde otras secciones.
+              </p>
+            </div>
+          </section>
+        }
+
+        @else if (userType === 'paciente') {
+          <section class="seccion-info">
+            <div class="seccion-header">
+              <h2>🏥 Información del Paciente</h2>
+              <p>Tu información médica y historial</p>
+            </div>
+            <div class="seccion-content">
+              <p class="placeholder-text">
+                📋 Aquí podrás ver y actualizar tu información personal y médica.
+              </p>
+            </div>
+          </section>
+        }
+      </main>
+    </div>
+  }
+</div>
