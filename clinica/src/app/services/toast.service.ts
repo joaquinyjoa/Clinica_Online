@@ -33,12 +33,12 @@ export class ToastService {
     if (toast.duration !== 0) {
       setTimeout(() => {
         this.removeToast(toast.id);
-      }, toast.duration || 5000);
+      }, toast.duration || 3000);
     }
   }
 
   // Métodos públicos para mostrar diferentes tipos de toast
-  success(message: string, duration: number = 4000): void {
+  success(message: string, duration: number = 2500): void {
     const toast: ToastMessage = {
       id: this.generateId(),
       message,
@@ -49,7 +49,7 @@ export class ToastService {
     this.addToast(toast);
   }
 
-  error(message: string, duration: number = 6000): void {
+  error(message: string, duration: number = 4000): void {
     const toast: ToastMessage = {
       id: this.generateId(),
       message,
@@ -60,7 +60,7 @@ export class ToastService {
     this.addToast(toast);
   }
 
-  warning(message: string, duration: number = 5000): void {
+  warning(message: string, duration: number = 3500): void {
     const toast: ToastMessage = {
       id: this.generateId(),
       message,
@@ -71,7 +71,7 @@ export class ToastService {
     this.addToast(toast);
   }
 
-  info(message: string, duration: number = 4000): void {
+  info(message: string, duration: number = 3000): void {
     const toast: ToastMessage = {
       id: this.generateId(),
       message,
@@ -84,19 +84,19 @@ export class ToastService {
 
   // Métodos específicos para la clínica médica
   emailDuplicado(): void {
-    this.error('📧 Este email ya está registrado en el sistema. Por favor, utilice otro email.', 6000);
+    this.error('📧 Este email ya está registrado en el sistema. Por favor, utilice otro email.', 4000);
   }
 
   dniDuplicado(): void {
-    this.error('🆔 Este DNI ya está registrado en el sistema. Verifique el número ingresado.', 6000);
+    this.error('🆔 Este DNI ya está registrado en el sistema. Verifique el número ingresado.', 4000);
   }
 
   passwordDuplicado(): void {
-    this.error('🔒 Esta contraseña ya está en uso. Por seguridad, elija una contraseña diferente.', 6000);
+    this.error('🔒 Esta contraseña ya está en uso. Por seguridad, elija una contraseña diferente.', 4000);
   }
 
   especialidadAdministrador(): void {
-    this.error('👨‍💼 No puede registrarse como "Administrador" desde este formulario. Use el registro de especialista.', 6000);
+    this.error('👨‍💼 No puede registrarse como "Administrador" desde este formulario. Use el registro de especialista.', 4000);
   }
 
   cuentaCreada(tipoUsuario: string, nombre: string): void {
@@ -121,7 +121,7 @@ export class ToastService {
         mensaje = `¡Cuenta creada exitosamente! Bienvenido/a ${nombre}`;
     }
 
-    this.success(`${icono} ${mensaje}`, 5000);
+    this.success(`${icono} ${mensaje}`, 3500);
   }
 
   removeToast(id: string): void {
