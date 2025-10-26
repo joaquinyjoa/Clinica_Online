@@ -37,6 +37,7 @@ export class SolicitarTurnoComponent implements OnInit {
   especialistasDisponibles: any[] = [];
   especialistasFiltrados: any[] = [];
   fechasDisponibles: any[] = [];
+  horariosDisponibles: any[] = [];
 
   // Propiedades del turno
   especialidadSeleccionada = '';
@@ -119,6 +120,36 @@ export class SolicitarTurnoComponent implements OnInit {
     this.fechasDisponibles = fechas;
   }
 
+  generarHorariosDisponibles() {
+    const horarios = [];
+    
+    // Horarios de mañana (8:00 - 12:00)
+    for (let hora = 8; hora < 12; hora++) {
+      for (let minutos = 0; minutos < 60; minutos += 30) { // Cada 30 minutos
+        const horarioString = `${hora.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+        horarios.push({
+          hora: horarioString,
+          periodo: 'Mañana',
+          disponible: true // Por ahora todos disponibles, luego verificaremos con turnos ocupados
+        });
+      }
+    }
+    
+    // Horarios de tarde (14:00 - 18:00)
+    for (let hora = 14; hora < 18; hora++) {
+      for (let minutos = 0; minutos < 60; minutos += 30) { // Cada 30 minutos
+        const horarioString = `${hora.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+        horarios.push({
+          hora: horarioString,
+          periodo: 'Tarde',
+          disponible: true // Por ahora todos disponibles, luego verificaremos con turnos ocupados
+        });
+      }
+    }
+    
+    this.horariosDisponibles = horarios;
+  }
+
   volver() {
     if (this.esAdmin) {
       this.router.navigate(['/panel-admin']);
@@ -166,8 +197,12 @@ export class SolicitarTurnoComponent implements OnInit {
     this.fechaSeleccionada = fechaObj.fechaString;
     this.horarioSeleccionado = '';
     
+    // Generar horarios disponibles cuando se selecciona fecha
+    this.generarHorariosDisponibles();
+    
     const fechaFormateada = `${fechaObj.diaSemana} ${fechaObj.diaMes} de ${fechaObj.mes}`;
     this.toastService.success(`✅ Fecha seleccionada: ${fechaFormateada}`);
+    this.toastService.info(`🕐 Horarios disponibles generados (8:00-12:00 y 14:00-18:00)`);
   }
 
   obtenerFechaSeleccionadaFormateada(): string {
@@ -177,8 +212,17 @@ export class SolicitarTurnoComponent implements OnInit {
     return `${fechaObj.diaSemana} ${fechaObj.diaMes} de ${fechaObj.mes}`;
   }
 
-  seleccionarHorario(horario: string) {
-    this.horarioSeleccionado = horario;
+  obtenerHorariosManha(): any[] {
+    return this.horariosDisponibles.filter(h => h.periodo === 'Mañana');
+  }
+
+  obtenerHorariosTarde(): any[] {
+    return this.horariosDisponibles.filter(h => h.periodo === 'Tarde');
+  }
+
+  seleccionarHorario(horario: any) {
+    this.horarioSeleccionado = horario.hora;
+    this.toastService.success(`✅ Horario seleccionado: ${horario.hora} (${horario.periodo})`);
   }
 
   confirmarTurno() {
