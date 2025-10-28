@@ -34,13 +34,13 @@
   align-items: center;
 }
 
-/* Botón solicitar turno */
-.solicitar-btn {
+/* Botón mi perfil */
+.profile-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #ffc107, #e0a800);
-  color: #212529;
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
   border: none;
   border-radius: 12px;
   padding: 12px 20px;
@@ -48,18 +48,61 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.25);
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.25);
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #e0a800, #d39e00);
+    background: linear-gradient(135deg, #138496, #117a8b);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.35);
+    box-shadow: 0 6px 20px rgba(23, 162, 184, 0.35);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+  }
+}
+
+.profile-icon {
+  font-size: 1.1rem;
+}
+
+.profile-text {
+  font-size: 0.9rem;
+}
+
+/* Botón solicitar turno */
+.solicitar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(40, 167, 69, 0.3);
+  animation: pulse 2s infinite;
+  
+  .solicitar-icon {
+    font-size: 1.2rem;
+  }
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    animation: none;
   }
 }
 
@@ -223,6 +266,38 @@
   font-size: 4rem;
   display: block;
   margin-bottom: 15px;
+}
+
+/* Sección especial para pacientes sin turnos */
+.no-turnos-paciente {
+  margin: 20px 0;
+  
+  h3 {
+    color: #17a2b8;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  p {
+    color: #495057;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  
+  .beneficios {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 25px;
+    
+    span {
+      color: #28a745;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+  }
 }
 
 /* Grid de turnos */
@@ -560,6 +635,42 @@
   }
 }
 
+/* Botón principal para solicitar primer turno */
+.btn-solicitar-principal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 18px 35px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+  animation: pulse 2s infinite;
+  
+  .btn-icon {
+    font-size: 1.3rem;
+  }
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    animation: none;
+  }
+}
+
 /* Animaciones */
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-30px); }
@@ -639,5 +750,72 @@
   
   .modal-actions {
     flex-direction: column;
+  }
+}
+
+/* Botón flotante para solicitar turno */
+.btn-flotante-solicitar {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+  z-index: 1000;
+  animation: float 3s ease-in-out infinite;
+  
+  .flotante-icon {
+    font-size: 1.4rem;
+  }
+  
+  .flotante-text {
+    font-size: 0.95rem;
+  }
+  
+  &:hover {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+/* Animación de flotación */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-10px); 
+  }
+}
+
+/* Responsive para el botón flotante */
+@media (max-width: 768px) {
+  .btn-flotante-solicitar {
+    bottom: 20px;
+    right: 20px;
+    padding: 14px 20px;
+    
+    .flotante-text {
+      display: none; /* Solo mostrar el ícono en móviles */
+    }
+    
+    .flotante-icon {
+      font-size: 1.6rem;
+    }
   }
 }

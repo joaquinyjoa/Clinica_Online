@@ -23,8 +23,11 @@ export class ToastService {
   }
 
   private addToast(toast: ToastMessage): void {
-    const currentToasts = this.toastSubject.value;
-    const newToasts = [...currentToasts, toast];
+    // Limpiar todos los toasts anteriores cuando aparece uno nuevo
+    this.clearAll();
+    
+    // Agregar solo el nuevo toast
+    const newToasts = [toast];
     
     // Emitir inmediatamente el nuevo estado
     this.toastSubject.next(newToasts);

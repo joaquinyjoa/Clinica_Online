@@ -84,7 +84,7 @@
           class="user-btn patient" 
           (click)="loginRapido('ana@gmail.com','123456P')" 
           [disabled]="loading">
-          <img src="https://randomuser.me/api/portraits/women/32.jpg" 
+          <img [src]="imagenesUsuarios.ana" 
                alt="Paciente 1" 
                class="user-avatar"
                (error)="onImageError($event, 'A')">
@@ -99,7 +99,7 @@
           class="user-btn patient" 
           (click)="loginRapido('carlos@gmail.com','123456O')" 
           [disabled]="loading">
-          <img src="https://randomuser.me/portraits/men/32.jpg" 
+          <img [src]="imagenesUsuarios.carlos" 
                alt="Paciente 2" 
                class="user-avatar"
                (error)="onImageError($event, 'C')">
@@ -114,7 +114,7 @@
           class="user-btn patient" 
           (click)="loginRapido('maria@gmail.com','123456U')" 
           [disabled]="loading">
-          <img src="https://randomuser.me/api/portraits/women/68.jpg" 
+          <img [src]="imagenesUsuarios.maria" 
                alt="Paciente 3" 
                class="user-avatar"
                (error)="onImageError($event, 'M')">
@@ -130,7 +130,7 @@
           class="user-btn specialist" 
           (click)="loginRapido('rodriguez@gmail.com','123456Car')" 
           [disabled]="loading">
-          <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&crop=face" 
+          <img [src]="imagenesUsuarios.rodriguez" 
                alt="Especialista 1" 
                class="user-avatar"
                (error)="onImageError($event, 'R')">
@@ -145,7 +145,7 @@
           class="user-btn specialist" 
           (click)="loginRapido('martinez@gmail.com','123456Der')" 
           [disabled]="loading">
-          <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face" 
+          <img [src]="imagenesUsuarios.martinez" 
                alt="Especialista 2" 
                class="user-avatar"
                (error)="onImageError($event, 'D')">
@@ -161,7 +161,7 @@
           class="user-btn admin" 
           (click)="loginRapido('a@gmail.com','123456E')" 
           [disabled]="loading">
-          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" 
+          <img [src]="imagenesUsuarios.admin" 
                alt="Administrador" 
                class="user-avatar"
                (error)="onImageError($event, 'A')">

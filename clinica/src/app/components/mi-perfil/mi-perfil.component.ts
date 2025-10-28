@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { EmpleadosService } from '../../services/empleados.service';
 import { PacientesService } from '../../services/pacientes.service';
 import { ToastService } from '../../services/toast.service';
+import { HorariosService } from '../../services/horarios.service';
 import { Empleado } from '../../services/empleados.service';
 import { Paciente } from '../../services/pacientes.service';
 
@@ -37,6 +38,7 @@ export class MiPerfilComponent implements OnInit {
   private empleadosService = inject(EmpleadosService);
   private pacientesService = inject(PacientesService);
   private toastService = inject(ToastService);
+  private horariosService = inject(HorariosService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -97,6 +99,11 @@ export class MiPerfilComponent implements OnInit {
       await this.detectUserType();
       if (this.currentUser) {
         this.loadUserDataToForm();
+        
+        // Cargar horarios si es especialista
+        if (this.userType === 'especialista') {
+          await this.cargarHorariosEspecialista();
+        }
       }
     } catch (error) {
       console.error('Error al cargar perfil:', error);
@@ -325,14 +332,16 @@ export class MiPerfilComponent implements OnInit {
       return;
     }
 
+    if (!this.currentUser?.id) {
+      this.toastService.error('Error: No se encontró el ID del especialista');
+      return;
+    }
+
     this.isSavingHorarios = true;
 
     try {
-      // Aquí implementaremos el guardado en la base de datos en la Tarea 7
-      console.log('Horarios a guardar:', this.horarios);
-      
-      // Simulación de guardado por ahora
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Guardar horarios en la base de datos
+      await this.horariosService.guardarHorarios(this.currentUser.id, this.horarios);
       
       this.toastService.success('Horarios actualizados correctamente');
       this.isEditingHorarios = false;
@@ -344,10 +353,35 @@ export class MiPerfilComponent implements OnInit {
     }
   }
 
-  cargarHorariosEspecialista() {
-    // Aquí cargaremos los horarios desde la base de datos en la Tarea 7
-    // Por ahora, mantenemos la estructura inicial
-    console.log('Cargando horarios del especialista...');
+  async cargarHorariosEspecialista() {
+    if (!this.currentUser?.id || !this.isEspecialista()) return;
+
+    try {
+      const horariosDB = await this.horariosService.obtenerHorariosPorEspecialista(this.currentUser.id);
+      
+      // Resetear horarios a estado inicial
+      Object.keys(this.horarios).forEach(dia => {
+        const diaKey = dia as DiaSemana;
+        this.horarios[diaKey] = { activo: false, manana: false, tarde: false };
+      });
+
+      // Cargar horarios desde la base de datos
+      horariosDB.forEach(horario => {
+        const diaKey = horario.dia_semana as DiaSemana;
+        if (this.horarios[diaKey]) {
+          this.horarios[diaKey] = {
+            activo: horario.activo,
+            manana: horario.turno_manana,
+            tarde: horario.turno_tarde
+          };
+        }
+      });
+
+      console.log('Horarios cargados:', this.horarios);
+    } catch (error) {
+      console.error('Error cargando horarios:', error);
+      // No mostrar error al usuario ya que puede ser la primera vez que configura horarios
+    }
   }
 
   toggleDiaCompleto(dia: DiaSemana) {

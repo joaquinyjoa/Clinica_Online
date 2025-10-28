@@ -398,6 +398,12 @@ export class PanelAdminComponent implements OnInit {
     this.toastService.info('📅 Accediendo a la gestión de turnos...');
   }
 
+  // Método para ir a mi perfil
+  irAMiPerfil() {
+    this.router.navigate(['/mi-perfil']);
+    this.toastService.info('👤 Accediendo a mi perfil...');
+  }
+
   // Método para ir a solicitar turno
   irASolicitarTurno() {
     this.router.navigate(['/solicitar-turno']);

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { PacientesService, Paciente } from '../../services/pacientes.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -19,7 +20,8 @@ export class PacienteComponent {
 
   constructor(
     private pacientesService: PacientesService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private router: Router
   ) { }
 
   pacienteForm = this.fb.group({

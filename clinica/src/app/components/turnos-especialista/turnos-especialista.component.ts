@@ -6,6 +6,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TurnosService } from '../../services/turnos.service';
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
+import { EmpleadosService } from '../../services/empleados.service';
+import { PacientesService } from '../../services/pacientes.service';
 
 import { Turno } from '../../services/turnos.service';
 
@@ -25,6 +27,10 @@ export class TurnosEspecialistaComponent implements OnInit {
   filtroPaciente: string = '';
   loading = false;
 
+  // Usuario actual
+  usuarioActual: any = null;
+  esEspecialista = false;
+
   // Modal properties
   mostrarModalCancelar = false;
   mostrarModalRechazar = false;
@@ -40,64 +46,42 @@ export class TurnosEspecialistaComponent implements OnInit {
   private router = inject(Router);
   private turnosService = inject(TurnosService);
   private toastService = inject(ToastService);
+  private empleadosService = inject(EmpleadosService);
+  private pacientesService = inject(PacientesService);
 
   ngOnInit() {
-    this.cargarTurnos();
+    this.detectarUsuarioYCargarTurnos();
+  }
+
+  async detectarUsuarioYCargarTurnos() {
+    // Detectar si es un empleado/especialista logueado
+    const empleado = this.empleadosService.usuarioActual;
+    if (empleado) {
+      console.log('Empleado detectado en turnos-especialista:', empleado);
+      this.usuarioActual = empleado;
+      this.esEspecialista = empleado.especialidad?.toLowerCase() !== 'administrador';
+      
+      if (this.esEspecialista) {
+        await this.cargarTurnos();
+      } else {
+        this.toastService.warning('⚠️ Solo los especialistas pueden ver esta sección');
+        this.router.navigate(['/']);
+      }
+    } else {
+      this.toastService.error('❌ Debes estar logueado como especialista');
+      this.router.navigate(['/login']);
+    }
   }
 
   async cargarTurnos() {
     this.loading = true;
     try {
-      // Datos de ejemplo para prueba - reemplazar con llamada real al servicio
-      this.turnos = [
-        {
-          id: 1,
-          pacienteid: 101,
-          especialistaid: 201,
-          pacienteNombre: 'Juan Pérez',
-          especialidad: 'Cardiología',
-          fecha: '2025-10-27',
-          horario: '09:00',
-          estado: 'pendiente',
-          comentarioEspecialista: ''
-        },
-        {
-          id: 2,
-          pacienteid: 102,
-          especialistaid: 202,
-          pacienteNombre: 'María García',
-          especialidad: 'Dermatología',
-          fecha: '2025-10-27',
-          horario: '10:30',
-          estado: 'aceptado',
-          comentarioEspecialista: ''
-        },
-        {
-          id: 3,
-          pacienteid: 103,
-          especialistaid: 201,
-          pacienteNombre: 'Carlos López',
-          especialidad: 'Cardiología',
-          fecha: '2025-10-28',
-          horario: '14:00',
-          estado: 'realizado',
-          comentarioEspecialista: 'Consulta realizada exitosamente. Paciente presenta mejoría notable.'
-        },
-        {
-          id: 4,
-          pacienteid: 104,
-          especialistaid: 203,
-          pacienteNombre: 'Ana Rodríguez',
-          especialidad: 'Neurología',
-          fecha: '2025-10-29',
-          horario: '11:15',
-          estado: 'cancelado',
-          comentarioEspecialista: 'Cancelado por emergencia médica del especialista.'
-        }
-      ];
+      console.log('Cargando turnos para especialista ID:', this.usuarioActual.id);
       
-      // Comentar las líneas de arriba y descomentar la siguiente para usar el servicio real:
-      // this.turnos = await this.turnosService.obtenerTurnosEspecialista();
+      // Usar el servicio real para obtener turnos del especialista
+      this.turnos = await this.cargarTurnosEspecialista(this.usuarioActual.id);
+      
+      console.log('Turnos cargados:', this.turnos);
       this.aplicarFiltros();
     } catch (error) {
       console.error('Error cargando turnos:', error);
@@ -105,6 +89,37 @@ export class TurnosEspecialistaComponent implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  async cargarTurnosEspecialista(especialistaId: number): Promise<Turno[]> {
+    try {
+      return await this.turnosService.obtenerTurnosEspecialista(especialistaId);
+    } catch (err: any) {
+      console.warn('Consulta con joins fallida, usando fallback simple:', err?.message || err);
+      const simple = await this.turnosService.obtenerTurnosEspecialistaSimple(especialistaId);
+      return await Promise.all(simple.map(async (t: any) => {
+        const paciente = await this.pacientesService.obtenerPorId(t.pacienteid);
+        const empleado: any = await this.empleadosService.obtenerPorId(t.especialistaid);
+        return this.normalizeTurnoEnriquecido(t, paciente, empleado);
+      }));
+    }
+  }
+
+  normalizeTurnoEnriquecido(turno: any, paciente: any, empleado: any): Turno {
+    return {
+      id: turno.id,
+      pacienteid: turno.pacienteid,
+      especialistaid: turno.especialistaid,
+      pacienteNombre: paciente ? `${paciente.nombre} ${paciente.apellido || ''}`.trim() : 'Sin datos',
+      especialistaNombre: empleado ? `${empleado.nombre} ${empleado.apellido || ''}`.trim() : 'Sin datos',
+      especialidad: empleado?.especialidad || turno.especialidad || 'Sin especialidad',
+      fecha: turno.fecha,
+      horario: turno.horario,
+      estado: turno.estado,
+      comentariopaciente: turno.comentariopaciente || '',
+      comentarioespecialista: turno.comentarioespecialista || '',
+      comentarioEspecialista: turno.comentarioespecialista || ''
+    };
   }
 
   aplicarFiltros() {
@@ -118,6 +133,11 @@ export class TurnosEspecialistaComponent implements OnInit {
       
       return pasaFiltroEstado && pasaFiltroFecha && pasaFiltroEspecialidad && pasaFiltroPaciente;
     });
+  }
+
+  irAMiPerfil() {
+    this.router.navigate(['/mi-perfil']);
+    this.toastService.info('👤 Accediendo a mi perfil...');
   }
 
   volver() {
@@ -153,15 +173,22 @@ export class TurnosEspecialistaComponent implements OnInit {
     return colores[estado as keyof typeof colores] || '#6c757d';
   }
 
-  aceptarTurno(turno: Turno) {
+  async aceptarTurno(turno: Turno) {
     this.loading = true;
-    turno.estado = 'aceptado';
-    this.toastService.success('✅ Turno aceptado correctamente');
-    this.loading = false;
-    // Aquí podrías agregar la lógica para actualizar en la base de datos
+    try {
+      await this.turnosService.actualizarEstado(turno.id!, 'aceptado');
+      turno.estado = 'aceptado';
+      this.toastService.success('✅ Turno aceptado correctamente');
+      this.aplicarFiltros();
+    } catch (error) {
+      console.error('Error aceptando turno:', error);
+      this.toastService.error('❌ Error al aceptar el turno');
+    } finally {
+      this.loading = false;
+    }
   }
 
-  rechazarTurno() {
+  async rechazarTurno() {
     if (!this.comentarioRechazo.trim()) {
       this.toastService.warning('⚠️ Debes proporcionar un motivo para rechazar el turno');
       return;
@@ -169,16 +196,28 @@ export class TurnosEspecialistaComponent implements OnInit {
 
     if (this.turnoSeleccionado) {
       this.loading = true;
-      this.turnoSeleccionado.estado = 'rechazado';
-      this.turnoSeleccionado.comentarioEspecialista = this.comentarioRechazo;
-      this.toastService.success('❌ Turno rechazado');
-      this.cerrarModales();
-      this.loading = false;
-      // Aquí podrías agregar la lógica para actualizar en la base de datos
+      try {
+        await this.turnosService.actualizarEstadoConComentario(
+          this.turnoSeleccionado.id!, 
+          'rechazado', 
+          this.comentarioRechazo
+        );
+        
+        this.turnoSeleccionado.estado = 'rechazado';
+        this.turnoSeleccionado.comentarioEspecialista = this.comentarioRechazo;
+        this.toastService.success('❌ Turno rechazado');
+        this.cerrarModales();
+        this.aplicarFiltros();
+      } catch (error) {
+        console.error('Error rechazando turno:', error);
+        this.toastService.error('❌ Error al rechazar el turno');
+      } finally {
+        this.loading = false;
+      }
     }
   }
 
-  cancelarTurno() {
+  async cancelarTurno() {
     if (!this.comentarioCancelacion.trim()) {
       this.toastService.warning('⚠️ Debes proporcionar un motivo para cancelar el turno');
       return;
@@ -186,16 +225,28 @@ export class TurnosEspecialistaComponent implements OnInit {
 
     if (this.turnoSeleccionado) {
       this.loading = true;
-      this.turnoSeleccionado.estado = 'cancelado';
-      this.turnoSeleccionado.comentarioEspecialista = this.comentarioCancelacion;
-      this.toastService.success('🚫 Turno cancelado');
-      this.cerrarModales();
-      this.loading = false;
-      // Aquí podrías agregar la lógica para actualizar en la base de datos
+      try {
+        await this.turnosService.actualizarEstadoConComentario(
+          this.turnoSeleccionado.id!, 
+          'cancelado', 
+          this.comentarioCancelacion
+        );
+        
+        this.turnoSeleccionado.estado = 'cancelado';
+        this.turnoSeleccionado.comentarioEspecialista = this.comentarioCancelacion;
+        this.toastService.success('🚫 Turno cancelado');
+        this.cerrarModales();
+        this.aplicarFiltros();
+      } catch (error) {
+        console.error('Error cancelando turno:', error);
+        this.toastService.error('❌ Error al cancelar el turno');
+      } finally {
+        this.loading = false;
+      }
     }
   }
 
-  finalizarTurno() {
+  async finalizarTurno() {
     if (!this.resenaConsulta.trim()) {
       this.toastService.warning('⚠️ Debes proporcionar una reseña de la consulta para finalizar el turno');
       return;
@@ -203,12 +254,23 @@ export class TurnosEspecialistaComponent implements OnInit {
 
     if (this.turnoSeleccionado) {
       this.loading = true;
-      this.turnoSeleccionado.estado = 'realizado';
-      this.turnoSeleccionado.comentarioEspecialista = this.resenaConsulta;
-      this.toastService.success('✅ Turno finalizado correctamente');
-      this.cerrarModales();
-      this.loading = false;
-      // Aquí podrías agregar la lógica para actualizar en la base de datos
+      try {
+        await this.turnosService.finalizarTurno(
+          this.turnoSeleccionado.id!, 
+          this.resenaConsulta
+        );
+        
+        this.turnoSeleccionado.estado = 'realizado';
+        this.turnoSeleccionado.comentarioEspecialista = this.resenaConsulta;
+        this.toastService.success('✅ Turno finalizado correctamente');
+        this.cerrarModales();
+        this.aplicarFiltros();
+      } catch (error) {
+        console.error('Error finalizando turno:', error);
+        this.toastService.error('❌ Error al finalizar el turno');
+      } finally {
+        this.loading = false;
+      }
     }
   }
 

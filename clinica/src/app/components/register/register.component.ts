@@ -13,6 +13,7 @@ import { EstadoTurnoPipe } from '../../pipes/estado-turno.pipe';
 import { ResaltarDirective } from '../../directives/resaltar.directive';
 import { AnimacionDirective } from '../../directives/animacion.directive';
 import { ValidacionVisualDirective } from '../../directives/validacion-visual.directive';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-register',
@@ -29,7 +30,8 @@ import { ValidacionVisualDirective } from '../../directives/validacion-visual.di
       EstadoTurnoPipe,
       ResaltarDirective,
       AnimacionDirective,
-      ValidacionVisualDirective],
+      ValidacionVisualDirective,
+      NgIf],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })

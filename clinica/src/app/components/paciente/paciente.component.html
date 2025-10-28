@@ -6,7 +6,7 @@
     
     <div class="form-row">
       <div class="form-group">
-        <label for="nombre">📝 Nombre</label>
+        <label for="nombre">Nombre</label>
         <input id="nombre" type="text" placeholder="Ingresa tu nombre" formControlName="nombre">
         <div class="error-message" *ngIf="f.nombre.touched && f.nombre.invalid">
           ⚠️ El nombre es obligatorio
@@ -14,7 +14,7 @@
       </div>
 
       <div class="form-group">
-        <label for="apellido">📝 Apellido</label>
+        <label for="apellido">Apellido</label>
         <input id="apellido" type="text" placeholder="Ingresa tu apellido" formControlName="apellido">
         <div class="error-message" *ngIf="f.apellido.touched && f.apellido.invalid">
           ⚠️ El apellido es obligatorio
@@ -24,7 +24,7 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label for="edad">🎂 Edad</label>
+        <label for="edad">Edad</label>
         <input id="edad" type="number" placeholder="Tu edad" formControlName="edad" min="18" max="120">
         <div class="error-message" *ngIf="f.edad.touched && f.edad.invalid">
           ⚠️ Edad inválida (mínimo 18 años)
@@ -32,7 +32,7 @@
       </div>
 
       <div class="form-group">
-        <label for="dni">🆔 DNI</label>
+        <label for="dni">DNI</label>
         <input id="dni" type="number" placeholder="Tu DNI (8 dígitos)" formControlName="dni">
         <div class="error-message" *ngIf="f.dni.touched && f.dni.invalid">
           ⚠️ DNI debe tener exactamente 8 números

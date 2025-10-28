@@ -22,6 +22,11 @@ export class MisTurnosComponent implements OnInit {
   turnosFiltrados: Turno[] = [];
   loading = false;
   
+  // Propiedades para detectar tipo de usuario
+  esPaciente = false;
+  esEspecialista = false;
+  usuarioActual: any = null;
+  
   // Filtros
   filtroEspecialidad = '';
   filtroEspecialista = '';
@@ -56,44 +61,45 @@ export class MisTurnosComponent implements OnInit {
   async cargarDatos() {
     this.loading = true;
     try {
-      // Verificar que hay un paciente logueado
-      if (!this.pacientesService.usuarioActual) {
-        this.toastService.error('❌ Debes iniciar sesión como paciente');
+      // Detectar tipo de usuario logueado
+      await this.detectarTipoUsuario();
+      
+      if (!this.usuarioActual) {
+        this.toastService.error('❌ Debes iniciar sesión para ver tus turnos');
         this.router.navigate(['/login']);
         return;
       }
 
-      const pacienteId = this.pacientesService.usuarioActual.id!;
-      
       // Cargar datos para filtros en paralelo
       const [especialidades, especialistas] = await Promise.all([
         this.turnosService.obtenerEspecialidades(),
         this.turnosService.obtenerEspecialistas()
       ]);
 
-      // Intentamos primero la consulta con joins (puede fallar en algunas instancias de PostgREST)
+      // Cargar turnos según el tipo de usuario
       let turnos: Turno[] = [];
-      try {
-        turnos = await this.turnosService.obtenerTurnosPaciente(pacienteId);
-      } catch (err: any) {
-        console.warn('Consulta con joins fallida, usando fallback simple:', err?.message || err);
-        // Si falla la consulta con joins, usamos la consulta simple y enriquecemos manualmente
-        const simple = await this.turnosService.obtenerTurnosPacienteSimple(pacienteId);
-        // Enriquecer: por cada turno, traer paciente y empleado por id
-        turnos = await Promise.all(simple.map(async (t) => {
-          const paciente = await this.pacientesService.obtenerPorId(t.pacienteid);
-          const empleado: any = await this.empleadosService.obtenerPorId(t.especialistaid);
-          return this.normalizeTurnoEnriquecido(t, paciente, empleado);
-        }));
+      
+      if (this.esPaciente) {
+        // Cargar turnos del paciente
+        console.log('Cargando turnos para paciente ID:', this.usuarioActual.id);
+        turnos = await this.cargarTurnosPaciente(this.usuarioActual.id);
+      } else if (this.esEspecialista) {
+        // Cargar turnos del especialista
+        console.log('Cargando turnos para especialista ID:', this.usuarioActual.id);
+        turnos = await this.cargarTurnosEspecialista(this.usuarioActual.id);
       }
 
+      console.log('Turnos cargados:', turnos);
       this.turnos = turnos;
       this.turnosFiltrados = turnos;
       this.especialidades = especialidades;
       this.especialistas = especialistas;
 
       if (turnos.length === 0) {
-        this.toastService.info('ℹ️ No tienes turnos registrados');
+        const mensaje = this.esPaciente ? 
+          'ℹ️ No tienes turnos registrados' : 
+          'ℹ️ No tienes turnos asignados en tu especialidad';
+        this.toastService.info(mensaje);
       }
 
     } catch (error) {
@@ -112,6 +118,62 @@ export class MisTurnosComponent implements OnInit {
       especialistaNombre: empleado ? `${empleado.nombre} ${empleado.apellido || ''}`.trim() : '',
       especialidad: empleado?.especialidad || turno.especialidad
     });
+  }
+
+  async detectarTipoUsuario() {
+    // Verificar si es un empleado/especialista logueado
+    const empleado = this.empleadosService.usuarioActual;
+    if (empleado) {
+      console.log('Empleado detectado:', empleado);
+      this.usuarioActual = empleado;
+      this.esEspecialista = empleado.especialidad?.toLowerCase() !== 'administrador';
+      this.esPaciente = false;
+      return;
+    }
+
+    // Verificar si es un paciente logueado
+    const paciente = this.pacientesService.usuarioActual;
+    if (paciente) {
+      console.log('Paciente detectado:', paciente);
+      this.usuarioActual = paciente;
+      this.esPaciente = true;
+      this.esEspecialista = false;
+      return;
+    }
+
+    // No hay usuario logueado
+    console.log('No hay usuario logueado');
+    this.usuarioActual = null;
+    this.esPaciente = false;
+    this.esEspecialista = false;
+  }
+
+  async cargarTurnosPaciente(pacienteId: number): Promise<Turno[]> {
+    try {
+      return await this.turnosService.obtenerTurnosPaciente(pacienteId);
+    } catch (err: any) {
+      console.warn('Consulta con joins fallida, usando fallback simple:', err?.message || err);
+      const simple = await this.turnosService.obtenerTurnosPacienteSimple(pacienteId);
+      return await Promise.all(simple.map(async (t) => {
+        const paciente = await this.pacientesService.obtenerPorId(t.pacienteid);
+        const empleado: any = await this.empleadosService.obtenerPorId(t.especialistaid);
+        return this.normalizeTurnoEnriquecido(t, paciente, empleado);
+      }));
+    }
+  }
+
+  async cargarTurnosEspecialista(especialistaId: number): Promise<Turno[]> {
+    try {
+      return await this.turnosService.obtenerTurnosEspecialista(especialistaId);
+    } catch (err: any) {
+      console.warn('Consulta con joins fallida, usando fallback simple:', err?.message || err);
+      const simple = await this.turnosService.obtenerTurnosEspecialistaSimple(especialistaId);
+      return await Promise.all(simple.map(async (t: any) => {
+        const paciente = await this.pacientesService.obtenerPorId(t.pacienteid);
+        const empleado: any = await this.empleadosService.obtenerPorId(t.especialistaid);
+        return this.normalizeTurnoEnriquecido(t, paciente, empleado);
+      }));
+    }
   }
 
   // Aplicar filtros
@@ -266,6 +328,12 @@ export class MisTurnosComponent implements OnInit {
   // Volver al menú principal
   volver() {
     this.router.navigate(['/login']);
+  }
+
+  // Ir a mi perfil
+  irAMiPerfil() {
+    this.router.navigate(['/mi-perfil']);
+    this.toastService.info('👤 Accediendo a mi perfil...');
   }
 
   // Ir a solicitar turno

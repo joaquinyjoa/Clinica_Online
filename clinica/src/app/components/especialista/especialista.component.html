@@ -72,16 +72,14 @@
       </div>
 
       <!-- Input para nueva especialidad -->
-      <div class="nueva-especialidad" *ngIf="agregarNuevaEspecialidad">
+      <div class="nueva-especialidad" *ngIf="mostrarInputNueva">
         <label for="nuevaEspecialidad">✍️ Nueva Especialidad</label>
         <input id="nuevaEspecialidad" 
                type="text"
                placeholder="Escribí tu especialidad"
-               [(ngModel)]="nuevaEspecialidad"
-               (ngModelChange)="f.especialidad.setValue(nuevaEspecialidad)"
-               name="nuevaEspecialidad"
+               formControlName="nuevaEspecialidad"
                required />
-        <div class="error-message" *ngIf="agregarNuevaEspecialidad && !nuevaEspecialidad.trim()">
+        <div class="error-message" *ngIf="f.nuevaEspecialidad.touched && f.nuevaEspecialidad.errors?.['required']">
           ⚠️ La nueva especialidad es obligatoria
         </div>
       </div>

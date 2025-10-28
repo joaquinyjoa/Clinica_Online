@@ -19,8 +19,7 @@ export class EspecialistaComponent {
 
   fb = new FormBuilder();
   especialidadesDisponibles = ['Cardiología', 'Dermatología', 'Odontología'];
-  nuevaEspecialidad = '';
-  agregarNuevaEspecialidad = false; // controla si mostramos el input
+  mostrarInputNueva = false; // Solo para mostrar/ocultar el input
   imagenPreview: string | null = null;
 
   // Key para localStorage
@@ -32,6 +31,7 @@ export class EspecialistaComponent {
     edad: ['', [Validators.required, Validators.min(18), Validators.max(120)]],
     dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
     especialidad: ['', Validators.required],
+    nuevaEspecialidad: [''], // Campo separado para nueva especialidad
     email: ['', [Validators.required, Validators.email]],
     password: [
       '',
@@ -85,14 +85,21 @@ export class EspecialistaComponent {
 
   // Método público para validar desde el componente padre
   validarFormulario(): boolean {
+    // Determinar qué especialidad usar
+    const especialidadSeleccionada = this.especialistaForm.value.especialidad;
+    const nuevaEspecialidad = this.especialistaForm.value.nuevaEspecialidad;
+    
+    if (especialidadSeleccionada === 'agregar') {
+      if (!nuevaEspecialidad || !nuevaEspecialidad.trim()) {
+        this.toastService.error('⚠️ Debes escribir la nueva especialidad.');
+        return false;
+      }
+      // Usar la nueva especialidad
+      this.especialistaForm.patchValue({ especialidad: nuevaEspecialidad.trim() });
+    }
+
     if (this.especialistaForm.invalid) {
       this.especialistaForm.markAllAsTouched();
-      return false;
-    }
-    
-    // Validación adicional para nueva especialidad
-    if (this.agregarNuevaEspecialidad && !this.nuevaEspecialidad.trim()) {
-      alert('⚠️ Debes escribir la nueva especialidad antes de continuar.');
       return false;
     }
     
@@ -102,11 +109,16 @@ export class EspecialistaComponent {
   // Cambiar especialidad
   onEspecialidadChange(event: Event) {
     const select = event.target as HTMLSelectElement;
-    this.agregarNuevaEspecialidad = select.value === 'agregar';
-    if (!this.agregarNuevaEspecialidad) {
-      this.nuevaEspecialidad = '';
-      this.especialistaForm.patchValue({ especialidad: select.value });
+    this.mostrarInputNueva = select.value === 'agregar';
+    if (!this.mostrarInputNueva) {
+      this.especialistaForm.patchValue({ nuevaEspecialidad: '' });
+      // Remover validación requerida
+      this.especialistaForm.get('nuevaEspecialidad')?.clearValidators();
+    } else {
+      // Agregar validación requerida
+      this.especialistaForm.get('nuevaEspecialidad')?.setValidators([Validators.required]);
     }
+    this.especialistaForm.get('nuevaEspecialidad')?.updateValueAndValidity();
   }
 
   subirImagen(event: Event) {
@@ -169,21 +181,8 @@ export class EspecialistaComponent {
         return 0;
       }
 
-    // Validación: si se eligió agregar nueva especialidad, asegurarnos que no esté vacía
-    if (this.agregarNuevaEspecialidad) {
-      if (!this.nuevaEspecialidad.trim()) {
-        alert('⚠️ Debes escribir la nueva especialidad antes de enviar.');
-        this.loading = false;
-        return 0;
-      }
-      // Actualizamos el FormControl para que Angular lo considere válido
-      this.especialistaForm.patchValue({ especialidad: this.nuevaEspecialidad.trim() });
-    }
-
     // Validación: no permitir registro como administrador
-    const especialidadFinal = this.agregarNuevaEspecialidad 
-      ? this.nuevaEspecialidad.trim().toLowerCase() 
-      : this.especialistaForm.value.especialidad?.toLowerCase();
+    const especialidadFinal = this.especialistaForm.value.especialidad?.toLowerCase();
     
     if (especialidadFinal === 'administrador' || especialidadFinal === 'admin') {
       this.toastService.especialidadAdministrador();
@@ -225,19 +224,19 @@ export class EspecialistaComponent {
       // Toast de éxito médico
       this.toastService.cuentaCreada('especialista', `${nuevoEspecialista.nombre} ${nuevoEspecialista.apellido}`);
       
-      // Si se agregó una nueva especialidad, guardarla en la lista y mostrar mensaje adicional
-      if (this.agregarNuevaEspecialidad && this.nuevaEspecialidad.trim()) {
-        const especialidadGuardada = this.guardarEspecialidad(this.nuevaEspecialidad);
+      // Si se agregó una nueva especialidad, guardarla en la lista
+      const nuevaEspec = this.especialistaForm.value.nuevaEspecialidad;
+      if (nuevaEspec && nuevaEspec.trim()) {
+        const especialidadGuardada = this.guardarEspecialidad(nuevaEspec);
         if (especialidadGuardada) {
-          this.toastService.success(`🆕 Nueva especialidad "${this.nuevaEspecialidad.trim()}" agregada a la lista`);
+          this.toastService.success(`🆕 Nueva especialidad "${nuevaEspec.trim()}" agregada a la lista`);
         }
       }
       
       // Reset completo del formulario
       this.especialistaForm.reset();
       this.imagenPreview = null;
-      this.nuevaEspecialidad = '';
-      this.agregarNuevaEspecialidad = false;
+      this.mostrarInputNueva = false;
       return especialistaCreado.id || 0;
     } catch (error) {
       console.error(error);

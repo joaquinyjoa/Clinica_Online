@@ -33,6 +33,7 @@
     "@dataconnect/generated": "file:src/dataconnect-generated",
     "@supabase/supabase-js": "^2.74.0",
     "firebase": "^12.3.0",
+    "ionicons": "^8.0.13",
     "ngx-spinner": "^19.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

@@ -5,16 +5,16 @@
     <div class="header-content">
       <span class="turnos-icon">📋</span>
       <div class="header-text">
-        <h1 class="title">Mis Turnos</h1>
-        <p class="subtitle">Gestiona tus citas médicas</p>
+        <h1 class="title">{{ esPaciente ? 'Mis Turnos' : 'Turnos de mi Especialidad' }}</h1>
+        <p class="subtitle">{{ esPaciente ? 'Gestiona tus citas médicas' : 'Administra los turnos de tus pacientes' }}</p>
       </div>
       <div class="header-actions">
-        <button class="solicitar-btn" 
-                (click)="irASolicitarTurno()" 
+        <button class="profile-btn" 
+                (click)="irAMiPerfil()" 
                 [disabled]="loading"
-                title="Solicitar nuevo turno">
-          <span class="solicitar-icon">📅</span>
-          <span class="solicitar-text">Solicitar Turno</span>
+                title="Ver mi perfil">
+          <span class="profile-icon">👤</span>
+          <span class="profile-text">Mi Perfil</span>
         </button>
         <button class="back-btn" 
                 (click)="volver()" 
@@ -67,8 +67,28 @@
 
     <div *ngIf="turnosFiltrados.length === 0" class="no-turnos">
       <span class="no-turnos-icon">📭</span>
-      <p>No se encontraron turnos que coincidan con los filtros.</p>
-      <button class="btn-secondary" (click)="limpiarFiltros()">Ver todos los turnos</button>
+      <p *ngIf="esPaciente && turnos.length === 0">No tienes turnos registrados aún.</p>
+      <p *ngIf="esPaciente && turnos.length > 0">No se encontraron turnos que coincidan con los filtros.</p>
+      <p *ngIf="!esPaciente && turnos.length === 0">No tienes turnos asignados aún.</p>
+      <p *ngIf="!esPaciente && turnos.length > 0">No se encontraron turnos que coincidan con los filtros.</p>
+      
+      <!-- Botón principal para pacientes sin turnos -->
+      <button 
+        *ngIf="esPaciente && turnos.length === 0" 
+        class="btn-primary btn-solicitar-principal" 
+        (click)="irASolicitarTurno()"
+        [disabled]="loading">
+        <span class="btn-icon">📅</span>
+        <span class="btn-text">Solicitar mi primer turno</span>
+      </button>
+      
+      <!-- Botón ver todos solo cuando hay turnos pero están filtrados -->
+      <button 
+        *ngIf="turnos.length > 0" 
+        class="btn-secondary" 
+        (click)="limpiarFiltros()">
+        Ver todos los turnos
+      </button>
     </div>
 
     <div class="turnos-grid">
@@ -282,6 +302,16 @@
       </div>
     </div>
   </div>
+
+  <!-- Botón flotante para solicitar turno -->
+  <button 
+    *ngIf="esPaciente && !loading" 
+    class="btn-flotante-solicitar" 
+    (click)="irASolicitarTurno()"
+    title="Solicitar nuevo turno">
+    <span class="flotante-icon">📅</span>
+    <span class="flotante-text">Nuevo Turno</span>
+  </button>
 
   <!-- Toast Component -->
   <app-toast></app-toast>

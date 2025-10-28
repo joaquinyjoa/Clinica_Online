@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -16,9 +16,20 @@ import { ToastComponent } from '../toast/toast.component';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
   fb = new FormBuilder();
+  loading = false;
+
+  // URLs de imágenes desde la base de datos
+  imagenesUsuarios = {
+    ana: 'https://randomuser.me/api/portraits/women/32.jpg', // fallback
+    carlos: 'https://randomuser.me/portraits/men/32.jpg', // fallback
+    maria: 'https://randomuser.me/api/portraits/women/68.jpg', // fallback
+    rodriguez: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&crop=face', // fallback
+    martinez: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face', // fallback
+    admin: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face' // fallback
+  };
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -33,7 +44,72 @@ export class LoginComponent {
     private router: Router,
     private toastService: ToastService
   ) {}
-  loading = false;
+
+  async ngOnInit() {
+    await this.cargarImagenesDesdeBaseDatos();
+  }
+
+  async cargarImagenesDesdeBaseDatos() {
+    try {
+      // Cargar pacientes
+      const pacientes = await this.pacientesService.obtenerTodos();
+      
+      // Buscar Ana García
+      const ana = pacientes.find((p: Paciente) => 
+        p.email === 'ana@gmail.com' && p.foto1 && p.foto1.trim() !== ''
+      );
+      if (ana && ana.foto1) {
+        this.imagenesUsuarios.ana = ana.foto1;
+      }
+
+      // Buscar Carlos López
+      const carlos = pacientes.find((p: Paciente) => 
+        p.email === 'carlos@gmail.com' && p.foto1 && p.foto1.trim() !== ''
+      );
+      if (carlos && carlos.foto1) {
+        this.imagenesUsuarios.carlos = carlos.foto1;
+      }
+
+      // Buscar María Silva
+      const maria = pacientes.find((p: Paciente) => 
+        p.email === 'maria@gmail.com' && p.foto1 && p.foto1.trim() !== ''
+      );
+      if (maria && maria.foto1) {
+        this.imagenesUsuarios.maria = maria.foto1;
+      }
+
+      // Cargar empleados
+      const empleados = await this.empleadosService.obtenerTodos();
+
+      // Buscar Dr. Rodríguez
+      const rodriguez = empleados.find((e: Empleado) => 
+        e.email === 'rodriguez@gmail.com' && e.imagenPerfil && e.imagenPerfil.trim() !== ''
+      );
+      if (rodriguez && rodriguez.imagenPerfil) {
+        this.imagenesUsuarios.rodriguez = rodriguez.imagenPerfil;
+      }
+
+      // Buscar Dra. Martínez
+      const martinez = empleados.find((e: Empleado) => 
+        e.email === 'martinez@gmail.com' && e.imagenPerfil && e.imagenPerfil.trim() !== ''
+      );
+      if (martinez && martinez.imagenPerfil) {
+        this.imagenesUsuarios.martinez = martinez.imagenPerfil;
+      }
+
+      // Buscar Admin
+      const admin = empleados.find((e: Empleado) => 
+        e.email === 'a@gmail.com' && e.imagenPerfil && e.imagenPerfil.trim() !== ''
+      );
+      if (admin && admin.imagenPerfil) {
+        this.imagenesUsuarios.admin = admin.imagenPerfil;
+      }
+
+    } catch (error) {
+      console.error('Error cargando imágenes desde la base de datos:', error);
+      // Se mantienen las imágenes fallback ya definidas
+    }
+  }
 
   private async navigateWithSpinner(target: string): Promise<void> {
     this.loading = true;
