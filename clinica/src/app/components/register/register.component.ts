@@ -30,8 +30,7 @@ import { NgIf } from '@angular/common';
       EstadoTurnoPipe,
       ResaltarDirective,
       AnimacionDirective,
-      ValidacionVisualDirective,
-      NgIf],
+      ValidacionVisualDirective],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
