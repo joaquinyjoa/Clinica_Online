@@ -38,45 +38,34 @@
 ### 🏠 Pantalla de Bienvenida
 *Interfaz principal que da la bienvenida a los usuarios*
 
-<!-- Para agregar esta imagen:
-1. Toma una captura de pantalla de tu página de bienvenida
-2. Guárdala como 'welcome.png' en la carpeta screenshots/
-3. Súbela a tu repositorio de GitHub
--->
 ![Pantalla de Bienvenida](./screenshots/welcome.png)
 
 ### 🔑 Sistema de Autenticación
 *Login y registro de usuarios con validación*
 
 ![Login](./screenshots/login.png)
-![Registro](./screenshots/register.png)
 
-### 📋 Solicitar Turno - Flujo de 3 Pasos
-*Proceso intuitivo para reservar citas médicas*
+### 👤 Registro de Pacientes
+*Proceso de registro para nuevos pacientes*
 
-**Paso 1: Selección de Profesional**
-![Seleccionar Profesional](./screenshots/paso1-profesional.png)
+![Registro Paciente - Paso 1](./screenshots/registro_paciente_1.png)
+![Registro Paciente - Paso 2](./screenshots/registro_paciente_2.png)
 
-**Paso 2: Selección de Especialidad**
-![Seleccionar Especialidad](./screenshots/paso2-especialidad.png)
+### �‍⚕️ Registro de Especialistas
+*Proceso de registro para profesionales médicos*
 
-**Paso 3: Selección de Fecha y Hora**
-![Seleccionar Fecha y Hora](./screenshots/paso3-fecha-hora.png)
+![Registro Especialista - Paso 1](./screenshots/registro_especialista_1.png)
+![Registro Especialista - Paso 2](./screenshots/registro_especialista_2.png)
 
-### 👨‍⚕️ Panel de Especialista
-*Gestión de turnos y horarios para médicos*
+### 📅 Solicitar Turno
+*Sistema intuitivo para reservar citas médicas*
 
-![Panel Especialista](./screenshots/panel-especialista.png)
+![Solicitar Turno](./screenshots/solicitar%20turno.png)
 
-### 🏥 Panel de Administración
-*Control administrativo del sistema*
-
-![Panel Admin](./screenshots/panel-admin.png)
-
-### 📱 Mis Turnos (Pacientes)
+### � Mis Turnos (Pacientes)
 *Vista de turnos para pacientes*
 
-![Mis Turnos](./screenshots/mis-turnos.png)
+![Mis Turnos - Paciente](./screenshots/paciente_mis_turnos.png)
 
 ---
 
