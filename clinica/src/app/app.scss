@@ -1,0 +1,13 @@
+.app-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden; // Solo ocultar scroll horizontal
+  overflow-y: auto;   // Permitir scroll vertical
+}
+
+// Estilos para las animaciones de ruta - Simplificados
+router-outlet ~ * {
+  width: 100%;
+  min-height: 100vh; // Usar min-height para permitir contenido más largo
+}

@@ -8,13 +8,15 @@ import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
+import { slideFromBottomAnimation, fadeInAnimation } from '../../animations/animations';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, MatProgressSpinnerModule, ToastComponent],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
+  animations: [slideFromBottomAnimation, fadeInAnimation]
 })
 export class LoginComponent implements OnInit {
 
@@ -137,6 +139,10 @@ export class LoginComponent implements OnInit {
     const password: string = rawPassword || '';
 
     try {
+      // Limpiar cualquier sesión previa
+      this.pacientesService.logout();
+      this.empleadosService.logout();
+      
       // Buscar en pacientes
       const paciente: Paciente | null = await this.pacientesService.login(email, password);
 
@@ -148,6 +154,12 @@ export class LoginComponent implements OnInit {
           return;
         }
 
+        // Asegurar que empleados esté limpio cuando es paciente
+        this.empleadosService.logout();
+        
+        // Guardar en localStorage
+        localStorage.setItem('currentUser', JSON.stringify(paciente));
+        
         this.toastService.success(`🏥 Bienvenido paciente ${paciente.nombre}`);
         // Redirigir al panel de turnos del paciente
         await this.navigateWithSpinner('/mis-turnos');
@@ -170,6 +182,12 @@ export class LoginComponent implements OnInit {
           this.loading = false;
           return;
         }
+
+        // Asegurar que pacientes esté limpio cuando es empleado
+        this.pacientesService.logout();
+
+        // Guardar en localStorage
+        localStorage.setItem('currentUser', JSON.stringify(empleado));
 
         if (empleado.especialidad?.toLowerCase() === 'administrador') {
             this.toastService.success(`👨‍💼 Bienvenido administrador ${empleado.nombre}`);

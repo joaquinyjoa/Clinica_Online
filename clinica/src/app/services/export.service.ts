@@ -401,4 +401,279 @@ export class ExportService {
       throw error;
     }
   }
+
+  /**
+   * Genera y descarga un PDF con la historia clínica del paciente filtrada por especialidad
+   */
+  async exportarHistoriaClinicaPorEspecialidadPDF(pacienteId: number, especialidad: string) {
+    try {
+      // Obtener datos del paciente
+      const { data: paciente, error: errorPaciente } = await supabase
+        .from('pacientes')
+        .select('*')
+        .eq('id', pacienteId)
+        .single();
+
+      if (errorPaciente || !paciente) throw new Error('Paciente no encontrado');
+
+      // Obtener historia clínica filtrada por especialidad
+      const { data: historias, error: errorHistorias } = await supabase
+        .from('historia_clinica')
+        .select(`
+          *,
+          empleados:especialista_id (
+            nombre,
+            apellido,
+            especialidad
+          )
+        `)
+        .eq('paciente_id', pacienteId)
+        .eq('especialidad', especialidad)
+        .order('fecha', { ascending: false });
+
+      if (errorHistorias) throw errorHistorias;
+
+      if (!historias || historias.length === 0) {
+        throw new Error(`No se encontraron registros para la especialidad ${especialidad}`);
+      }
+
+      // Crear nuevo PDF (A4, mm)
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      const contentWidth = pageWidth - (margin * 2);
+      
+      let yPosition = margin;
+      let pageCount = 1;
+
+      // Función para agregar header en cada página
+      const drawHeader = async (currentDoc: jsPDF) => {
+        const logoData = await this.getLogoDataUrl();
+        
+        if (logoData) {
+          try {
+            // No forzar formato; pasar solo dataURL para que jsPDF lo detecte
+            currentDoc.addImage(logoData, 'PNG', margin, 15, 25, 15);
+          } catch (e) {
+            console.warn('No se pudo agregar logo al PDF:', e);
+          }
+        }
+
+        // Título principal
+        currentDoc.setFont('helvetica', 'bold');
+        currentDoc.setFontSize(20);
+        currentDoc.setTextColor(102, 126, 234);
+        currentDoc.text('CLÍNICA ONLINE', margin + 35, 25);
+        
+        // Subtítulo de especialidad
+        currentDoc.setFontSize(16);
+        currentDoc.setTextColor(118, 75, 162);
+        currentDoc.text(`Historia Clínica - ${especialidad}`, margin + 35, 32);
+        
+        return 45; // Retorna la nueva posición Y después del header
+      };
+
+      // Función para agregar footer
+      const drawFooter = (currentDoc: jsPDF, pageNum: number, totalPages: number) => {
+        currentDoc.setFont('helvetica', 'normal');
+        currentDoc.setFontSize(10);
+        currentDoc.setTextColor(128, 128, 128);
+        
+        const fechaEmision = new Date().toLocaleDateString('es-ES');
+        currentDoc.text(`Fecha de emisión: ${fechaEmision}`, margin, pageHeight - 15);
+        currentDoc.text(`Página ${pageNum} de ${totalPages}`, pageWidth - margin - 20, pageHeight - 15);
+      };
+
+      // Agregar header inicial
+      yPosition = await drawHeader(doc);
+
+      // Información del paciente
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(51, 51, 51);
+      doc.text('DATOS DEL PACIENTE', margin, yPosition);
+      yPosition += 10;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.text([
+        `Nombre: ${paciente.nombre} ${paciente.apellido}`,
+        `DNI: ${paciente.dni || 'No especificado'}`,
+        `Email: ${paciente.email}`,
+        `Edad: ${paciente.edad || 'No especificada'} años`,
+        `Obra Social: ${paciente.obraSocial || 'No especificada'}`
+      ], margin, yPosition);
+      yPosition += 35;
+
+      // Procesar cada registro de historia clínica
+      for (let index = 0; index < historias.length; index++) {
+        const historia = historias[index];
+        
+        // Verificar si necesitamos nueva página
+        if (yPosition > pageHeight - 60) {
+          pageCount++;
+          doc.addPage();
+          yPosition = await drawHeader(doc);
+        }
+
+        // Información del registro
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(102, 126, 234);
+        doc.text(`CONSULTA ${index + 1}`, margin, yPosition);
+        yPosition += 8;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(51, 51, 51);
+        
+        const fechaConsulta = new Date(historia.fecha).toLocaleDateString('es-ES');
+        const especialistaInfo = historia.empleados ? 
+          `${historia.empleados.nombre} ${historia.empleados.apellido}` : 
+          'No especificado';
+
+        doc.text([
+          `Fecha: ${fechaConsulta}`,
+          `Especialista: ${especialistaInfo}`,
+          `Especialidad: ${historia.especialidad}`
+        ], margin, yPosition);
+        yPosition += 20;
+
+        // Datos clínicos principales
+        if (historia.altura || historia.peso || historia.temperatura || historia.presion) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.text('Signos Vitales:', margin, yPosition);
+          yPosition += 6;
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
+          const signosVitales = [];
+          if (historia.altura) signosVitales.push(`Altura: ${historia.altura} cm`);
+          if (historia.peso) signosVitales.push(`Peso: ${historia.peso} kg`);
+          if (historia.temperatura) signosVitales.push(`Temperatura: ${historia.temperatura}°C`);
+          if (historia.presion) signosVitales.push(`Presión: ${historia.presion}`);
+          
+          doc.text(signosVitales, margin + 5, yPosition);
+          yPosition += signosVitales.length * 5 + 5;
+        }
+
+        // Campos dinámicos
+        const camposDinamicos = [];
+        if (historia.campo_dinamico_1_clave && historia.campo_dinamico_1_valor) {
+          camposDinamicos.push(`${historia.campo_dinamico_1_clave}: ${historia.campo_dinamico_1_valor}`);
+        }
+        if (historia.campo_dinamico_2_clave && historia.campo_dinamico_2_valor) {
+          camposDinamicos.push(`${historia.campo_dinamico_2_clave}: ${historia.campo_dinamico_2_valor}`);
+        }
+        if (historia.campo_dinamico_3_clave && historia.campo_dinamico_3_valor) {
+          camposDinamicos.push(`${historia.campo_dinamico_3_clave}: ${historia.campo_dinamico_3_valor}`);
+        }
+
+        if (camposDinamicos.length > 0) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.text('Información Adicional:', margin, yPosition);
+          yPosition += 6;
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
+          doc.text(camposDinamicos, margin + 5, yPosition);
+          yPosition += camposDinamicos.length * 5 + 5;
+        }
+
+        // Línea separadora
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, yPosition, pageWidth - margin, yPosition);
+        yPosition += 10;
+      }
+
+      // Agregar footers a todas las páginas
+      const totalPages = doc.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        drawFooter(doc, i, totalPages);
+      }
+
+      // Nombre del archivo
+      const fechaEmision = new Date().toLocaleDateString('es-ES');
+      const especialidadSafe = especialidad.replace(/[^a-zA-Z0-9]/g, '_');
+      const nombreArchivo = `historia_clinica_${paciente.nombre}_${paciente.apellido}_${especialidadSafe}_${fechaEmision.replace(/\//g, '-')}.pdf`;
+
+      // Guardar PDF
+      doc.save(nombreArchivo);
+
+      return true;
+    } catch (error) {
+      console.error('Error al generar PDF de historia clínica por especialidad:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Genera y descarga un archivo Excel con los turnos de un usuario específico
+   */
+  async exportarTurnosUsuarioExcel(nombreUsuario: string, turnos: any[]) {
+    try {
+      // Preparar datos para Excel
+      const datosExcel = [
+        // Headers
+        ['Fecha', 'Hora', 'Especialidad', 'Estado', 'Profesional'],
+        
+        // Turnos
+        ...turnos.map(turno => [
+          turno.Fecha,
+          turno.Hora,
+          turno.Especialidad,
+          turno.Estado,
+          turno.Profesional
+        ])
+      ];
+
+      // Crear workbook y worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(datosExcel);
+
+      // Configurar anchos de columna
+      const columnWidths = [
+        { wch: 12 }, // Fecha
+        { wch: 8 },  // Hora
+        { wch: 15 }, // Especialidad
+        { wch: 12 }, // Estado
+        { wch: 20 }  // Profesional
+      ];
+      ws['!cols'] = columnWidths;
+
+      // Estilo para headers
+      const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "4472C4" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      // Aplicar estilo a headers
+      ['A1', 'B1', 'C1', 'D1', 'E1'].forEach(cell => {
+        if (ws[cell]) {
+          ws[cell].s = headerStyle;
+        }
+      });
+
+      // Agregar worksheet al workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Turnos');
+
+      // Nombre del archivo
+      const fechaActual = new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
+      const nombreArchivo = `turnos_${nombreUsuario.replace(/\s+/g, '_')}_${fechaActual}.xlsx`;
+
+      // Descargar archivo
+      XLSX.writeFile(wb, nombreArchivo);
+
+      return true;
+    } catch (error) {
+      console.error('Error al exportar turnos a Excel:', error);
+      throw error;
+    }
+  }
 }

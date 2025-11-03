@@ -1,7 +1,7 @@
 <div class="login-container">
   
   <!-- Header médico -->
-  <div class="login-header">
+  <div class="login-header" [@fadeInAnimation]>
     <div class="logo-container">
       <h1 class="title">Acceso Médico</h1>
       <p class="subtitle">Portal de profesionales</p>
@@ -12,7 +12,7 @@
   <div class="main-content">
     
     <!-- Tarjeta de login -->
-    <div class="login-card">
+    <div class="login-card" [@slideFromBottomAnimation]>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
         
         <!-- Título del formulario -->

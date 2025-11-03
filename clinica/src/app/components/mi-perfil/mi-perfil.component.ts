@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EmpleadosService } from '../../services/empleados.service';
 import { PacientesService } from '../../services/pacientes.service';
@@ -8,9 +8,10 @@ import { ExportService } from '../../services/export.service';
 import { ToastService } from '../../services/toast.service';
 import { HorariosService } from '../../services/horarios.service';
 import { HistoriaClinicaService, HistoriaClinicaCompleta } from '../../services/historia-clinica.service';
+import { supabase } from '../../services/supabase.service';
 import { Empleado } from '../../services/empleados.service';
 import { Paciente } from '../../services/pacientes.service';
-import { fadeInAnimation, slideUpAnimation } from '../../animations/animations';
+import { fadeInAnimation, fadeIn, slideUpAnimation } from '../../animations/animations';
 
 // Interfaces para horarios
 interface HorarioDia {
@@ -28,15 +29,35 @@ interface HorariosEspecialista {
   sabado: HorarioDia;
 }
 
+// Interfaces para pacientes atendidos
+interface PacienteAtendido {
+  id: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  foto1?: string;
+  foto2?: string;
+  ultimos3Turnos: TurnoAtendido[];
+  totalTurnos: number;
+}
+
+interface TurnoAtendido {
+  id: string;
+  fecha: string;
+  hora: string;
+  especialidad: string;
+  estado: string;
+}
+
 type DiaSemana = keyof HorariosEspecialista;
 
 @Component({
   selector: 'app-mi-perfil',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './mi-perfil.component.html',
   styleUrls: ['./mi-perfil.component.scss'],
-  animations: [fadeInAnimation, slideUpAnimation]
+  animations: [fadeInAnimation, fadeIn, slideUpAnimation]
 })
 export class MiPerfilComponent implements OnInit {
   private empleadosService = inject(EmpleadosService);
@@ -91,6 +112,21 @@ export class MiPerfilComponent implements OnInit {
     { key: 'sabado', label: 'Sábado' }
   ];
 
+  // ========== PACIENTES ATENDIDOS (Solo para especialistas) ==========
+  pacientesAtendidos: PacienteAtendido[] = [];
+  loadingPacientes = false;
+  mostrarPacientes = false;
+  pacienteSeleccionado: PacienteAtendido | null = null;
+
+  // ========== USUARIOS (Solo para admin) ==========
+  todosLosUsuarios: any[] = [];
+  loadingUsuarios = false;
+  mostrarUsuarios = false;
+
+  // ========== PDF HISTORIA CLÍNICA (Solo para pacientes) ==========
+  especialidadesDisponibles: string[] = [];
+  especialidadSeleccionada: string = '';
+
   constructor() {
     this.datosPersonalesForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
@@ -119,6 +155,9 @@ export class MiPerfilComponent implements OnInit {
         
         // Cargar historia clínica si es paciente
         if (this.userType === 'paciente') {
+          await this.cargarEspecialidadesDisponibles();
+        }
+        if (this.userType === 'paciente') {
           await this.cargarHistoriaClinica();
         }
       }
@@ -133,30 +172,52 @@ export class MiPerfilComponent implements OnInit {
     this.isLoading = true;
 
     try {
-      // Intentar obtener usuario actual desde empleados
-      const empleado = this.empleadosService.usuarioActual;
-      if (empleado) {
-        this.currentUser = empleado;
-        this.userType = empleado.especialidad?.toLowerCase() === 'administrador' ? 'admin' : 'especialista';
-        this.isLoading = false;
+      // Obtener datos del localStorage para verificar el tipo real
+      const userDataString = localStorage.getItem('currentUser');
+      if (!userDataString) {
+        this.toastService.warning('Debes iniciar sesión para acceder a tu perfil');
+        this.router.navigate(['/login']);
         return;
       }
 
-      // Si no es empleado, intentar desde pacientes
-      const paciente = this.pacientesService.usuarioActual;
-      if (paciente) {
+      const userData = JSON.parse(userDataString);
+      
+      // Verificar si tiene campo 'obraSocial' (solo pacientes lo tienen)
+      if (userData.obraSocial !== undefined) {
+        // Es un paciente
+        let paciente = this.pacientesService.usuarioActual;
+        
+        // Si el servicio no tiene el usuario cargado, cargarlo desde localStorage
+        if (!paciente) {
+          this.pacientesService.usuarioActual = userData as Paciente;
+          paciente = userData as Paciente;
+        }
+        
         this.currentUser = paciente;
         this.userType = 'paciente';
         this.isLoading = false;
         return;
+      } else {
+        // Es un empleado (admin o especialista)
+        let empleado = this.empleadosService.usuarioActual;
+        
+        // Si el servicio no tiene el usuario cargado, cargarlo desde localStorage
+        if (!empleado) {
+          this.empleadosService.usuarioActual = userData as any;
+          empleado = userData as any;
+        }
+        
+        if (empleado) {
+          this.currentUser = empleado;
+          this.userType = empleado.especialidad?.toLowerCase() === 'administrador' ? 'admin' : 'especialista';
+          this.isLoading = false;
+          return;
+        }
       }
-
-      // Si no encontró usuario, redirigir al login
-      this.toastService.warning('Debes iniciar sesión para acceder a tu perfil');
-      this.router.navigate(['/login']);
     } catch (error) {
       console.error('Error detectando tipo de usuario:', error);
       this.toastService.error('Error al cargar información del usuario');
+      localStorage.removeItem('currentUser');
       this.router.navigate(['/welcome']);
     } finally {
       this.isLoading = false;
@@ -183,7 +244,7 @@ export class MiPerfilComponent implements OnInit {
   }
 
   volver() {
-    this.router.navigate(['/welcome']);
+    this.router.navigate(['/mis-turnos']);
   }
 
   // ========== MÉTODOS PARA DATOS PERSONALES ==========
@@ -460,9 +521,9 @@ export class MiPerfilComponent implements OnInit {
   }
 
   // Método para descargar historia clínica (solo pacientes)
-  async descargarHistoriaClinica() {
-    if (this.userType !== 'paciente' || !this.currentUser || !this.currentUser.id) {
-      this.toastService.error('❌ Solo los pacientes pueden descargar su historia clínica');
+  async descargarPDFHistoriaClinica() {
+    if (this.userType !== 'paciente' || !this.currentUser?.id) {
+      this.toastService.error('❌ No tienes permisos para esta acción');
       return;
     }
 
@@ -470,7 +531,16 @@ export class MiPerfilComponent implements OnInit {
     try {
       this.toastService.info('📄 Generando tu historia clínica...');
       
-      await this.exportService.exportarHistoriaClinicaPDF(this.currentUser.id);
+      // Si hay especialidad seleccionada, usar el nuevo método con filtro
+      if (this.especialidadSeleccionada) {
+        await this.exportService.exportarHistoriaClinicaPorEspecialidadPDF(
+          this.currentUser.id, 
+          this.especialidadSeleccionada
+        );
+      } else {
+        // Si no hay filtro, usar el método original
+        await this.exportService.exportarHistoriaClinicaPDF(this.currentUser.id);
+      }
       
       this.toastService.success('✅ Historia clínica descargada exitosamente');
     } catch (error) {
@@ -539,5 +609,211 @@ export class MiPerfilComponent implements OnInit {
       month: 'long',
       day: 'numeric'
     });
+  }
+
+  // ========== MÉTODOS PARA PACIENTES ATENDIDOS ==========
+  async cargarPacientesAtendidos() {
+    if (!this.currentUser || this.userType !== 'especialista') return;
+
+    this.loadingPacientes = true;
+    try {
+      // Obtener turnos finalizados del especialista
+      const { data: turnos, error } = await supabase
+        .from('turnos')
+        .select(`
+          id,
+          fecha,
+          hora,
+          especialidad,
+          estado,
+          paciente_id,
+          pacientes:paciente_id (
+            id,
+            nombre,
+            apellido,
+            email,
+            foto1,
+            foto2
+          )
+        `)
+        .eq('especialista_id', this.currentUser.id)
+        .eq('estado', 'finalizado')
+        .order('fecha', { ascending: false });
+
+      if (error) throw error;
+
+      // Agrupar por paciente y obtener últimos 3 turnos
+      const pacientesMap = new Map<string, any>();
+      
+      turnos?.forEach((turno: any) => {
+        const pacienteId = turno.paciente_id;
+        if (!pacientesMap.has(pacienteId)) {
+          pacientesMap.set(pacienteId, {
+            id: turno.pacientes.id,
+            nombre: turno.pacientes.nombre,
+            apellido: turno.pacientes.apellido,
+            email: turno.pacientes.email,
+            foto1: turno.pacientes.foto1,
+            foto2: turno.pacientes.foto2,
+            ultimos3Turnos: [],
+            totalTurnos: 0
+          });
+        }
+        
+        const paciente = pacientesMap.get(pacienteId);
+        if (paciente.ultimos3Turnos.length < 3) {
+          paciente.ultimos3Turnos.push({
+            id: turno.id,
+            fecha: turno.fecha,
+            hora: turno.hora,
+            especialidad: turno.especialidad,
+            estado: turno.estado
+          });
+        }
+        paciente.totalTurnos++;
+      });
+
+      this.pacientesAtendidos = Array.from(pacientesMap.values());
+      console.log('Pacientes atendidos cargados:', this.pacientesAtendidos);
+    } catch (error) {
+      console.error('Error al cargar pacientes atendidos:', error);
+      this.toastService.error('❌ Error al cargar pacientes atendidos');
+    } finally {
+      this.loadingPacientes = false;
+    }
+  }
+
+  togglePacientesAtendidos() {
+    this.mostrarPacientes = !this.mostrarPacientes;
+    if (this.mostrarPacientes && this.pacientesAtendidos.length === 0) {
+      this.cargarPacientesAtendidos();
+    }
+  }
+
+  verHistoriaClinicaPaciente(paciente: PacienteAtendido) {
+    this.pacienteSeleccionado = paciente;
+    // Aquí podrías abrir un modal o navegar a una vista detallada
+    this.router.navigate(['/mi-perfil'], { 
+      queryParams: { 
+        pacienteId: paciente.id,
+        action: 'verHistoria' 
+      } 
+    });
+  }
+
+  // ========== MÉTODOS PARA USUARIOS (ADMIN) ==========
+  async cargarTodosLosUsuarios() {
+    if (!this.currentUser || this.userType !== 'admin') return;
+
+    this.loadingUsuarios = true;
+    try {
+      // Cargar empleados
+      const { data: empleados, error: errorEmpleados } = await supabase
+        .from('empleados')
+        .select('*');
+
+      // Cargar pacientes
+      const { data: pacientes, error: errorPacientes } = await supabase
+        .from('pacientes')
+        .select('*');
+
+      if (errorEmpleados) throw errorEmpleados;
+      if (errorPacientes) throw errorPacientes;
+
+      // Combinar y marcar tipo
+      const usuarios = [
+        ...(empleados?.map((emp: any) => ({ ...emp, tipo: 'empleado' })) || []),
+        ...(pacientes?.map((pac: any) => ({ ...pac, tipo: 'paciente' })) || [])
+      ];
+
+      this.todosLosUsuarios = usuarios;
+      console.log('Usuarios cargados:', this.todosLosUsuarios);
+    } catch (error) {
+      console.error('Error al cargar usuarios:', error);
+      this.toastService.error('❌ Error al cargar usuarios');
+    } finally {
+      this.loadingUsuarios = false;
+    }
+  }
+
+  toggleUsuarios() {
+    this.mostrarUsuarios = !this.mostrarUsuarios;
+    if (this.mostrarUsuarios && this.todosLosUsuarios.length === 0) {
+      this.cargarTodosLosUsuarios();
+    }
+  }
+
+  async descargarExcelUsuario(usuario: any) {
+    try {
+      // Obtener turnos del usuario
+      const { data: turnos, error } = await supabase
+        .from('turnos')
+        .select(`
+          id,
+          fecha,
+          hora,
+          especialidad,
+          estado,
+          especialista_id,
+          empleados:especialista_id (
+            nombre,
+            apellido,
+            especialidad
+          )
+        `)
+        .eq(usuario.tipo === 'paciente' ? 'paciente_id' : 'especialista_id', usuario.id)
+        .order('fecha', { ascending: false });
+
+      if (error) throw error;
+
+      // Preparar datos para Excel
+      const datosExcel = turnos?.map((turno: any) => ({
+        'Fecha': turno.fecha,
+        'Hora': turno.hora,
+        'Especialidad': turno.especialidad,
+        'Estado': turno.estado,
+        'Profesional': turno.empleados ? `${turno.empleados.nombre} ${turno.empleados.apellido}` : 'N/A'
+      })) || [];
+
+      // Usar el servicio de exportación
+      await this.exportService.exportarTurnosUsuarioExcel(
+        usuario.nombre + ' ' + usuario.apellido,
+        datosExcel
+      );
+
+      this.toastService.success('✅ Excel descargado correctamente');
+    } catch (error) {
+      console.error('Error al descargar Excel:', error);
+      this.toastService.error('❌ Error al descargar Excel');
+    }
+  }
+
+  // ========== MÉTODOS PARA PDF HISTORIA CLÍNICA ==========
+  async cargarEspecialidadesDisponibles() {
+    if (!this.currentUser || this.userType !== 'paciente') return;
+
+    try {
+      // Obtener especialidades únicas de los turnos del paciente
+      const { data: turnos, error } = await supabase
+        .from('turnos')
+        .select('especialidad')
+        .eq('paciente_id', this.currentUser.id)
+        .eq('estado', 'finalizado');
+
+      if (error) throw error;
+
+      // Extraer especialidades únicas
+      const especialidadesSet = new Set<string>();
+      turnos?.forEach((turno: any) => {
+        if (turno.especialidad) {
+          especialidadesSet.add(turno.especialidad);
+        }
+      });
+
+      this.especialidadesDisponibles = Array.from(especialidadesSet).sort();
+      console.log('Especialidades disponibles:', this.especialidadesDisponibles);
+    } catch (error) {
+      console.error('Error al cargar especialidades:', error);
+    }
   }
 }

@@ -8,7 +8,7 @@ import { ToastComponent } from '../toast/toast.component';
 import { EmpleadosService } from '../../services/empleados.service';
 import { PacientesService } from '../../services/pacientes.service';
 import { TurnosService } from '../../services/turnos.service';
-import { slideInAnimation, fadeInAnimation, listAnimation } from '../../animations/animations';
+import { slideInAnimation, fadeInAnimation, fadeIn, listAnimation } from '../../animations/animations';
 
 @Component({
   selector: 'app-solicitar-turno',
@@ -16,7 +16,7 @@ import { slideInAnimation, fadeInAnimation, listAnimation } from '../../animatio
   imports: [CommonModule, FormsModule, MatProgressSpinnerModule, ToastComponent],
   templateUrl: './solicitar-turno.component.html',
   styleUrls: ['./solicitar-turno.component.scss'],
-  animations: [slideInAnimation, fadeInAnimation, listAnimation]
+  animations: [slideInAnimation, fadeInAnimation, fadeIn, listAnimation]
 })
 export class SolicitarTurnoComponent implements OnInit {
   loading = false;

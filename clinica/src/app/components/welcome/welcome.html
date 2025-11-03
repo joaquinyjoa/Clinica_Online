@@ -1,7 +1,7 @@
 <div class="welcome-container">
   
   <!-- Logo y título principal -->
-  <div class="welcome-header">
+  <div class="welcome-header" [@fadeInAnimation]>
     <div class="logo-container">
       <h1 class="title">Clínica Online</h1>
       <p class="subtitle">Tu salud, nuestra prioridad</p>
@@ -9,7 +9,7 @@
   </div>
 
   <!-- Tarjeta de bienvenida -->
-  <div class="welcome-card">
+  <div class="welcome-card" [@slideUpFromBottom]>
     <div class="card-content">
       <h2 class="welcome-text">🩺 Bienvenido a tu plataforma médica</h2>
       <p class="description">
@@ -20,11 +20,11 @@
       
       <!-- Características destacadas -->
       <div class="features">
-        <div class="feature-item">
+        <div class="feature-item" [@bounceEnterAnimation]>
           <span class="feature-icon">👨‍⚕️</span>
           <span>Especialistas certificados</span>
         </div>
-        <div class="feature-item">
+        <div class="feature-item" [@bounceEnterAnimation]>
           <span class="feature-icon">📅</span>
           <span>Turnos online</span>
         </div>
@@ -37,7 +37,7 @@
   </div>
 
   <!-- Botones de acceso -->
-  <div class="access-buttons">
+  <div class="access-buttons" [@fadeInAnimation]>
     <button 
       type="button" 
       class="btn btn-primary login-btn" 

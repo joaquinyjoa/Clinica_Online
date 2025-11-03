@@ -1427,6 +1427,445 @@
     }
   }
 
+  // ========== ESTILOS PARA PACIENTES ATENDIDOS ==========
+  .seccion-pacientes {
+    .pacientes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .paciente-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(102, 126, 234, 0.1);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+      }
+
+      .paciente-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+
+        .paciente-avatar {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          overflow: hidden;
+          flex-shrink: 0;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+          }
+        }
+
+        .paciente-info {
+          flex: 1;
+
+          h4 {
+            margin: 0 0 4px 0;
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 600;
+          }
+
+          .paciente-email {
+            margin: 0 0 6px 0;
+            color: #666;
+            font-size: 0.9rem;
+          }
+
+          .total-turnos {
+            display: inline-block;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+          }
+        }
+      }
+
+      .paciente-body {
+        margin-bottom: 16px;
+
+        h5 {
+          margin: 0 0 12px 0;
+          color: #495057;
+          font-size: 0.95rem;
+          font-weight: 600;
+        }
+
+        .turnos-recientes {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+
+          .turno-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 8px;
+            align-items: center;
+            padding: 8px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 6px;
+            font-size: 0.85rem;
+
+            .turno-fecha {
+              display: flex;
+              flex-direction: column;
+              gap: 2px;
+
+              .fecha {
+                color: #333;
+                font-weight: 500;
+              }
+
+              .hora {
+                color: #666;
+                font-size: 0.8rem;
+              }
+            }
+
+            .turno-especialidad {
+              color: #667eea;
+              font-weight: 500;
+              text-align: center;
+            }
+
+            .turno-estado {
+              padding: 2px 6px;
+              border-radius: 4px;
+              font-size: 0.75rem;
+              font-weight: 500;
+              text-align: center;
+
+              &.estado-finalizado {
+                background-color: #d4edda;
+                color: #155724;
+              }
+
+              &.estado-confirmado {
+                background-color: #cce5ff;
+                color: #004085;
+              }
+
+              &.estado-pendiente {
+                background-color: #fff3cd;
+                color: #856404;
+              }
+
+              &.estado-cancelado {
+                background-color: #f8d7da;
+                color: #721c24;
+              }
+            }
+          }
+        }
+      }
+
+      .paciente-actions {
+        display: flex;
+        justify-content: center;
+
+        .btn-historia {
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 6px;
+          font-size: 0.9rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          }
+        }
+      }
+    }
+
+    .no-pacientes {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+
+      .no-pacientes-content {
+        h4 {
+          margin-bottom: 12px;
+          color: #495057;
+        }
+
+        p {
+          margin: 0;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  // ========== ESTILOS PARA USUARIOS (ADMIN) ==========
+  .seccion-usuarios {
+    .usuarios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .usuario-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(102, 126, 234, 0.1);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+      }
+
+      .usuario-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+
+        .usuario-avatar {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          overflow: hidden;
+          flex-shrink: 0;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+          }
+        }
+
+        .usuario-info {
+          flex: 1;
+
+          h4 {
+            margin: 0 0 4px 0;
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 600;
+          }
+
+          .usuario-email {
+            margin: 0 0 8px 0;
+            color: #666;
+            font-size: 0.9rem;
+          }
+
+          .usuario-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+
+            .badge {
+              padding: 2px 6px;
+              border-radius: 10px;
+              font-size: 0.7rem;
+              font-weight: 500;
+              text-transform: uppercase;
+
+              &.badge-paciente {
+                background-color: #e3f2fd;
+                color: #1976d2;
+              }
+
+              &.badge-empleado {
+                background-color: #f3e5f5;
+                color: #7b1fa2;
+              }
+
+              &.badge-especialidad {
+                background-color: #e8f5e8;
+                color: #2e7d32;
+              }
+
+              &.badge-aprobado {
+                background-color: #d4edda;
+                color: #155724;
+              }
+
+              &.badge-pendiente {
+                background-color: #fff3cd;
+                color: #856404;
+              }
+
+              &.badge-verificado {
+                background-color: #d1ecf1;
+                color: #0c5460;
+              }
+
+              &.badge-no-verificado {
+                background-color: #f8d7da;
+                color: #721c24;
+              }
+            }
+          }
+        }
+      }
+
+      .usuario-body {
+        margin-bottom: 16px;
+
+        .usuario-datos {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+
+          .dato-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+
+            .dato-label {
+              color: #666;
+              font-size: 0.9rem;
+              font-weight: 500;
+            }
+
+            .dato-valor {
+              color: #333;
+              font-size: 0.9rem;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
+      .usuario-actions {
+        display: flex;
+        justify-content: center;
+
+        .btn-excel {
+          background: linear-gradient(135deg, #28a745, #20c997);
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 6px;
+          font-size: 0.9rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+          }
+        }
+      }
+    }
+
+    .no-usuarios {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+
+      .no-usuarios-content {
+        h4 {
+          margin-bottom: 12px;
+          color: #495057;
+        }
+
+        p {
+          margin: 0;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  // ========== FILTRO DE ESPECIALIDAD PARA PDF ==========
+  .filtro-especialidad {
+    margin: 15px 0;
+    padding: 15px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+
+    label {
+      display: block;
+      color: #495057;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .especialidad-select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 6px;
+      background: white;
+      color: #333;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      option {
+        padding: 8px;
+        color: #333;
+      }
+    }
+  }
+
   @keyframes spin {
     to {
       transform: rotate(360deg);

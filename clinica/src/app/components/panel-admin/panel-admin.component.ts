@@ -425,6 +425,10 @@ export class PanelAdminComponent implements OnInit {
   async volverAlLogin() {
     this.loading = true;
     try {
+      // Limpiar localStorage y servicios
+      localStorage.removeItem('currentUser');
+      // Si hay servicios de logout disponibles, llamarlos también
+      
       await this.router.navigate(['/login']);
       this.toastService.info('👋 Sesión de administrador cerrada');
     } catch (error) {

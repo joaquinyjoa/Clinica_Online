@@ -532,20 +532,193 @@
 
             </div>
           </section>
+
+          <!-- Sección Pacientes Atendidos -->
+          <section class="seccion-pacientes">
+            <div class="seccion-header">
+              <div class="header-info">
+                <h2>👥 Mis Pacientes</h2>
+                <p>Pacientes que has atendido al menos una vez</p>
+              </div>
+              <div class="header-actions">
+                <button class="btn btn-toggle" (click)="togglePacientesAtendidos()">
+                  {{ mostrarPacientes ? '👁️ Ocultar' : '👀 Ver' }} Pacientes
+                </button>
+              </div>
+            </div>
+
+            @if (mostrarPacientes) {
+              <div class="seccion-content">
+                @if (loadingPacientes) {
+                  <div class="loading-section">
+                    <div class="loading-content">
+                      <div class="loading-spinner"></div>
+                      <p>Cargando pacientes atendidos...</p>
+                    </div>
+                  </div>
+                } @else if (pacientesAtendidos.length === 0) {
+                  <div class="no-pacientes">
+                    <div class="no-pacientes-content">
+                      <h4>📋 Sin pacientes atendidos</h4>
+                      <p>Una vez que finalices consultas con pacientes, aparecerán listados aquí.</p>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="pacientes-grid">
+                    @for (paciente of pacientesAtendidos; track paciente.id) {
+                      <div class="paciente-card" [@fadeInAnimation]>
+                        <div class="paciente-header">
+                          <div class="paciente-avatar">
+                            @if (paciente.foto1) {
+                              <img [src]="paciente.foto1" [alt]="paciente.nombre + ' ' + paciente.apellido">
+                            } @else {
+                              <div class="avatar-placeholder">
+                                {{ paciente.nombre.charAt(0) + paciente.apellido.charAt(0) }}
+                              </div>
+                            }
+                          </div>
+                          <div class="paciente-info">
+                            <h4>{{ paciente.nombre }} {{ paciente.apellido }}</h4>
+                            <p class="paciente-email">{{ paciente.email }}</p>
+                            <span class="total-turnos">{{ paciente.totalTurnos }} turno{{ paciente.totalTurnos !== 1 ? 's' : '' }} atendido{{ paciente.totalTurnos !== 1 ? 's' : '' }}</span>
+                          </div>
+                        </div>
+                        
+                        <div class="paciente-body">
+                          <h5>🗓️ Últimos 3 turnos:</h5>
+                          <div class="turnos-recientes">
+                            @for (turno of paciente.ultimos3Turnos; track turno.id) {
+                              <div class="turno-item">
+                                <div class="turno-fecha">
+                                  <span class="fecha">{{ formatearFecha(turno.fecha) }}</span>
+                                  <span class="hora">{{ turno.hora }}</span>
+                                </div>
+                                <div class="turno-especialidad">{{ turno.especialidad }}</div>
+                                <div class="turno-estado estado-{{ turno.estado }}">{{ turno.estado }}</div>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                        
+                        <div class="paciente-actions">
+                          <button class="btn btn-historia" 
+                                  (click)="verHistoriaClinicaPaciente(paciente)"
+                                  title="Ver historia clínica del paciente">
+                            📋 Ver Historia Clínica
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </section>
         }
 
         <!-- Info Section for other user types -->
         @else if (userType === 'admin') {
-          <section class="seccion-info">
+          <section class="seccion-usuarios">
             <div class="seccion-header">
-              <h2>👨‍💼 Panel de Administrador</h2>
-              <p>Información adicional para administradores</p>
+              <div class="header-info">
+                <h2>� Gestión de Usuarios</h2>
+                <p>Administra todos los usuarios del sistema</p>
+              </div>
+              <div class="header-actions">
+                <button class="btn btn-toggle" (click)="toggleUsuarios()">
+                  {{ mostrarUsuarios ? '👁️ Ocultar' : '👀 Ver' }} Usuarios
+                </button>
+              </div>
             </div>
-            <div class="seccion-content">
-              <p class="placeholder-text">
-                🛠️ Como administrador, puedes gestionar usuarios, turnos y configuraciones del sistema desde otras secciones.
-              </p>
-            </div>
+
+            @if (mostrarUsuarios) {
+              <div class="seccion-content">
+                @if (loadingUsuarios) {
+                  <div class="loading-section">
+                    <div class="loading-content">
+                      <div class="loading-spinner"></div>
+                      <p>Cargando usuarios...</p>
+                    </div>
+                  </div>
+                } @else if (todosLosUsuarios.length === 0) {
+                  <div class="no-usuarios">
+                    <div class="no-usuarios-content">
+                      <h4>📋 Sin usuarios registrados</h4>
+                      <p>No hay usuarios en el sistema actualmente.</p>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="usuarios-grid">
+                    @for (usuario of todosLosUsuarios; track usuario.id) {
+                      <div class="usuario-card" [@fadeInAnimation]>
+                        <div class="usuario-header">
+                          <div class="usuario-avatar">
+                            @if (usuario.tipo === 'paciente' && usuario.foto1) {
+                              <img [src]="usuario.foto1" [alt]="usuario.nombre + ' ' + usuario.apellido">
+                            } @else if (usuario.tipo === 'empleado' && usuario.imagenPerfil) {
+                              <img [src]="usuario.imagenPerfil" [alt]="usuario.nombre + ' ' + usuario.apellido">
+                            } @else {
+                              <div class="avatar-placeholder">
+                                {{ usuario.nombre.charAt(0) + usuario.apellido.charAt(0) }}
+                              </div>
+                            }
+                          </div>
+                          <div class="usuario-info">
+                            <h4>{{ usuario.nombre }} {{ usuario.apellido }}</h4>
+                            <p class="usuario-email">{{ usuario.email }}</p>
+                            <div class="usuario-badges">
+                              <span class="badge badge-{{ usuario.tipo }}">{{ usuario.tipo }}</span>
+                              @if (usuario.tipo === 'empleado') {
+                                <span class="badge badge-especialidad">{{ usuario.especialidad }}</span>
+                                @if (usuario.aprobado) {
+                                  <span class="badge badge-aprobado">Aprobado</span>
+                                } @else {
+                                  <span class="badge badge-pendiente">Pendiente</span>
+                                }
+                              }
+                              @if (usuario.emailVerificado) {
+                                <span class="badge badge-verificado">Verificado</span>
+                              } @else {
+                                <span class="badge badge-no-verificado">No verificado</span>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="usuario-body">
+                          <div class="usuario-datos">
+                            <div class="dato-item">
+                              <span class="dato-label">DNI:</span>
+                              <span class="dato-valor">{{ usuario.dni || 'No especificado' }}</span>
+                            </div>
+                            @if (usuario.tipo === 'paciente' && usuario.obraSocial) {
+                              <div class="dato-item">
+                                <span class="dato-label">Obra Social:</span>
+                                <span class="dato-valor">{{ usuario.obraSocial }}</span>
+                              </div>
+                            }
+                            @if (usuario.edad) {
+                              <div class="dato-item">
+                                <span class="dato-label">Edad:</span>
+                                <span class="dato-valor">{{ usuario.edad }} años</span>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                        
+                        <div class="usuario-actions">
+                          <button class="btn btn-excel" 
+                                  (click)="descargarExcelUsuario(usuario)"
+                                  title="Descargar Excel con turnos del usuario">
+                            📊 Descargar Excel
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
           </section>
         }
 
@@ -554,6 +727,22 @@
             <div class="seccion-header">
               <h2>🏥 Información del Paciente</h2>
               <p>Tu información médica e historial</p>
+              
+              <!-- Filtro de especialidad para PDF -->
+              @if (especialidadesDisponibles.length > 0) {
+                <div class="filtro-especialidad">
+                  <label for="especialidad-pdf">📊 Filtrar PDF por especialidad:</label>
+                  <select id="especialidad-pdf" 
+                          [(ngModel)]="especialidadSeleccionada"
+                          class="especialidad-select">
+                    <option value="">Todas las especialidades</option>
+                    @for (especialidad of especialidadesDisponibles; track especialidad) {
+                      <option [value]="especialidad">{{ especialidad }}</option>
+                    }
+                  </select>
+                </div>
+              }
+              
               <div class="header-actions">
                 <button class="btn btn-toggle-historia" 
                         (click)="toggleHistoriaClinica()"
@@ -567,7 +756,7 @@
                   }
                 </button>
                 <button class="btn btn-download-pdf" 
-                        (click)="descargarHistoriaClinica()" 
+                        (click)="descargarPDFHistoriaClinica()" 
                         [disabled]="descargandoPDF"
                         title="Descargar historia clínica en PDF">
                   @if (descargandoPDF) {
