@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { EmpleadosService, Empleado } from '../../services/empleados.service';
 import { PacientesService, Paciente } from '../../services/pacientes.service';
+import { HistoriaClinicaService, HistoriaClinicaCompleta } from '../../services/historia-clinica.service';
 import { ExportService } from '../../services/export.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ToastService } from '../../services/toast.service';
@@ -24,6 +25,12 @@ export class PanelAdminComponent implements OnInit {
   fb = new FormBuilder();
   loading = false;
   exportandoExcel = false;
+
+  // Historia Clínica
+  pacienteSeleccionado: Paciente | null = null;
+  historiaClinicaPaciente: HistoriaClinicaCompleta[] = [];
+  mostrandoHistoria = false;
+  loadingHistoria = false;
 
   // Validador personalizado para evitar especialidad "administrador"
   private noAdministradorValidator(control: AbstractControl): ValidationErrors | null {
@@ -175,6 +182,7 @@ export class PanelAdminComponent implements OnInit {
   constructor(
     private empleadosService: EmpleadosService,
     private pacientesService: PacientesService,
+    private historiaClinicaService: HistoriaClinicaService,
     private exportService: ExportService,
     private toastService: ToastService,
     private router: Router
@@ -440,6 +448,66 @@ export class PanelAdminComponent implements OnInit {
       this.toastService.error('❌ Error al generar el archivo Excel');
     } finally {
       this.exportandoExcel = false;
+    }
+  }
+
+  // Métodos para Historia Clínica
+  async verHistoriaClinica(paciente: Paciente) {
+    this.pacienteSeleccionado = paciente;
+    this.mostrandoHistoria = true;
+    this.loadingHistoria = true;
+    this.historiaClinicaPaciente = [];
+
+    try {
+      if (paciente.id) {
+        this.historiaClinicaPaciente = await this.historiaClinicaService.obtenerHistoriaPaciente(paciente.id);
+        
+        if (this.historiaClinicaPaciente.length === 0) {
+          this.toastService.info('📋 Este paciente no tiene historia clínica registrada');
+        }
+      }
+    } catch (error) {
+      console.error('Error al cargar historia clínica:', error);
+      this.toastService.error('❌ Error al cargar la historia clínica');
+    } finally {
+      this.loadingHistoria = false;
+    }
+  }
+
+  cerrarHistoriaClinica() {
+    this.mostrandoHistoria = false;
+    this.pacienteSeleccionado = null;
+    this.historiaClinicaPaciente = [];
+  }
+
+  obtenerCamposDinamicos(historia: HistoriaClinicaCompleta): { clave: string, valor: string }[] {
+    const campos: { clave: string, valor: string }[] = [];
+    
+    if (historia.campo_dinamico_1_clave && historia.campo_dinamico_1_valor) {
+      campos.push({ clave: historia.campo_dinamico_1_clave, valor: historia.campo_dinamico_1_valor });
+    }
+    if (historia.campo_dinamico_2_clave && historia.campo_dinamico_2_valor) {
+      campos.push({ clave: historia.campo_dinamico_2_clave, valor: historia.campo_dinamico_2_valor });
+    }
+    if (historia.campo_dinamico_3_clave && historia.campo_dinamico_3_valor) {
+      campos.push({ clave: historia.campo_dinamico_3_clave, valor: historia.campo_dinamico_3_valor });
+    }
+    
+    return campos;
+  }
+
+  formatearFecha(fecha: string): string {
+    try {
+      const date = new Date(fecha);
+      return date.toLocaleDateString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return fecha;
     }
   }
 
