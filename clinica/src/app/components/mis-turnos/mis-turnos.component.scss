@@ -226,6 +226,32 @@
   }
 }
 
+.filtro-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-filtros-avanzados {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: linear-gradient(135deg, #218838, #1abc9c);
+    transform: translateY(-2px);
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+  }
+}
+
 .btn-limpiar {
   background: linear-gradient(135deg, #6c757d, #5a6268);
   color: white;
@@ -240,6 +266,58 @@
   &:hover:not(:disabled) {
     background: linear-gradient(135deg, #5a6268, #495057);
     transform: translateY(-2px);
+  }
+}
+
+/* Filtros Avanzados */
+.filtros-avanzados {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid #e9ecef;
+  animation: slideDown 0.4s ease-out;
+
+  .filtros-avanzados-header {
+    text-align: center;
+    margin-bottom: 20px;
+
+    h3 {
+      color: #28a745;
+      font-size: 1.2rem;
+      margin: 0 0 8px 0;
+      font-weight: 600;
+    }
+
+    p {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin: 0;
+      font-style: italic;
+    }
+  }
+
+  .filtro-group.historia-clinica {
+    max-width: 600px;
+    margin: 0 auto;
+
+    .historia-input {
+      border: 2px solid #28a745;
+      background: rgba(40, 167, 69, 0.05);
+      
+      &:focus {
+        border-color: #20c997;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+      }
+    }
+
+    .filtro-help {
+      color: #6c757d;
+      font-size: 0.8rem;
+      font-style: italic;
+      margin-top: 8px;
+      display: block;
+      text-align: center;
+      line-height: 1.4;
+    }
   }
 }
 
@@ -817,5 +895,27 @@
     .flotante-icon {
       font-size: 1.6rem;
     }
+  }
+
+  .filtros-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .filtros-avanzados {
+    .filtro-group.historia-clinica {
+      max-width: 100%;
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

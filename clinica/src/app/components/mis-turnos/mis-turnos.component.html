@@ -52,9 +52,36 @@
       </div>
       
       <div class="filtro-actions">
+        <button 
+          class="btn-filtros-avanzados" 
+          (click)="toggleFiltrosAvanzados()"
+          [class.active]="mostrarFiltrosAvanzados">
+          {{ mostrarFiltrosAvanzados ? '🔺' : '🔻' }} Filtros Avanzados
+        </button>
         <button class="btn-limpiar" (click)="limpiarFiltros()" [disabled]="loading">
           🧹 Limpiar
         </button>
+      </div>
+    </div>
+
+    <!-- Filtros Avanzados -->
+    <div class="filtros-avanzados" *ngIf="mostrarFiltrosAvanzados">
+      <div class="filtros-avanzados-header">
+        <h3>📋 Búsqueda en Historia Clínica</h3>
+        <p>Busca en datos vitales, campos dinámicos y observaciones médicas</p>
+      </div>
+      
+      <div class="filtro-group historia-clinica">
+        <label>🔍 Buscar en Historia Clínica:</label>
+        <input 
+          type="text" 
+          [(ngModel)]="filtroHistoriaClinica" 
+          (input)="aplicarFiltros()"
+          placeholder="Ej: presión alta, diabetes, temperatura, peso..."
+          class="filtro-input historia-input">
+        <small class="filtro-help">
+          💡 Busca en altura, peso, temperatura, presión y campos adicionales registrados por especialistas
+        </small>
       </div>
     </div>
   </div>

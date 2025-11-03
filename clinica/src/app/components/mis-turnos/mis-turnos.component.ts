@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { TurnosService, Turno } from '../../services/turnos.service';
 import { PacientesService } from '../../services/pacientes.service';
 import { EmpleadosService } from '../../services/empleados.service';
+import { HistoriaClinicaService } from '../../services/historia-clinica.service';
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -31,6 +32,10 @@ export class MisTurnosComponent implements OnInit {
   filtroEspecialidad = '';
   filtroEspecialista = '';
   
+  // Filtros avanzados de historia clínica
+  filtroHistoriaClinica = '';
+  mostrarFiltrosAvanzados = false;
+  
   // Datos para filtros
   especialidades: string[] = [];
   especialistas: {id: number, nombre: string, especialidad: string}[] = [];
@@ -50,6 +55,7 @@ export class MisTurnosComponent implements OnInit {
     private turnosService: TurnosService,
     private pacientesService: PacientesService,
     private empleadosService: EmpleadosService,
+    private historiaClinicaService: HistoriaClinicaService,
     private toastService: ToastService,
     private router: Router
   ) { }
@@ -177,7 +183,7 @@ export class MisTurnosComponent implements OnInit {
   }
 
   // Aplicar filtros
-  aplicarFiltros() {
+  async aplicarFiltros() {
     let resultado = [...this.turnos];
 
     if (this.filtroEspecialidad) {
@@ -188,6 +194,33 @@ export class MisTurnosComponent implements OnInit {
       resultado = resultado.filter(t => t.especialistaNombre?.toLowerCase().includes(this.filtroEspecialista.toLowerCase()));
     }
 
+    // Filtro avanzado de historia clínica
+    if (this.filtroHistoriaClinica && this.filtroHistoriaClinica.trim()) {
+      try {
+        const terminoBusqueda = this.filtroHistoriaClinica.toLowerCase().trim();
+        
+        // Buscar en historia clínica usando el servicio
+        const historiasEncontradas = await this.historiaClinicaService.buscarHistorias({
+          textoBusqueda: terminoBusqueda
+        });
+        
+        // Obtener IDs de turnos que tienen historia clínica coincidente
+        const turnoIdsCoincidentes = historiasEncontradas.map(h => h.turno_id);
+        
+        // Filtrar turnos que tienen historia clínica que coincide con la búsqueda
+        resultado = resultado.filter(turno => 
+          turno.id && turnoIdsCoincidentes.includes(turno.id)
+        );
+        
+        if (resultado.length === 0 && this.filtroHistoriaClinica.trim()) {
+          this.toastService.info('🔍 No se encontraron turnos con historia clínica que coincida con la búsqueda');
+        }
+      } catch (error) {
+        console.error('Error al buscar en historia clínica:', error);
+        this.toastService.error('❌ Error al buscar en historia clínica');
+      }
+    }
+
     this.turnosFiltrados = resultado;
   }
 
@@ -195,7 +228,13 @@ export class MisTurnosComponent implements OnInit {
   limpiarFiltros() {
     this.filtroEspecialidad = '';
     this.filtroEspecialista = '';
+    this.filtroHistoriaClinica = '';
     this.turnosFiltrados = [...this.turnos];
+  }
+
+  // Toggle para mostrar/ocultar filtros avanzados
+  toggleFiltrosAvanzados() {
+    this.mostrarFiltrosAvanzados = !this.mostrarFiltrosAvanzados;
   }
 
   // Verificar qué acciones puede realizar según el estado
