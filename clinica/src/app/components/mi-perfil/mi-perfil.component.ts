@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router } from '@angular/router';
 import { EmpleadosService } from '../../services/empleados.service';
 import { PacientesService } from '../../services/pacientes.service';
+import { ExportService } from '../../services/export.service';
 import { ToastService } from '../../services/toast.service';
 import { HorariosService } from '../../services/horarios.service';
 import { Empleado } from '../../services/empleados.service';
@@ -37,6 +38,7 @@ type DiaSemana = keyof HorariosEspecialista;
 export class MiPerfilComponent implements OnInit {
   private empleadosService = inject(EmpleadosService);
   private pacientesService = inject(PacientesService);
+  private exportService = inject(ExportService);
   private toastService = inject(ToastService);
   private horariosService = inject(HorariosService);
   private router = inject(Router);
@@ -47,6 +49,7 @@ export class MiPerfilComponent implements OnInit {
   isLoading = true;
   isEditing = false;
   isSaving = false;
+  descargandoPDF = false;
 
   // Formulario de datos personales
   datosPersonalesForm: FormGroup;
@@ -440,5 +443,27 @@ export class MiPerfilComponent implements OnInit {
     return Object.values(this.horarios).reduce((count, dia) => {
       return count + (dia.manana ? 1 : 0) + (dia.tarde ? 1 : 0);
     }, 0);
+  }
+
+  // Método para descargar historia clínica (solo pacientes)
+  async descargarHistoriaClinica() {
+    if (this.userType !== 'paciente' || !this.currentUser || !this.currentUser.id) {
+      this.toastService.error('❌ Solo los pacientes pueden descargar su historia clínica');
+      return;
+    }
+
+    this.descargandoPDF = true;
+    try {
+      this.toastService.info('📄 Generando tu historia clínica...');
+      
+      await this.exportService.exportarHistoriaClinicaPDF(this.currentUser.id);
+      
+      this.toastService.success('✅ Historia clínica descargada exitosamente');
+    } catch (error) {
+      console.error('Error al descargar historia clínica:', error);
+      this.toastService.error('❌ Error al generar el PDF de historia clínica');
+    } finally {
+      this.descargandoPDF = false;
+    }
   }
 }

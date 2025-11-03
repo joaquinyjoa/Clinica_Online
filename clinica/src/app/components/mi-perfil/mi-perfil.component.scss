@@ -1076,4 +1076,94 @@
       background: linear-gradient(90deg, #ff7f50, #ff6347);
     }
   }
+
+  // Estilos específicos para el botón de descarga PDF
+  .btn-download-pdf {
+    background: linear-gradient(90deg, #dc3545, #c82333);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+      background: linear-gradient(90deg, #c82333, #a71e2a);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .spinner-sm {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  // Estilos para la sección de información del paciente
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+
+    .info-card {
+      background: linear-gradient(135deg, #fff, #f8f9fa);
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+      h3 {
+        color: #dc3545;
+        margin: 0 0 16px 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+
+      p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 16px;
+      }
+
+      .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          padding: 8px 0;
+          color: #555;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.9rem;
+
+          &:not(:last-child) {
+            border-bottom: 1px solid #f0f0f0;
+          }
+        }
+      }
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { EmpleadosService, Empleado } from '../../services/empleados.service';
 import { PacientesService, Paciente } from '../../services/pacientes.service';
+import { ExportService } from '../../services/export.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
@@ -22,6 +23,7 @@ export class PanelAdminComponent implements OnInit {
   pacientes: Paciente[] = [];
   fb = new FormBuilder();
   loading = false;
+  exportandoExcel = false;
 
   // Validador personalizado para evitar especialidad "administrador"
   private noAdministradorValidator(control: AbstractControl): ValidationErrors | null {
@@ -173,6 +175,7 @@ export class PanelAdminComponent implements OnInit {
   constructor(
     private empleadosService: EmpleadosService,
     private pacientesService: PacientesService,
+    private exportService: ExportService,
     private toastService: ToastService,
     private router: Router
   ) {}
@@ -420,6 +423,23 @@ export class PanelAdminComponent implements OnInit {
       this.toastService.error('❌ Error al navegar al login');
     } finally {
       this.loading = false;
+    }
+  }
+
+  // Método para exportar usuarios a Excel
+  async exportarUsuariosExcel() {
+    this.exportandoExcel = true;
+    try {
+      this.toastService.info('📊 Iniciando exportación de usuarios...');
+      
+      await this.exportService.exportarUsuariosExcel();
+      
+      this.toastService.success('✅ Archivo Excel descargado exitosamente');
+    } catch (error) {
+      console.error('Error al exportar usuarios:', error);
+      this.toastService.error('❌ Error al generar el archivo Excel');
+    } finally {
+      this.exportandoExcel = false;
     }
   }
 

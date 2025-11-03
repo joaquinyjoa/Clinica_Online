@@ -172,6 +172,46 @@
   }
 }
 
+/* Estilos específicos para el botón de exportación */
+.export-btn {
+  background: linear-gradient(135deg, #007bff 0%, #6f42c1 100%) !important;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 8px 30px rgba(0, 123, 255, 0.4) !important;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    
+    &:hover {
+      transform: none !important;
+      box-shadow: 0 5px 20px rgba(0, 123, 255, 0.3) !important;
+    }
+  }
+
+  .spinner {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
 /* Selector de tipo de usuario */
 .user-type-selector {
   background: rgba(255, 255, 255, 0.95);

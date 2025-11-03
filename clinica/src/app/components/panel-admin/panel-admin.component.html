@@ -44,6 +44,19 @@
           <p>Ver y administrar todos los turnos</p>
         </div>
       </button>
+      
+      <button class="quick-access-btn export-btn" 
+              (click)="exportarUsuariosExcel()" 
+              [disabled]="exportandoExcel"
+              title="Descargar listado completo de usuarios en Excel">
+        <span class="access-icon">📊</span>
+        <div class="access-info">
+          <h3>{{ exportandoExcel ? 'Generando...' : 'Exportar Usuarios' }}</h3>
+          <p>{{ exportandoExcel ? 'Preparando archivo Excel' : 'Descargar Excel con todos los usuarios' }}</p>
+        </div>
+        <div class="spinner" *ngIf="exportandoExcel"></div>
+      </button>
+      
       <!-- Aquí se pueden agregar más accesos rápidos en el futuro -->
     </div>
   </div>

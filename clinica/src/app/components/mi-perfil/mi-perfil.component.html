@@ -554,11 +554,33 @@
             <div class="seccion-header">
               <h2>🏥 Información del Paciente</h2>
               <p>Tu información médica y historial</p>
+              <div class="header-actions">
+                <button class="btn btn-download-pdf" 
+                        (click)="descargarHistoriaClinica()" 
+                        [disabled]="descargandoPDF"
+                        title="Descargar historia clínica en PDF">
+                  @if (descargandoPDF) {
+                    <span class="spinner-sm"></span>
+                    Generando PDF...
+                  } @else {
+                    📄 Descargar Historia Clínica
+                  }
+                </button>
+              </div>
             </div>
             <div class="seccion-content">
-              <p class="placeholder-text">
-                📋 Aquí podrás ver y actualizar tu información personal y médica.
-              </p>
+              <div class="info-grid">
+                <div class="info-card">
+                  <h3>📋 Historia Clínica</h3>
+                  <p>Descarga tu historia clínica completa con todas las consultas realizadas, diagnósticos y tratamientos.</p>
+                  <ul class="info-list">
+                    <li>✅ Historial de consultas</li>
+                    <li>✅ Especialistas consultados</li>
+                    <li>✅ Diagnósticos y observaciones</li>
+                    <li>✅ Calificaciones de atención</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </section>
         }
