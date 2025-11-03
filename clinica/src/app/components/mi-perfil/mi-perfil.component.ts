@@ -9,6 +9,7 @@ import { ToastService } from '../../services/toast.service';
 import { HorariosService } from '../../services/horarios.service';
 import { Empleado } from '../../services/empleados.service';
 import { Paciente } from '../../services/pacientes.service';
+import { fadeInAnimation, slideUpAnimation } from '../../animations/animations';
 
 // Interfaces para horarios
 interface HorarioDia {
@@ -33,7 +34,8 @@ type DiaSemana = keyof HorariosEspecialista;
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './mi-perfil.component.html',
-  styleUrls: ['./mi-perfil.component.scss']
+  styleUrls: ['./mi-perfil.component.scss'],
+  animations: [fadeInAnimation, slideUpAnimation]
 })
 export class MiPerfilComponent implements OnInit {
   private empleadosService = inject(EmpleadosService);
