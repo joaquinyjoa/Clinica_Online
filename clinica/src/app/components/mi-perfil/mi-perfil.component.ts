@@ -7,6 +7,7 @@ import { PacientesService } from '../../services/pacientes.service';
 import { ExportService } from '../../services/export.service';
 import { ToastService } from '../../services/toast.service';
 import { HorariosService } from '../../services/horarios.service';
+import { HistoriaClinicaService, HistoriaClinicaCompleta } from '../../services/historia-clinica.service';
 import { Empleado } from '../../services/empleados.service';
 import { Paciente } from '../../services/pacientes.service';
 import { fadeInAnimation, slideUpAnimation } from '../../animations/animations';
@@ -43,6 +44,7 @@ export class MiPerfilComponent implements OnInit {
   private exportService = inject(ExportService);
   private toastService = inject(ToastService);
   private horariosService = inject(HorariosService);
+  private historiaClinicaService = inject(HistoriaClinicaService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -52,6 +54,11 @@ export class MiPerfilComponent implements OnInit {
   isEditing = false;
   isSaving = false;
   descargandoPDF = false;
+
+  // Historia clínica del paciente
+  historiaClinica: HistoriaClinicaCompleta[] = [];
+  loadingHistoria = false;
+  mostrarHistoria = false;
 
   // Formulario de datos personales
   datosPersonalesForm: FormGroup;
@@ -108,6 +115,11 @@ export class MiPerfilComponent implements OnInit {
         // Cargar horarios si es especialista
         if (this.userType === 'especialista') {
           await this.cargarHorariosEspecialista();
+        }
+        
+        // Cargar historia clínica si es paciente
+        if (this.userType === 'paciente') {
+          await this.cargarHistoriaClinica();
         }
       }
     } catch (error) {
@@ -467,5 +479,65 @@ export class MiPerfilComponent implements OnInit {
     } finally {
       this.descargandoPDF = false;
     }
+  }
+
+  // Métodos para historia clínica
+  async cargarHistoriaClinica() {
+    if (this.userType !== 'paciente' || !this.currentUser?.id) {
+      return;
+    }
+
+    this.loadingHistoria = true;
+    try {
+      this.historiaClinica = await this.historiaClinicaService.obtenerHistoriaPaciente(this.currentUser.id);
+      console.log('Historia clínica cargada:', this.historiaClinica);
+    } catch (error) {
+      console.error('Error al cargar historia clínica:', error);
+      this.toastService.error('❌ Error al cargar la historia clínica');
+    } finally {
+      this.loadingHistoria = false;
+    }
+  }
+
+  toggleHistoriaClinica() {
+    this.mostrarHistoria = !this.mostrarHistoria;
+    if (this.mostrarHistoria && this.historiaClinica.length === 0) {
+      this.cargarHistoriaClinica();
+    }
+  }
+
+  obtenerCamposDinamicos(historia: HistoriaClinicaCompleta): Array<{clave: string, valor: string}> {
+    const campos = [];
+    
+    if (historia.campo_dinamico_1_clave && historia.campo_dinamico_1_valor) {
+      campos.push({
+        clave: historia.campo_dinamico_1_clave,
+        valor: historia.campo_dinamico_1_valor
+      });
+    }
+    
+    if (historia.campo_dinamico_2_clave && historia.campo_dinamico_2_valor) {
+      campos.push({
+        clave: historia.campo_dinamico_2_clave,
+        valor: historia.campo_dinamico_2_valor
+      });
+    }
+    
+    if (historia.campo_dinamico_3_clave && historia.campo_dinamico_3_valor) {
+      campos.push({
+        clave: historia.campo_dinamico_3_clave,
+        valor: historia.campo_dinamico_3_valor
+      });
+    }
+    
+    return campos;
+  }
+
+  formatearFecha(fecha: string): string {
+    return new Date(fecha).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   }
 }

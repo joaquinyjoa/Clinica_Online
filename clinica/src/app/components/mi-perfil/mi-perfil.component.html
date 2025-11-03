@@ -553,8 +553,19 @@
           <section class="seccion-info">
             <div class="seccion-header">
               <h2>🏥 Información del Paciente</h2>
-              <p>Tu información médica y historial</p>
+              <p>Tu información médica e historial</p>
               <div class="header-actions">
+                <button class="btn btn-toggle-historia" 
+                        (click)="toggleHistoriaClinica()"
+                        [class.active]="mostrarHistoria"
+                        title="Ver historia clínica completa">
+                  @if (loadingHistoria) {
+                    <span class="spinner-sm"></span>
+                    Cargando...
+                  } @else {
+                    📋 {{ mostrarHistoria ? 'Ocultar' : 'Ver' }} Historia Clínica
+                  }
+                </button>
                 <button class="btn btn-download-pdf" 
                         (click)="descargarHistoriaClinica()" 
                         [disabled]="descargandoPDF"
@@ -563,24 +574,107 @@
                     <span class="spinner-sm"></span>
                     Generando PDF...
                   } @else {
-                    📄 Descargar Historia Clínica
+                    📄 Descargar PDF
                   }
                 </button>
               </div>
             </div>
+            
             <div class="seccion-content">
-              <div class="info-grid" [@fadeIn]>
-                <div class="info-card">
-                  <h3>📋 Historia Clínica</h3>
-                  <p>Descarga tu historia clínica completa con todas las consultas realizadas, diagnósticos y tratamientos.</p>
-                  <ul class="info-list">
-                    <li>✅ Historial de consultas</li>
-                    <li>✅ Especialistas consultados</li>
-                    <li>✅ Diagnósticos y observaciones</li>
-                    <li>✅ Calificaciones de atención</li>
-                  </ul>
+              <!-- Historia Clínica Expandida -->
+              @if (mostrarHistoria) {
+                <div class="historia-clinica-completa" [@slideUpAnimation]>
+                  @if (loadingHistoria) {
+                    <div class="loading-historia">
+                      <div class="spinner"></div>
+                      <p>Cargando historia clínica...</p>
+                    </div>
+                  } @else if (historiaClinica.length === 0) {
+                    <div class="no-historia">
+                      <div class="no-historia-icon">📋</div>
+                      <h3>Sin historia clínica registrada</h3>
+                      <p>Aún no tienes consultas médicas registradas en el sistema.</p>
+                      <p>Una vez que completes una consulta con un especialista, tu historia clínica aparecerá aquí.</p>
+                    </div>
+                  } @else {
+                    <div class="historia-lista">
+                      <div class="historia-header">
+                        <h3>📋 Tu Historia Clínica</h3>
+                        <p>{{ historiaClinica.length }} registro{{ historiaClinica.length !== 1 ? 's' : '' }} médico{{ historiaClinica.length !== 1 ? 's' : '' }}</p>
+                      </div>
+                      
+                      @for (historia of historiaClinica; track historia.id) {
+                        <div class="historia-item" [@fadeInAnimation]>
+                          <div class="historia-card">
+                            <!-- Header de la consulta -->
+                            <div class="consulta-header">
+                              <div class="consulta-info">
+                                <h4>{{ historia.turno_especialidad }}</h4>
+                                <p class="especialista">Dr/a. {{ historia.especialista_nombre }} {{ historia.especialista_apellido }}</p>
+                                <p class="fecha">{{ formatearFecha(historia.created_at!) }}</p>
+                              </div>
+                              <div class="consulta-estado">
+                                <span class="estado-badge completado">Realizado</span>
+                              </div>
+                            </div>
+                            
+                            <!-- Datos vitales -->
+                            <div class="datos-vitales">
+                              <h5>📊 Datos Vitales</h5>
+                              <div class="vitales-grid">
+                                <div class="vital-item">
+                                  <span class="vital-label">📏 Altura:</span>
+                                  <span class="vital-value">{{ historia.altura }} cm</span>
+                                </div>
+                                <div class="vital-item">
+                                  <span class="vital-label">⚖️ Peso:</span>
+                                  <span class="vital-value">{{ historia.peso }} kg</span>
+                                </div>
+                                <div class="vital-item">
+                                  <span class="vital-label">🌡️ Temperatura:</span>
+                                  <span class="vital-value">{{ historia.temperatura }}°C</span>
+                                </div>
+                                <div class="vital-item">
+                                  <span class="vital-label">💓 Presión:</span>
+                                  <span class="vital-value">{{ historia.presion }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Datos dinámicos (si existen) -->
+                            @if (obtenerCamposDinamicos(historia).length > 0) {
+                              <div class="datos-dinamicos">
+                                <h5>🔧 Datos Adicionales</h5>
+                                <div class="dinamicos-list">
+                                  @for (campo of obtenerCamposDinamicos(historia); track campo.clave) {
+                                    <div class="dinamico-item">
+                                      <span class="dinamico-label">{{ campo.clave }}:</span>
+                                      <span class="dinamico-value">{{ campo.valor }}</span>
+                                    </div>
+                                  }
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
-              </div>
+              } @else {
+                <div class="info-grid" [@fadeIn]>
+                  <div class="info-card">
+                    <h3>📋 Historia Clínica</h3>
+                    <p>Accede a tu historia clínica completa con todas las consultas realizadas, datos vitales registrados y observaciones médicas.</p>
+                    <ul class="info-list">
+                      <li>✅ Historial de consultas médicas</li>
+                      <li>✅ Datos vitales (altura, peso, temperatura, presión)</li>
+                      <li>✅ Información adicional registrada por especialistas</li>
+                      <li>✅ Exportación en formato PDF</li>
+                    </ul>
+                  </div>
+                </div>
+              }
             </div>
           </section>
         }
