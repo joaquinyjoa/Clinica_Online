@@ -159,6 +159,16 @@
             <span class="action-icon">👁️</span>
             Ver Reseña
           </button>
+
+          <!-- Agregar Historia Clínica -->
+          <button 
+            *ngIf="puedeAgregarHistoria(turno)" 
+            class="btn-action history" 
+            (click)="abrirModalHistoriaClinica(turno)"
+            [disabled]="loading">
+            <span class="action-icon">📋</span>
+            Historia Clínica
+          </button>
         </div>
       </div>
     </div>
@@ -288,6 +298,118 @@
       </div>
       <div class="modal-actions">
         <button class="btn-primary" (click)="cerrarModales()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Historia Clínica -->
+  <div *ngIf="mostrarModalHistoriaClinica" class="modal-overlay" (click)="cerrarModales()">
+    <div class="modal-content historia-clinica-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📋 Historia Clínica</h3>
+        <button class="modal-close" (click)="cerrarModales()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Paciente:</strong> {{ turnoSeleccionado?.pacienteNombre }}</p>
+        <p><strong>Turno:</strong> {{ turnoSeleccionado?.fecha }} - {{ turnoSeleccionado?.horario }}</p>
+        
+        <!-- Campos fijos -->
+        <div class="campos-fijos">
+          <h4>📊 Datos Vitales (Campos obligatorios)</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="altura">📏 Altura (cm) *</label>
+              <input 
+                type="number" 
+                id="altura"
+                [(ngModel)]="historiaClinica.altura"
+                placeholder="Ej: 175"
+                min="50" 
+                max="250"
+                step="0.1"
+                class="form-input"
+                required>
+            </div>
+            
+            <div class="form-group">
+              <label for="peso">⚖️ Peso (kg) *</label>
+              <input 
+                type="number" 
+                id="peso"
+                [(ngModel)]="historiaClinica.peso"
+                placeholder="Ej: 70.5"
+                min="10" 
+                max="300"
+                step="0.1"
+                class="form-input"
+                required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="temperatura">🌡️ Temperatura (°C) *</label>
+              <input 
+                type="number" 
+                id="temperatura"
+                [(ngModel)]="historiaClinica.temperatura"
+                placeholder="Ej: 36.5"
+                min="30" 
+                max="45"
+                step="0.1"
+                class="form-input"
+                required>
+            </div>
+            
+            <div class="form-group">
+              <label for="presion">💓 Presión Arterial *</label>
+              <input 
+                type="text" 
+                id="presion"
+                [(ngModel)]="historiaClinica.presion"
+                placeholder="Ej: 120/80"
+                pattern="[0-9]{2,3}/[0-9]{2,3}"
+                class="form-input"
+                required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campos dinámicos -->
+        <div class="campos-dinamicos">
+          <h4>🔧 Datos Adicionales (Máximo 3, opcionales)</h4>
+          
+          <div *ngFor="let campo of camposDinamicos; let i = index" class="form-row campo-dinamico">
+            <div class="form-group">
+              <label>🏷️ Dato {{ i + 1 }} - Concepto</label>
+              <input 
+                type="text" 
+                [(ngModel)]="campo.clave"
+                placeholder="Ej: caries, alergia, medicación..."
+                maxlength="100"
+                class="form-input">
+            </div>
+            
+            <div class="form-group">
+              <label>📝 Dato {{ i + 1 }} - Valor</label>
+              <input 
+                type="text" 
+                [(ngModel)]="campo.valor"
+                placeholder="Ej: 2 piezas, polen, paracetamol..."
+                maxlength="500"
+                class="form-input">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="cerrarModales()">Cancelar</button>
+        <button class="btn-primary" (click)="guardarHistoriaClinica()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner"></span>
+          💾 Guardar Historia Clínica
+        </button>
       </div>
     </div>
   </div>

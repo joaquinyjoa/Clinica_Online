@@ -8,6 +8,7 @@ import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
 import { EmpleadosService } from '../../services/empleados.service';
 import { PacientesService } from '../../services/pacientes.service';
+import { HistoriaClinicaService, HistoriaClinica } from '../../services/historia-clinica.service';
 
 import { Turno } from '../../services/turnos.service';
 
@@ -36,6 +37,7 @@ export class TurnosEspecialistaComponent implements OnInit {
   mostrarModalRechazar = false;
   mostrarModalFinalizar = false;
   mostrarModalResena = false;
+  mostrarModalHistoriaClinica = false;
   turnoSeleccionado: Turno | null = null;
 
   // Form properties
@@ -43,11 +45,28 @@ export class TurnosEspecialistaComponent implements OnInit {
   comentarioRechazo = '';
   resenaConsulta = '';
 
+  // Historia clínica form properties
+  historiaClinica: HistoriaClinica = {
+    turno_id: 0,
+    paciente_id: 0,
+    especialista_id: 0,
+    altura: 0,
+    peso: 0,
+    temperatura: 0,
+    presion: ''
+  };
+  camposDinamicos = [
+    { clave: '', valor: '' },
+    { clave: '', valor: '' },
+    { clave: '', valor: '' }
+  ];
+
   private router = inject(Router);
   private turnosService = inject(TurnosService);
   private toastService = inject(ToastService);
   private empleadosService = inject(EmpleadosService);
   private pacientesService = inject(PacientesService);
+  private historiaClinicaService = inject(HistoriaClinicaService);
 
   ngOnInit() {
     this.detectarUsuarioYCargarTurnos();
@@ -263,6 +282,9 @@ export class TurnosEspecialistaComponent implements OnInit {
         this.turnoSeleccionado.estado = 'realizado';
         this.turnoSeleccionado.comentarioEspecialista = this.resenaConsulta;
         this.toastService.success('✅ Turno finalizado correctamente');
+        
+        // Abrir modal de historia clínica después de finalizar
+        this.abrirModalHistoriaClinica(this.turnoSeleccionado);
         this.cerrarModales();
         this.aplicarFiltros();
       } catch (error) {
@@ -324,15 +346,108 @@ export class TurnosEspecialistaComponent implements OnInit {
     this.mostrarModalResena = true;
   }
 
+  abrirModalHistoriaClinica(turno: Turno) {
+    this.turnoSeleccionado = turno;
+    this.resetearFormularioHistoria();
+    this.historiaClinica.turno_id = turno.id!;
+    this.historiaClinica.paciente_id = turno.pacienteid!;
+    this.historiaClinica.especialista_id = this.usuarioActual.id;
+    this.mostrarModalHistoriaClinica = true;
+  }
+
+  resetearFormularioHistoria() {
+    this.historiaClinica = {
+      turno_id: 0,
+      paciente_id: 0,
+      especialista_id: 0,
+      altura: 0,
+      peso: 0,
+      temperatura: 0,
+      presion: ''
+    };
+    this.camposDinamicos = [
+      { clave: '', valor: '' },
+      { clave: '', valor: '' },
+      { clave: '', valor: '' }
+    ];
+  }
+
+  async guardarHistoriaClinica() {
+    // Validaciones básicas
+    if (!this.historiaClinica.altura || this.historiaClinica.altura <= 0) {
+      this.toastService.warning('⚠️ La altura debe ser mayor a 0');
+      return;
+    }
+
+    if (!this.historiaClinica.peso || this.historiaClinica.peso <= 0) {
+      this.toastService.warning('⚠️ El peso debe ser mayor a 0');
+      return;
+    }
+
+    if (!this.historiaClinica.temperatura || this.historiaClinica.temperatura <= 0) {
+      this.toastService.warning('⚠️ La temperatura debe ser mayor a 0');
+      return;
+    }
+
+    if (!this.historiaClinica.presion || !this.historiaClinica.presion.match(/^\d{2,3}\/\d{2,3}$/)) {
+      this.toastService.warning('⚠️ La presión debe tener formato XXX/XX (ej: 120/80)');
+      return;
+    }
+
+    this.loading = true;
+    try {
+      // Preparar campos dinámicos
+      const camposCompletos = this.camposDinamicos.filter(campo => 
+        campo.clave.trim() && campo.valor.trim()
+      );
+
+      const historiaCompleta: HistoriaClinica = {
+        ...this.historiaClinica,
+        campo_dinamico_1_clave: camposCompletos[0]?.clave || undefined,
+        campo_dinamico_1_valor: camposCompletos[0]?.valor || undefined,
+        campo_dinamico_2_clave: camposCompletos[1]?.clave || undefined,
+        campo_dinamico_2_valor: camposCompletos[1]?.valor || undefined,
+        campo_dinamico_3_clave: camposCompletos[2]?.clave || undefined,
+        campo_dinamico_3_valor: camposCompletos[2]?.valor || undefined
+      };
+
+      await this.historiaClinicaService.crearHistoriaClinica(historiaCompleta);
+      this.toastService.success('✅ Historia clínica guardada correctamente');
+      this.cerrarModales();
+    } catch (error) {
+      console.error('Error guardando historia clínica:', error);
+      this.toastService.error('❌ Error al guardar la historia clínica');
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  // Verificar si un turno ya tiene historia clínica
+  async verificarHistoriaExistente(turno: Turno): Promise<boolean> {
+    try {
+      return await this.historiaClinicaService.existeHistoriaParaTurno(turno.id!);
+    } catch (error) {
+      console.error('Error verificando historia:', error);
+      return false;
+    }
+  }
+
+  // Mostrar botón de historia clínica solo para turnos realizados
+  puedeAgregarHistoria(turno: Turno): boolean {
+    return turno.estado === 'realizado';
+  }
+
   // Método para cerrar todos los modales
   cerrarModales() {
     this.mostrarModalCancelar = false;
     this.mostrarModalRechazar = false;
     this.mostrarModalFinalizar = false;
     this.mostrarModalResena = false;
+    this.mostrarModalHistoriaClinica = false;
     this.turnoSeleccionado = null;
     this.comentarioCancelacion = '';
     this.comentarioRechazo = '';
     this.resenaConsulta = '';
+    this.resetearFormularioHistoria();
   }
 }
