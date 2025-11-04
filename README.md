@@ -60,7 +60,30 @@
 ### 📅 Solicitar Turno
 *Sistema intuitivo para reservar citas médicas*
 
-![Solicitar Turno](./screenshots/Solicitar%20turno.mp4)
+<div align="center">
+  
+  **🎬 Video Demostrativo**
+  
+  <!-- Video embed que funciona en navegadores -->
+  <video width="600" controls style="max-width: 100%; height: auto;">
+    <source src="./screenshots/Solicitar%20turno.mp4" type="video/mp4">
+    <p>Tu navegador no soporta el elemento video. <a href="./screenshots/Solicitar%20turno.mp4">Descarga el video</a></p>
+  </video>
+  
+  <br>
+  <em>📱 Proceso completo: Selección de profesional → Especialidad → Fecha y hora</em>
+  
+  ---
+  
+  **📸 Capturas del proceso paso a paso:**
+  
+  | Paso 1: Profesional | Paso 2: Especialidad | Paso 3: Fecha y Hora |
+  |:---:|:---:|:---:|
+  | *Selecciona tu médico* | *Elige la especialidad* | *Reserva tu horario* |
+  
+  *� Hint: Si el video no se reproduce en GitHub, descárgalo haciendo clic en él*
+  
+</div>
 
 ### � Mis Turnos (Pacientes)
 *Vista de turnos para pacientes*
