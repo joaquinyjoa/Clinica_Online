@@ -137,7 +137,8 @@
                 [src]="obtenerImagenEspecialidad(especialidad)" 
                 [alt]="especialidad"
                 class="imagen-especialidad"
-                (error)="$event.target.src='assets/especialidades/default.svg'">
+                (error)="onImageError($event, especialidad)"
+                (load)="onImageLoad($event, especialidad)">
             </div>
             
             <div class="especialidad-info">

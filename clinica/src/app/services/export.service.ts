@@ -421,7 +421,7 @@ export class ExportService {
         .from('historia_clinica')
         .select(`
           *,
-          empleados:especialista_id (
+          empleados!especialista_id (
             nombre,
             apellido,
             especialidad

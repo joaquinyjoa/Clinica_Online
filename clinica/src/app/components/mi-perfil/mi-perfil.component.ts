@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { EmpleadosService } from '../../services/empleados.service';
 import { PacientesService } from '../../services/pacientes.service';
 import { ExportService } from '../../services/export.service';
@@ -67,6 +67,7 @@ export class MiPerfilComponent implements OnInit {
   private horariosService = inject(HorariosService);
   private historiaClinicaService = inject(HistoriaClinicaService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
 
   userType: 'admin' | 'especialista' | 'paciente' | null = null;
@@ -117,6 +118,12 @@ export class MiPerfilComponent implements OnInit {
   loadingPacientes = false;
   mostrarPacientes = false;
   pacienteSeleccionado: PacienteAtendido | null = null;
+  
+  // ========== VISTA ESPECÍFICA DE HISTORIA CLÍNICA ==========
+  mostrarHistoriaEspecifica = false;
+  historiaEspecificaPaciente: any = null;
+  historiaClinicaEspecifica: HistoriaClinicaCompleta[] = [];
+  loadingHistoriaEspecifica = false;
 
   // ========== USUARIOS (Solo para admin) ==========
   todosLosUsuarios: any[] = [];
@@ -160,12 +167,27 @@ export class MiPerfilComponent implements OnInit {
         if (this.userType === 'paciente') {
           await this.cargarHistoriaClinica();
         }
+        
+        // Procesar queryParams para acciones específicas
+        await this.procesarQueryParams();
       }
     } catch (error) {
       console.error('Error al cargar perfil:', error);
       this.toastService.error('Error al cargar el perfil');
       this.router.navigate(['/welcome']);
     }
+  }
+
+  // ========== PROCESAMIENTO DE QUERY PARAMS ==========
+  private async procesarQueryParams() {
+    this.route.queryParams.subscribe(async (params) => {
+      const pacienteId = params['pacienteId'];
+      const action = params['action'];
+      
+      if (pacienteId && action === 'verHistoria') {
+        await this.mostrarHistoriaClinicaEspecifica(Number(pacienteId));
+      }
+    });
   }
 
   private async detectUserType() {
@@ -623,11 +645,11 @@ export class MiPerfilComponent implements OnInit {
         .select(`
           id,
           fecha,
-          hora,
+          horario,
           especialidad,
           estado,
-          paciente_id,
-          pacientes:paciente_id (
+          pacienteid,
+          pacientes!pacienteid (
             id,
             nombre,
             apellido,
@@ -636,8 +658,8 @@ export class MiPerfilComponent implements OnInit {
             foto2
           )
         `)
-        .eq('especialista_id', this.currentUser.id)
-        .eq('estado', 'finalizado')
+        .eq('especialistaid', this.currentUser.id)
+        .eq('estado', 'realizado')
         .order('fecha', { ascending: false });
 
       if (error) throw error;
@@ -646,7 +668,7 @@ export class MiPerfilComponent implements OnInit {
       const pacientesMap = new Map<string, any>();
       
       turnos?.forEach((turno: any) => {
-        const pacienteId = turno.paciente_id;
+        const pacienteId = turno.pacienteid;
         if (!pacientesMap.has(pacienteId)) {
           pacientesMap.set(pacienteId, {
             id: turno.pacientes.id,
@@ -665,7 +687,7 @@ export class MiPerfilComponent implements OnInit {
           paciente.ultimos3Turnos.push({
             id: turno.id,
             fecha: turno.fecha,
-            hora: turno.hora,
+            hora: turno.horario,
             especialidad: turno.especialidad,
             estado: turno.estado
           });
@@ -699,6 +721,64 @@ export class MiPerfilComponent implements OnInit {
         action: 'verHistoria' 
       } 
     });
+  }
+
+  // ========== VISTA ESPECÍFICA DE HISTORIA CLÍNICA ==========
+  async mostrarHistoriaClinicaEspecifica(pacienteId: number) {
+    if (!this.currentUser || this.userType !== 'especialista') return;
+
+    this.loadingHistoriaEspecifica = true;
+    this.mostrarHistoriaEspecifica = true;
+    
+    try {
+      // Obtener información del paciente
+      const { data: paciente, error: errorPaciente } = await supabase
+        .from('pacientes')
+        .select('*')
+        .eq('id', pacienteId)
+        .single();
+
+      if (errorPaciente || !paciente) {
+        throw new Error('Paciente no encontrado');
+      }
+
+      this.historiaEspecificaPaciente = paciente;
+
+      // Obtener historia clínica del paciente con el especialista actual
+      const historias = await this.historiaClinicaService.obtenerHistoriaPaciente(pacienteId);
+      
+      // Filtrar solo las historias del especialista actual
+      this.historiaClinicaEspecifica = historias.filter(
+        (historia: HistoriaClinicaCompleta) => historia.especialista_id === this.currentUser?.id
+      );
+
+      this.toastService.success(`Historia clínica de ${paciente.nombre} ${paciente.apellido} cargada`);
+      
+      // Scroll hacia la sección específica
+      setTimeout(() => {
+        const element = document.getElementById('historia-especifica');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+
+    } catch (error) {
+      console.error('Error al cargar historia específica:', error);
+      this.toastService.error('Error al cargar la historia clínica del paciente');
+      this.cerrarHistoriaEspecifica();
+    } finally {
+      this.loadingHistoriaEspecifica = false;
+    }
+  }
+
+  cerrarHistoriaEspecifica() {
+    this.mostrarHistoriaEspecifica = false;
+    this.historiaEspecificaPaciente = null;
+    this.historiaClinicaEspecifica = [];
+    this.pacienteSeleccionado = null;
+    
+    // Limpiar queryParams
+    this.router.navigate(['/mi-perfil']);
   }
 
   // ========== MÉTODOS PARA USUARIOS (ADMIN) ==========
@@ -751,17 +831,17 @@ export class MiPerfilComponent implements OnInit {
         .select(`
           id,
           fecha,
-          hora,
+          horario,
           especialidad,
           estado,
-          especialista_id,
-          empleados:especialista_id (
+          especialistaid,
+          empleados!especialistaid (
             nombre,
             apellido,
             especialidad
           )
         `)
-        .eq(usuario.tipo === 'paciente' ? 'paciente_id' : 'especialista_id', usuario.id)
+        .eq(usuario.tipo === 'paciente' ? 'pacienteid' : 'especialistaid', usuario.id)
         .order('fecha', { ascending: false });
 
       if (error) throw error;
@@ -769,7 +849,7 @@ export class MiPerfilComponent implements OnInit {
       // Preparar datos para Excel
       const datosExcel = turnos?.map((turno: any) => ({
         'Fecha': turno.fecha,
-        'Hora': turno.hora,
+        'Hora': turno.horario,
         'Especialidad': turno.especialidad,
         'Estado': turno.estado,
         'Profesional': turno.empleados ? `${turno.empleados.nombre} ${turno.empleados.apellido}` : 'N/A'
@@ -797,8 +877,8 @@ export class MiPerfilComponent implements OnInit {
       const { data: turnos, error } = await supabase
         .from('turnos')
         .select('especialidad')
-        .eq('paciente_id', this.currentUser.id)
-        .eq('estado', 'finalizado');
+        .eq('pacienteid', this.currentUser.id)
+        .eq('estado', 'realizado');
 
       if (error) throw error;
 
@@ -815,5 +895,21 @@ export class MiPerfilComponent implements OnInit {
     } catch (error) {
       console.error('Error al cargar especialidades:', error);
     }
+  }
+
+  // ========== MÉTODOS AUXILIARES ==========
+  calcularEdad(fechaNacimiento: string): number {
+    if (!fechaNacimiento) return 0;
+    
+    const nacimiento = new Date(fechaNacimiento);
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+      edad--;
+    }
+    
+    return edad;
   }
 }

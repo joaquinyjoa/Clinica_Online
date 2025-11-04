@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="psiquiatriaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6f42c1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5a2d91;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="45" fill="url(#psiquiatriaGradient)" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Brain outline -->
+  <path d="M35,30 Q30,25 35,20 Q40,18 45,20 Q50,15 55,20 Q60,18 65,20 Q70,25 65,30 Q70,35 65,40 Q70,45 65,50 Q70,55 65,60 Q70,65 65,70 Q60,75 55,70 Q50,75 45,70 Q40,75 35,70 Q30,65 35,60 Q30,55 35,50 Q30,45 35,40 Q30,35 35,30 Z" 
+        fill="#ffffff" stroke="#6f42c1" stroke-width="1.5"/>
+  
+  <!-- Brain details -->
+  <path d="M40,25 Q45,30 50,25 Q55,30 60,25" stroke="#6f42c1" stroke-width="1" fill="none"/>
+  <path d="M38,35 Q43,40 48,35 Q53,40 58,35" stroke="#6f42c1" stroke-width="1" fill="none"/>
+  <path d="M36,45 Q41,50 46,45 Q51,50 56,45" stroke="#6f42c1" stroke-width="1" fill="none"/>
+  <path d="M38,55 Q43,60 48,55 Q53,60 58,55" stroke="#6f42c1" stroke-width="1" fill="none"/>
+  
+  <!-- Thought bubbles -->
+  <circle cx="25" cy="35" r="3" fill="#ffffff" opacity="0.7"/>
+  <circle cx="20" cy="30" r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="75" cy="35" r="3" fill="#ffffff" opacity="0.7"/>
+  <circle cx="80" cy="30" r="2" fill="#ffffff" opacity="0.5"/>
+</svg>

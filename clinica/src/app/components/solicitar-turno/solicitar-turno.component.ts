@@ -420,18 +420,44 @@ export class SolicitarTurnoComponent implements OnInit {
   obtenerImagenEspecialidad(especialidad: string): string {
     const imagenesEspecialidades: { [key: string]: string } = {
       'cardiologia': 'assets/especialidades/cardiologia.svg',
+      'cardiología': 'assets/especialidades/cardiologia.svg',
       'dermatologia': 'assets/especialidades/dermatologia.svg',
+      'dermatología': 'assets/especialidades/dermatologia.svg',
       'neurologia': 'assets/especialidades/neurologia.svg',
+      'neurología': 'assets/especialidades/neurologia.svg',
       'pediatria': 'assets/especialidades/pediatria.svg',
+      'pediatría': 'assets/especialidades/pediatria.svg',
       'traumatologia': 'assets/especialidades/traumatologia.svg',
+      'traumatología': 'assets/especialidades/traumatologia.svg',
       'ginecologia': 'assets/especialidades/ginecologia.svg',
+      'ginecología': 'assets/especialidades/ginecologia.svg',
       'oftalmologia': 'assets/especialidades/oftalmologia.svg',
+      'oftalmología': 'assets/especialidades/oftalmologia.svg',
       'psiquiatria': 'assets/especialidades/psiquiatria.svg',
+      'psiquiatría': 'assets/especialidades/psiquiatria.svg',
       'medicina general': 'assets/especialidades/medicina-general.svg',
-      'urologia': 'assets/especialidades/urologia.svg'
+      'medicina_general': 'assets/especialidades/medicina-general.svg',
+      'urologia': 'assets/especialidades/urologia.svg',
+      'urología': 'assets/especialidades/urologia.svg'
     };
     
-    return imagenesEspecialidades[especialidad.toLowerCase()] || 'assets/especialidades/default.svg';
+    const especialidadNormalizada = especialidad.toLowerCase().trim();
+    const rutaImagen = imagenesEspecialidades[especialidadNormalizada] || 'assets/especialidades/default.svg';
+    
+    console.log(`Especialidad: "${especialidad}" -> Normalizada: "${especialidadNormalizada}" -> Imagen: "${rutaImagen}"`);
+    
+    return rutaImagen;
+  }
+
+  onImageError(event: any, especialidad: string): void {
+    console.error(`Error cargando imagen para especialidad: ${especialidad}`);
+    console.error(`URL que falló: ${event.target.src}`);
+    event.target.src = 'assets/especialidades/default.svg';
+  }
+
+  onImageLoad(event: any, especialidad: string): void {
+    console.log(`Imagen cargada correctamente para especialidad: ${especialidad}`);
+    console.log(`URL cargada: ${event.target.src}`);
   }
 
   formatearFechaTurno(fechaTurno: Date): string {

@@ -616,6 +616,104 @@
           </section>
         }
 
+        <!-- Historia Clínica Específica (Cuando se selecciona un paciente) -->
+        @if (mostrarHistoriaEspecifica && historiaEspecificaPaciente) {
+          <section id="historia-especifica" class="seccion-historia-especifica" [@fadeInAnimation]>
+            <div class="seccion-header">
+              <div class="header-info">
+                <h2>🏥 Historia Clínica de {{ historiaEspecificaPaciente.nombre }} {{ historiaEspecificaPaciente.apellido }}</h2>
+                <p>Registros médicos realizados por usted</p>
+              </div>
+              <button class="btn btn-secondary" (click)="cerrarHistoriaEspecifica()">
+                ✖️ Cerrar
+              </button>
+            </div>
+
+            @if (loadingHistoriaEspecifica) {
+              <div class="loading-section">
+                <div class="spinner"></div>
+                <p>Cargando historia clínica...</p>
+              </div>
+            } @else {
+              <div class="paciente-info">
+                <div class="info-card">
+                  <div class="info-item">
+                    <strong>📧 Email:</strong>
+                    <span>{{ historiaEspecificaPaciente.email }}</span>
+                  </div>
+                  <div class="info-item">
+                    <strong>🎂 Edad:</strong>
+                    <span>{{ calcularEdad(historiaEspecificaPaciente.fecha_nacimiento) }} años</span>
+                  </div>
+                  <div class="info-item">
+                    <strong>📋 Total de consultas:</strong>
+                    <span>{{ historiaClinicaEspecifica.length }}</span>
+                  </div>
+                </div>
+              </div>
+
+              @if (historiaClinicaEspecifica.length === 0) {
+                <div class="empty-state">
+                  <h3>📋 Sin registros</h3>
+                  <p>No hay historia clínica registrada para este paciente.</p>
+                </div>
+              } @else {
+                <div class="historia-lista">
+                  @for (historia of historiaClinicaEspecifica; track historia.id) {
+                    <div class="historia-card" [@slideUpAnimation]>
+                      <div class="historia-header">
+                        <div class="fecha-consulta">
+                          <strong>📅 {{ formatearFecha(historia.turno_fecha || '') }}</strong>
+                          <span class="especialidad">{{ historia.turno_especialidad || 'Especialidad no especificada' }}</span>
+                        </div>
+                        <div class="especialista-info">
+                          <span>👨‍⚕️ Dr. {{ historia.especialista_nombre }} {{ historia.especialista_apellido }}</span>
+                        </div>
+                      </div>
+                      
+                      <div class="historia-content">
+                        <!-- Campos fijos -->
+                        <div class="campo-fijo">
+                          <strong>🌡️ Temperatura:</strong>
+                          <span>{{ historia.temperatura || 'No registrada' }}{{ historia.temperatura ? '°C' : '' }}</span>
+                        </div>
+                        
+                        <div class="campo-fijo">
+                          <strong>⚖️ Peso:</strong>
+                          <span>{{ historia.peso || 'No registrado' }}{{ historia.peso ? ' kg' : '' }}</span>
+                        </div>
+                        
+                        <div class="campo-fijo">
+                          <strong>📏 Altura:</strong>
+                          <span>{{ historia.altura || 'No registrada' }}{{ historia.altura ? ' cm' : '' }}</span>
+                        </div>
+                        
+                        <div class="campo-fijo">
+                          <strong>💓 Presión:</strong>
+                          <span>{{ historia.presion || 'No registrada' }}</span>
+                        </div>
+
+                        <!-- Campos dinámicos -->
+                        @if (obtenerCamposDinamicos(historia).length > 0) {
+                          <div class="campos-dinamicos">
+                            <h4>🔧 Campos adicionales:</h4>
+                            @for (campo of obtenerCamposDinamicos(historia); track campo.clave) {
+                              <div class="campo-dinamico">
+                                <strong>{{ campo.clave }}:</strong>
+                                <span>{{ campo.valor }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </section>
+        }
+
         <!-- Info Section for other user types -->
         @else if (userType === 'admin') {
           <section class="seccion-usuarios">
