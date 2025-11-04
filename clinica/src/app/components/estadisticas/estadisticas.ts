@@ -13,7 +13,7 @@ import { ToastComponent } from '../toast/toast.component';
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { FechaPersonalizadaPipe } from '../../pipes/fecha-personalizada.pipe';
 import { CapitalizarPipe } from '../../pipes/capitalizar.pipe';
 
@@ -451,7 +451,7 @@ export class Estadisticas implements OnInit {
         doc.text('Log de Ingresos al Sistema', 20, yPosition);
         yPosition += 10;
 
-        const logHeaders = ['Fecha', 'Hora', 'Usuario', 'Tipo'];
+        const logHeaders = [['Fecha', 'Hora', 'Usuario', 'Tipo']];
         const logData = this.logIngresos.slice(0, 20).map(log => [
           log.fecha_ingreso,
           log.hora_ingreso,
@@ -459,13 +459,14 @@ export class Estadisticas implements OnInit {
           log.usuario_tipo
         ]);
 
-        (doc as any).autoTable({
-          head: [logHeaders],
+        autoTable(doc, {
+          head: logHeaders,
           body: logData,
           startY: yPosition,
           theme: 'grid'
         });
 
+        // Obtener la posición final de la tabla
         yPosition = (doc as any).lastAutoTable.finalY + 20;
       }
 
@@ -475,15 +476,15 @@ export class Estadisticas implements OnInit {
         doc.text('Turnos por Especialidad', 20, yPosition);
         yPosition += 10;
 
-        const espHeaders = ['Especialidad', 'Cantidad', 'Porcentaje'];
+        const espHeaders = [['Especialidad', 'Cantidad', 'Porcentaje']];
         const espData = this.turnosPorEspecialidad.map(esp => [
           esp.especialidad,
           esp.cantidad.toString(),
           `${esp.porcentaje}%`
         ]);
 
-        (doc as any).autoTable({
-          head: [espHeaders],
+        autoTable(doc, {
+          head: espHeaders,
           body: espData,
           startY: yPosition,
           theme: 'grid'
