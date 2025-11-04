@@ -60,7 +60,7 @@
 ### 📅 Solicitar Turno
 *Sistema intuitivo para reservar citas médicas*
 
-![Solicitar Turno](./screenshots/solicitar%20turno.png)
+![Solicitar Turno](./screenshots/Solicitar%20turno.mp4)
 
 ### � Mis Turnos (Pacientes)
 *Vista de turnos para pacientes*
