@@ -421,6 +421,12 @@ export class PanelAdminComponent implements OnInit {
     this.toastService.info('📅 Accediendo a solicitar turno...');
   }
 
+  // Método para ir a estadísticas
+  irAEstadisticas() {
+    this.router.navigate(['/estadisticas']);
+    this.toastService.info('📈 Accediendo a estadísticas y reportes...');
+  }
+
   // Método para volver al login
   async volverAlLogin() {
     this.loading = true;

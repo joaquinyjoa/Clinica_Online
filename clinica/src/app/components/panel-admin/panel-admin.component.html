@@ -56,6 +56,16 @@
         </div>
         <div class="spinner" *ngIf="exportandoExcel"></div>
       </button>
+
+      <button class="quick-access-btn estadisticas-btn" 
+              (click)="irAEstadisticas()" 
+              title="Ver estadísticas y reportes de la clínica">
+        <span class="access-icon">📈</span>
+        <div class="access-info">
+          <h3>Estadísticas</h3>
+          <p>Reportes, gráficos e informes del sistema</p>
+        </div>
+      </button>
       
       <!-- Aquí se pueden agregar más accesos rápidos en el futuro -->
     </div>

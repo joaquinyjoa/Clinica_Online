@@ -61,4 +61,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/mi-perfil/mi-perfil.component').then(m => m.MiPerfilComponent),
     data: { animation: 'mi-perfil' }
    },
+   {
+    path: 'estadisticas', 
+    loadComponent: () => import('./components/estadisticas/estadisticas').then(m => m.Estadisticas),
+    canActivate: [AdminGuard],
+    data: { animation: 'estadisticas' }
+   },
 ];
