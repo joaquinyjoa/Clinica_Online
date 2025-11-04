@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { PacientesService, Paciente } from '../../services/pacientes.service';
 import { EmpleadosService, Empleado } from '../../services/empleados.service';
+import { EstadisticasService } from '../../services/estadisticas.service';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ToastService } from '../../services/toast.service';
@@ -43,6 +44,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private pacientesService: PacientesService,
     private empleadosService: EmpleadosService,
+    private estadisticasService: EstadisticasService,
     private router: Router,
     private toastService: ToastService
   ) {}
@@ -125,6 +127,26 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  /**
+   * Registra el ingreso del usuario en las estadísticas
+   */
+  private async registrarIngresoUsuario(usuario: Paciente | Empleado, tipo: 'paciente' | 'especialista' | 'administrador'): Promise<void> {
+    try {
+      const usuarioLog = {
+        id: usuario.id?.toString() || '',
+        email: usuario.email || '',
+        nombre: usuario.nombre || '',
+        tipo: tipo
+      };
+
+      await this.estadisticasService.registrarIngreso(usuarioLog).toPromise();
+      console.log('Ingreso registrado exitosamente para:', usuario.email);
+    } catch (error) {
+      console.error('Error al registrar ingreso en estadísticas:', error);
+      // No interrumpimos el flujo de login por un error en estadísticas
+    }
+  }
+
   async onSubmit() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -160,6 +182,9 @@ export class LoginComponent implements OnInit {
         // Guardar en localStorage
         localStorage.setItem('currentUser', JSON.stringify(paciente));
         
+        // Registrar ingreso en estadísticas
+        await this.registrarIngresoUsuario(paciente, 'paciente');
+        
         this.toastService.success(`🏥 Bienvenido paciente ${paciente.nombre}`);
         // Redirigir al panel de turnos del paciente
         await this.navigateWithSpinner('/mis-turnos');
@@ -188,6 +213,10 @@ export class LoginComponent implements OnInit {
 
         // Guardar en localStorage
         localStorage.setItem('currentUser', JSON.stringify(empleado));
+
+        // Determinar tipo de usuario y registrar ingreso
+        const tipoUsuario = empleado.especialidad?.toLowerCase() === 'administrador' ? 'administrador' : 'especialista';
+        await this.registrarIngresoUsuario(empleado, tipoUsuario);
 
         if (empleado.especialidad?.toLowerCase() === 'administrador') {
             this.toastService.success(`👨‍💼 Bienvenido administrador ${empleado.nombre}`);
