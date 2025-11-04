@@ -1,0 +1,212 @@
+<div class="estadisticas-container">
+  <!-- Header con filtros -->
+  <div class="header-section">
+    <h1 class="titulo-principal">📊 Estadísticas de la Clínica</h1>
+    
+    <div class="filtros-container">
+      <form [formGroup]="filtroForm" class="filtros-form">
+        <div class="filtro-grupo">
+          <label for="fechaInicio">Fecha Inicio:</label>
+          <input 
+            type="date" 
+            id="fechaInicio"
+            formControlName="fechaInicio"
+            (change)="onFiltroChange()"
+            class="filtro-input">
+        </div>
+        
+        <div class="filtro-grupo">
+          <label for="fechaFin">Fecha Fin:</label>
+          <input 
+            type="date" 
+            id="fechaFin"
+            formControlName="fechaFin"
+            (change)="onFiltroChange()"
+            class="filtro-input">
+        </div>
+        
+        <div class="botones-accion">
+          <button 
+            type="button"
+            (click)="cargarTodasLasEstadisticas()"
+            [disabled]="loading"
+            class="btn btn-actualizar">
+            🔄 Actualizar
+          </button>
+          
+          <button 
+            type="button"
+            (click)="exportarExcel()"
+            [disabled]="loading"
+            class="btn btn-excel">
+            📊 Excel
+          </button>
+          
+          <button 
+            type="button"
+            (click)="exportarPDF()"
+            [disabled]="loading"
+            class="btn btn-pdf">
+            📄 PDF
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Spinner de carga general -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Cargando estadísticas...</p>
+  </div>
+
+  <!-- Tarjetas de resumen -->
+  <div class="resumen-cards">
+    <div class="card-resumen">
+      <div class="card-icon">👥</div>
+      <div class="card-content">
+        <h3>Total Ingresos</h3>
+        <p class="numero">{{ totalIngresos }}</p>
+      </div>
+    </div>
+    
+    <div class="card-resumen">
+      <div class="card-icon">🏥</div>
+      <div class="card-content">
+        <h3>Total Turnos</h3>
+        <p class="numero">{{ totalTurnos }}</p>
+      </div>
+    </div>
+    
+    <div class="card-resumen">
+      <div class="card-icon">📈</div>
+      <div class="card-content">
+        <h3>Especialidades</h3>
+        <p class="numero">{{ turnosPorEspecialidad.length }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de gráficos -->
+  <div class="graficos-container">
+    
+    <!-- Log de Ingresos -->
+    <div class="grafico-seccion">
+      <div class="seccion-header">
+        <h2>👥 Log de Ingresos al Sistema</h2>
+        <div *ngIf="loadingLogs" class="mini-spinner"></div>
+      </div>
+      
+      <div class="log-ingresos" *ngIf="!loadingLogs">
+        <div *ngIf="logIngresos.length === 0" class="no-datos">
+          📭 No hay registros de ingresos en el período seleccionado
+        </div>
+        
+        <div *ngIf="logIngresos.length > 0" class="tabla-container">
+          <table class="tabla-ingresos">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Usuario</th>
+                <th>Tipo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ingreso of logIngresos.slice(0, 10)">
+                <td>{{ ingreso.fecha_ingreso | fechaPersonalizada }}</td>
+                <td>{{ ingreso.hora_ingreso }}</td>
+                <td>{{ ingreso.usuario_nombre | capitalizar }}</td>
+                <td>
+                  <span [class]="'badge badge-' + ingreso.usuario_tipo">
+                    {{ ingreso.usuario_tipo | capitalizar }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <p *ngIf="logIngresos.length > 10" class="nota-tabla">
+            Mostrando los últimos 10 ingresos de {{ logIngresos.length }} total
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turnos por Especialidad -->
+    <div class="grafico-seccion">
+      <div class="seccion-header">
+        <h2>🏥 Turnos por Especialidad</h2>
+        <div *ngIf="loadingEspecialidad" class="mini-spinner"></div>
+      </div>
+      
+      <div class="grafico-wrapper" *ngIf="!loadingEspecialidad">
+        <div *ngIf="turnosPorEspecialidad.length === 0" class="no-datos">
+          📭 No hay datos de turnos por especialidad
+        </div>
+        
+        <div *ngIf="turnosPorEspecialidad.length > 0" class="chart-container">
+          <canvas #especialidadChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turnos por Día -->
+    <div class="grafico-seccion">
+      <div class="seccion-header">
+        <h2>📅 Turnos por Día</h2>
+        <div *ngIf="loadingDias" class="mini-spinner"></div>
+      </div>
+      
+      <div class="grafico-wrapper" *ngIf="!loadingDias">
+        <div *ngIf="turnosPorDia.length === 0" class="no-datos">
+          📭 No hay datos de turnos por día en el período seleccionado
+        </div>
+        
+        <div *ngIf="turnosPorDia.length > 0" class="chart-container">
+          <canvas #diaChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turnos Solicitados por Médico -->
+    <div class="grafico-seccion">
+      <div class="seccion-header">
+        <h2>👨‍⚕️ Turnos Solicitados por Médico</h2>
+        <div *ngIf="loadingSolicitados" class="mini-spinner"></div>
+      </div>
+      
+      <div class="grafico-wrapper" *ngIf="!loadingSolicitados">
+        <div *ngIf="turnosSolicitadosPorMedico.length === 0" class="no-datos">
+          📭 No hay datos de turnos solicitados por médico en el período seleccionado
+        </div>
+        
+        <div *ngIf="turnosSolicitadosPorMedico.length > 0" class="chart-container">
+          <canvas #solicitudosChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turnos Finalizados por Médico -->
+    <div class="grafico-seccion">
+      <div class="seccion-header">
+        <h2>✅ Turnos Finalizados por Médico</h2>
+        <div *ngIf="loadingFinalizados" class="mini-spinner"></div>
+      </div>
+      
+      <div class="grafico-wrapper" *ngIf="!loadingFinalizados">
+        <div *ngIf="turnosFinalizadosPorMedico.length === 0" class="no-datos">
+          📭 No hay datos de turnos finalizados por médico en el período seleccionado
+        </div>
+        
+        <div *ngIf="turnosFinalizadosPorMedico.length > 0" class="chart-container">
+          <canvas #finalizadosChart></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast component -->
+<app-toast></app-toast>
