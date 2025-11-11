@@ -48,8 +48,7 @@
 ### 👤 Registro de Pacientes
 *Proceso de registro para nuevos pacientes*
 
-![Registro Paciente - Paso 1](./screenshots/registro_paciente_1.png)
-![Registro Paciente - Paso 2](./screenshots/registro_paciente_2.png)
+https://github.com/user-attachments/assets/9904a1db-b784-4079-ad9f-0ce582220b36/registro_paciente.mp4
 
 ### �‍⚕️ Registro de Especialistas
 *Proceso de registro para profesionales médicos*
@@ -94,7 +93,7 @@
 
 ### **Prerrequisitos**
 - Node.js (v18 o superior)
-- npm o yarn
+- npm
 - Angular CLI
 - Firebase CLI
 - Cuenta de Supabase
