@@ -48,25 +48,122 @@
 ### 👤 Registro de Pacientes
 *Proceso de registro para nuevos pacientes*
 
-https://github.com/user-attachments/assets/9904a1db-b784-4079-ad9f-0ce582220b36/registro_paciente.mp4
+📹 **[Ver video demo del registro de pacientes](./clinica/videos/registro_paciente.mp4)**
 
-### �‍⚕️ Registro de Especialistas
+### 👨‍⚕️ Registro de Especialistas
 *Proceso de registro para profesionales médicos*
 
 ![Registro Especialista - Paso 1](./screenshots/registro_especialista_1.png)
 ![Registro Especialista - Paso 2](./screenshots/registro_especialista_2.png)
 
 ### 📅 Solicitar Turno
-*Sistema intuitivo para reservar citas médicas*
+*Sistema intuitivo para reservar citas médicas en 3 pasos*
 
 ![Solicitar Turno - Paso 1](./screenshots/solicitarTurno1.png)
 ![Solicitar turno - Paso 2](./screenshots/solicitarTurno2.png)
 ![Solicitar turno - Paso 3](./screenshots/solicitarTurno3.png)
 
-### � Mis Turnos (Pacientes)
-*Vista de turnos para pacientes*
+### 👤 Panel de Pacientes - Mis Turnos
+*Vista completa de turnos para pacientes con filtros avanzados*
 
 ![Mis Turnos - Paciente](./screenshots/paciente_mis_turnos.png)
+![Filtros Avanzados - Paciente](./screenshots/paciente_filtros.png)
+![Historial Clínico](./screenshots/paciente_historia_clinica.png)
+
+### 👨‍⚕️ Panel de Especialistas
+*Gestión completa de turnos y pacientes para especialistas*
+
+![Panel Especialista - Turnos](./screenshots/especialista_turnos.png)
+![Especialista - Gestión Horarios](./screenshots/especialista_horarios.png)
+![Especialista - Historia Clínica](./screenshots/especialista_historia.png)
+![Especialista - Mi Perfil](./screenshots/especialista_perfil.png)
+
+### 👨‍💼 Panel de Administrador
+*Control total del sistema para administradores*
+
+![Panel Admin - Dashboard](./screenshots/admin_dashboard.png)
+![Admin - Gestión Usuarios](./screenshots/admin_usuarios.png)
+![Admin - Especialistas Pendientes](./screenshots/admin_especialistas_pendientes.png)
+![Admin - Estadísticas](./screenshots/admin_estadisticas.png)
+![Admin - Turnos Globales](./screenshots/admin_turnos.png)
+
+---
+
+## 🎯 Funcionalidades Detalladas por Rol
+
+### 👤 **Panel de Pacientes**
+
+#### 📋 **Mis Turnos**
+- ✅ **Vista completa** de todos los turnos (pendientes, realizados, cancelados)
+- ✅ **Filtros avanzados** por especialidad, especialista, estado y fecha
+- ✅ **Acciones disponibles**: Cancelar, calificar atención, completar encuesta
+- ✅ **Historial clínico** completo con datos médicos detallados
+- ✅ **Estados dinámicos** con colores intuitivos
+
+#### 🩺 **Solicitar Turno**
+- ✅ **Flujo de 3 pasos** optimizado y guiado
+- ✅ **Selección de especialidad** con disponibilidad en tiempo real
+- ✅ **Calendario inteligente** que muestra solo fechas disponibles
+- ✅ **Confirmación automática** por email
+
+#### 👤 **Mi Perfil**
+- ✅ **Datos personales** editables
+- ✅ **Historial médico** completo
+- ✅ **Fotos de perfil** actualizables
+
+---
+
+### 👨‍⚕️ **Panel de Especialistas**
+
+#### 📅 **Gestión de Turnos**
+- ✅ **Vista calendario** con todos los turnos asignados
+- ✅ **Filtros por estado**: pendientes, realizados, cancelados
+- ✅ **Acciones**: Aceptar, rechazar, finalizar consulta
+- ✅ **Comentarios médicos** para cada turno
+
+#### 🕐 **Configuración de Horarios**
+- ✅ **Horarios flexibles** por día de la semana
+- ✅ **Disponibilidad mañana/tarde** configurable
+- ✅ **Bloques de tiempo** personalizables
+
+#### 📋 **Historia Clínica**
+- ✅ **Creación de registros** médicos detallados
+- ✅ **Campos dinámicos** personalizables
+- ✅ **Datos vitales**: altura, peso, presión, temperatura
+- ✅ **Diagnósticos y tratamientos**
+
+#### 👨‍⚕️ **Mi Perfil Profesional**
+- ✅ **Especialidades múltiples**
+- ✅ **Datos profesionales** actualizables
+- ✅ **Estado de aprobación** visible
+
+---
+
+### 👨‍💼 **Panel de Administrador**
+
+#### 👥 **Gestión de Usuarios**
+- ✅ **CRUD completo** de pacientes, especialistas y administradores
+- ✅ **Validación de duplicados** automática
+- ✅ **Aprobación de especialistas** con un clic
+- ✅ **Verificación de emails** manual
+
+#### 📊 **Estadísticas y Reportes**
+- ✅ **Dashboard completo** con métricas clave
+- ✅ **Gráficos interactivos** de turnos por especialidad
+- ✅ **Exportación a Excel** de datos de usuarios
+- ✅ **Reportes de ingresos** por fecha
+- ✅ **Filtros avanzados** por período y especialista
+
+#### 🏥 **Gestión Global de Turnos**
+- ✅ **Vista completa** de todos los turnos del sistema
+- ✅ **Cancelación masiva** con motivos
+- ✅ **Creación de turnos** para cualquier paciente
+- ✅ **Filtros múltiples** por todos los campos
+
+#### 📄 **Exportación de Datos**
+- ✅ **Historias clínicas en PDF** por paciente
+- ✅ **Datos de usuarios en Excel**
+- ✅ **Reportes personalizados**
 
 ---
 
@@ -136,28 +233,30 @@ https://github.com/user-attachments/assets/9904a1db-b784-4079-ad9f-0ce582220b36/
 
 ---
 
-## 📱 Funcionalidades por Rol
+## 📱 Resumen de Funcionalidades
 
 ### 👤 **Pacientes**
-- ✅ Registro y login seguro
-- ✅ Solicitar turnos en 3 pasos
-- ✅ Ver historial de turnos
-- ✅ Cancelar turnos
-- ✅ Actualizar perfil personal
+- ✅ Registro y login seguro con validación dual
+- ✅ Solicitar turnos en flujo de 3 pasos intuitivo
+- ✅ Gestión completa de turnos con filtros avanzados
+- ✅ Acceso a historial clínico detallado
+- ✅ Sistema de calificación y encuestas
 
 ### 👨‍⚕️ **Especialistas**
-- ✅ Gestión de horarios disponibles
-- ✅ Ver turnos asignados
-- ✅ Aceptar/rechazar solicitudes
-- ✅ Agregar comentarios a consultas
-- ✅ Configurar especialidades
+- ✅ Panel de gestión de turnos con calendario
+- ✅ Configuración flexible de horarios de atención
+- ✅ Creación de historias clínicas completas
+- ✅ Gestión de múltiples especialidades
+- ✅ Sistema de aprobación profesional
 
 ### 👨‍💼 **Administradores**
-- ✅ Gestión completa de usuarios
-- ✅ Aprobación de especialistas
-- ✅ Visualización de estadísticas
-- ✅ Control de accesos
-- ✅ Configuración del sistema
+- ✅ Control total de usuarios del sistema
+- ✅ Dashboard con estadísticas en tiempo real
+- ✅ Exportación de datos en múltiples formatos
+- ✅ Gestión global de turnos y especialistas
+- ✅ Sistema de reportes avanzados
+
+> 📋 **Ver funcionalidades detalladas** en la sección [Funcionalidades Detalladas por Rol](#-funcionalidades-detalladas-por-rol)
 
 ---
 
