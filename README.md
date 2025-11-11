@@ -48,7 +48,8 @@
 ### 👤 Registro de Pacientes
 *Proceso de registro para nuevos pacientes*
 
-📹 **[Ver video demo del registro de pacientes](./clinica/videos/registro_paciente.mp4)**
+![Registro Paciente - Paso 1](./screenshots/registro_paciente_1.png)
+![Registro Paciente - Paso 2](./screenshots/registro_paciente_2.png)
 
 ### 👨‍⚕️ Registro de Especialistas
 *Proceso de registro para profesionales médicos*
@@ -63,29 +64,48 @@
 ![Solicitar turno - Paso 2](./screenshots/solicitarTurno2.png)
 ![Solicitar turno - Paso 3](./screenshots/solicitarTurno3.png)
 
+### 📅 Solicitar Turno Administrador
+*Sistema intuitivo para reservar citas médicas en 3 pasos*
+![Solicitar Turno Administrador - Paso 1](./screenshots/solicitarTurno_admin_parte1.png)
+![Solicitar turno Administrador - Paso 2](./screenshots/solicitarTurno_admin_parte2.pn)
+![Solicitar turno Administrador - Paso 3](./screenshots/solicitarTurno_admin_parte3.png)
+![Solicitar turno Administrador - Paso 4](./screenshots/solicitarTurno_admin_parte4.png)
+![Solicitar turno Administrador - Paso 5](./screenshots/solicitarTurno_admin_parte5.png)
+
 ### 👤 Panel de Pacientes - Mis Turnos
 *Vista completa de turnos para pacientes con filtros avanzados*
 
 ![Mis Turnos - Paciente](./screenshots/paciente_mis_turnos.png)
-![Filtros Avanzados - Paciente](./screenshots/paciente_filtros.png)
-![Historial Clínico](./screenshots/paciente_historia_clinica.png)
+![Filtros Avanzados - Paciente](./screenshots/historias_busqueda_avanzada.png)
+
+### 👤 Panel de Pacientes - Mi Perfil
+*Datos de la persona y modiicable*
+![Mi perfil parte 1](./screenshots/mi_perfil_parte1.png)
+![Filtros Avanzados - Paciente](./screenshots/mi_perfil_parte2.png)
 
 ### 👨‍⚕️ Panel de Especialistas
 *Gestión completa de turnos y pacientes para especialistas*
 
-![Panel Especialista - Turnos](./screenshots/especialista_turnos.png)
-![Especialista - Gestión Horarios](./screenshots/especialista_horarios.png)
-![Especialista - Historia Clínica](./screenshots/especialista_historia.png)
-![Especialista - Mi Perfil](./screenshots/especialista_perfil.png)
+![Panel Especialista - Turnos](./screenshots/mis_turnos_especialistas.png)
+![Especialista - Gestión Horarios](./screenshots/mi_perfil_especialista_parte2.png)
+![Especialista - Historia Clínica](./screenshots/historia_clinica_especialista_parte1.png)
+![Especialista - Historia Clínica parte 2](./screenshots/historia_clinica_especialista_parte2.png)
+![Especialista - Mi Perfil](./screenshots/mi_perfil_especialista_parte1.png)
+![Especialista - Mi Perfil parte 2](./screenshots/mi_perfil_especialista_parte2.png)
+![Especialista - Mi Perfil parte 3](./screenshots/mi_perfil_especialista_parte3.png)
 
 ### 👨‍💼 Panel de Administrador
 *Control total del sistema para administradores*
 
-![Panel Admin - Dashboard](./screenshots/admin_dashboard.png)
-![Admin - Gestión Usuarios](./screenshots/admin_usuarios.png)
-![Admin - Especialistas Pendientes](./screenshots/admin_especialistas_pendientes.png)
-![Admin - Estadísticas](./screenshots/admin_estadisticas.png)
-![Admin - Turnos Globales](./screenshots/admin_turnos.png)
+![Admin - Ver Administradores](./screenshots/admin_filtro_admin_parte1.png)
+![Admin - Alta de Administradores](./screenshots/admin_filtro_admin_parte2.png)
+![Admin - Ver Especialistas](./screenshots/admin_filtro_especialistas_parte1.png)
+![Admin - Alta de Especialistas](./screenshots/admin_filtro_especialistas_parte2.png)
+![Admin - Ver Pacientes](./screenshots/admin_filtro_pacientes_parte1.png)
+![Admin - Alta de Pacientes](./screenshots/admin_filtro_pacientes_parte2.png)
+![Admin - Estadísticas](./screenshots/estadistica_admin_parte1.png)
+![Admin - Estadísticas parte 2](./screenshots/estadistica_admin_parte2.png)
+![Admin - Turnos Globales](./screenshots/gestion_turnos_admin.png)
 
 ---
 

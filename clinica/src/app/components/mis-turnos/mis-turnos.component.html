@@ -204,15 +204,17 @@
     </div>
   </div>
 
-  <!-- Loading spinner -->
-  <div *ngIf="loading" class="loading-section">
-    <mat-progress-spinner 
-      mode="indeterminate" 
-      color="primary" 
-      diameter="60" 
-      strokeWidth="5">
-    </mat-progress-spinner>
-    <p>Cargando turnos...</p>
+  <!-- Loading spinner overlay -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="loading-content">
+      <mat-progress-spinner 
+        mode="indeterminate" 
+        color="primary" 
+        diameter="60" 
+        strokeWidth="5">
+      </mat-progress-spinner>
+      <p>Cargando...</p>
+    </div>
   </div>
 
   <!-- Modal Cancelar Turno -->

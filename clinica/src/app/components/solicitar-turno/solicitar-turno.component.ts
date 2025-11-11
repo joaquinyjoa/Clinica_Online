@@ -102,7 +102,7 @@ export class SolicitarTurnoComponent implements OnInit {
     if (this.esAdmin) {
       this.router.navigate(['/panel-admin']);
     } else {
-      this.router.navigate(['/']);
+      this.router.navigate(['/mis-turnos']);
     }
   }
 
@@ -164,10 +164,7 @@ export class SolicitarTurnoComponent implements OnInit {
       // Resetear formulario
       this.resetearFormulario();
       // Redirigir siempre a mis-turnos tras confirmar
-      this.toastService.info('📅 Redirigiendo a mis turnos...');
-      this.navigationService.navigateWithSpinner('/mis-turnos', (loading) => {
-        this.loading = loading;
-      });
+      this.router.navigate(['/mis-turnos']);
       
     } catch (error) {
       console.error('Error al crear turno:', error);
