@@ -909,6 +909,628 @@
   }
 }
 
+/* Estilos para la Encuesta */
+.survey-modal {
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.survey-form {
+  h4 {
+    color: #17a2b8;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+  }
+}
+
+.rating-group {
+  margin-bottom: 20px;
+  
+  label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+}
+
+.rating-stars {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  
+  .star {
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    filter: grayscale(100%);
+    
+    &.active {
+      filter: grayscale(0%);
+      transform: scale(1.1);
+    }
+    
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+  
+  .rating-text {
+    margin-left: 10px;
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+  }
+}
+
+.checkbox-group {
+  margin: 25px 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: #2c3e50;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  .checkmark {
+    font-size: 1.1rem;
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+  
+  label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+  }
+  
+  &::placeholder {
+    color: #6c757d;
+    font-style: italic;
+  }
+}
+
+/* Sección de Historia Clínica */
+.historia-clinica-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(40, 167, 69, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.section-header {
+  margin-bottom: 15px;
+}
+
+.section-title {
+  color: #28a745;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.historia-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Datos vitales */
+.datos-vitales {
+  h4 {
+    color: #17a2b8;
+    font-size: 1rem;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+  }
+}
+
+.vitales-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.vital-item {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(23, 162, 184, 0.1);
+  
+  .vital-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 4px;
+  }
+  
+  .vital-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+}
+
+/* Secciones de texto */
+.diagnostico-section,
+.tratamiento-section,
+.observaciones-section {
+  h4 {
+    color: #17a2b8;
+    font-size: 1rem;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+  }
+  
+  p {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin: 0;
+    line-height: 1.5;
+    color: #2c3e50;
+    border: 1px solid rgba(23, 162, 184, 0.1);
+    font-size: 0.9rem;
+  }
+}
+
+.diagnostico-section {
+  h4 { color: #dc3545; }
+  p { border-left: 4px solid #dc3545; }
+}
+
+.tratamiento-section {
+  h4 { color: #fd7e14; }
+  p { border-left: 4px solid #fd7e14; }
+}
+
+.observaciones-section {
+  h4 { color: #6f42c1; }
+  p { border-left: 4px solid #6f42c1; }
+}
+
+/* Responsive para historia clínica */
+@media (max-width: 768px) {
+  .vitales-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .historia-clinica-section {
+    padding: 15px;
+  }
+  
+  .vital-item {
+    padding: 8px 10px;
+  }
+}
+
+/* Modal Historial Clínico */
+.modal-historia {
+  background: white;
+  border-radius: 20px;
+  max-width: 800px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.4s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 2px solid #e9ecef;
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+  border-radius: 20px 20px 0 0;
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+  }
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+.historia-info {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Información del turno */
+.turno-info-header {
+  background: rgba(23, 162, 184, 0.05);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(23, 162, 184, 0.2);
+
+  h3 {
+    color: #17a2b8;
+    margin: 0 0 15px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+}
+
+.turno-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+
+  p {
+    margin: 0;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    font-size: 0.9rem;
+
+    strong {
+      color: #2c3e50;
+    }
+  }
+}
+
+/* Datos vitales en modal */
+.datos-vitales-modal {
+  h3 {
+    color: #28a745;
+    margin: 0 0 15px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+}
+
+.vitales-grid-modal {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.vital-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 12px;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
+  }
+
+  .vital-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(40, 167, 69, 0.1);
+    border-radius: 50%;
+    border: 2px solid rgba(40, 167, 69, 0.3);
+  }
+
+  .vital-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .vital-label {
+      font-size: 0.85rem;
+      color: #6c757d;
+      font-weight: 500;
+    }
+
+    .vital-value {
+      font-size: 1.1rem;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Secciones de contenido en modal */
+.diagnostico-modal,
+.tratamiento-modal,
+.observaciones-modal,
+.campos-dinamicos-modal,
+.info-registro-modal {
+  h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+}
+
+.diagnostico-modal {
+  h3 { color: #dc3545; }
+}
+
+.tratamiento-modal {
+  h3 { color: #fd7e14; }
+}
+
+.observaciones-modal {
+  h3 { color: #6f42c1; }
+}
+
+.campos-dinamicos-modal {
+  h3 { color: #20c997; }
+}
+
+.info-registro-modal {
+  h3 { color: #6c757d; }
+}
+
+.content-card {
+  background: rgba(248, 249, 250, 0.8);
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid;
+
+  .diagnostico-modal & {
+    border-left-color: #dc3545;
+  }
+
+  .tratamiento-modal & {
+    border-left-color: #fd7e14;
+  }
+
+  .observaciones-modal & {
+    border-left-color: #6f42c1;
+  }
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+    color: #2c3e50;
+    font-size: 0.95rem;
+  }
+}
+
+.modal-footer {
+  padding: 20px 30px;
+  border-top: 2px solid #e9ecef;
+  display: flex;
+  justify-content: center;
+
+  .btn-cerrar {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: linear-gradient(135deg, #5a6268, #495057);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+    }
+  }
+}
+
+/* Campos dinámicos */
+.campos-dinamicos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.campo-dinamico-card {
+  background: rgba(32, 201, 151, 0.05);
+  border: 1px solid rgba(32, 201, 151, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(32, 201, 151, 0.15);
+  }
+
+  .campo-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+
+    .campo-icon {
+      font-size: 1.2rem;
+    }
+
+    .campo-label {
+      font-weight: 600;
+      color: #20c997;
+      font-size: 0.95rem;
+    }
+  }
+
+  .campo-valor {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #2c3e50;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    border-left: 3px solid #20c997;
+  }
+}
+
+/* Información del registro */
+.info-registro-content {
+  background: rgba(108, 117, 125, 0.05);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(108, 117, 125, 0.1);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-weight: 500;
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+
+  .info-value {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9rem;
+  }
+}
+
+/* Estilos para el botón de historial clínico */
+.history-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.35);
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Responsive para modal */
+@media (max-width: 768px) {
+  .modal-historia {
+    width: 98%;
+    max-height: 95vh;
+  }
+
+  .modal-header {
+    padding: 20px;
+    
+    h2 {
+      font-size: 1.3rem;
+    }
+  }
+
+  .modal-body {
+    padding: 20px;
+  }
+
+  .vitales-grid-modal {
+    grid-template-columns: 1fr;
+  }
+
+  .vital-card {
+    padding: 15px;
+    
+    .vital-icon {
+      font-size: 1.5rem;
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  .turno-details {
+    grid-template-columns: 1fr;
+  }
+
+  .campos-dinamicos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campo-dinamico-card {
+    padding: 12px;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;

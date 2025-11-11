@@ -206,6 +206,12 @@
     margin: 0;
     font-size: 2.5rem;
     font-weight: 700;
+    /* Prevent clipping/cropping of large numbers: ensure adequate line-height, allow overflow and use inline-block
+       so background-clip gradient renders correctly without cutting descenders */
+    line-height: 1.05;
+    display: inline-block;
+    padding-bottom: 2px;
+    overflow: visible;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -361,6 +367,10 @@
   
   .card-content .numero {
     font-size: 2rem;
+    line-height: 1.05;
+    display: inline-block;
+    padding-bottom: 2px;
+    overflow: visible;
   }
 }
 

@@ -4,7 +4,6 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { EmpleadosService, Empleado } from '../../services/empleados.service';
 import { HistoriaClinicaService, HistoriaClinicaCompleta } from '../../services/historia-clinica.service';
-import { PacientesService, Paciente } from '../../services/pacientes.service';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
@@ -23,8 +22,6 @@ export class EspecialistaComponent {
   seccionActiva: 'registro' | 'pacientes' = 'registro';
 
   // Datos para sección Pacientes
-  pacientesAtendidos: (Paciente & { historiaClinica: HistoriaClinicaCompleta[] })[] = [];
-  pacienteSeleccionado: Paciente | null = null;
   historiaSeleccionada: HistoriaClinicaCompleta[] = [];
   mostrandoHistoria = false;
   loadingPacientes = false;
@@ -61,7 +58,6 @@ export class EspecialistaComponent {
   constructor(
     private empleadoService: EmpleadosService,
     private historiaClinicaService: HistoriaClinicaService,
-    private pacientesService: PacientesService,
     private toastService: ToastService
   ) {
     this.cargarEspecialidades();
@@ -161,70 +157,6 @@ export class EspecialistaComponent {
    } finally {
       this.loading = false;
     }
-  }
-
-  // Métodos para sección Pacientes
-  cambiarSeccion(seccion: 'registro' | 'pacientes') {
-    this.seccionActiva = seccion;
-    if (seccion === 'pacientes') {
-      this.cargarPacientesAtendidos();
-    }
-  }
-
-  async cargarPacientesAtendidos() {
-    this.loadingPacientes = true;
-    try {
-      // Obtener el ID del especialista desde localStorage
-      const userData = localStorage.getItem('currentUser');
-      if (!userData) {
-        this.toastService.error('❌ No se encontró información del especialista');
-        return;
-      }
-
-      const especialista = JSON.parse(userData);
-      if (!especialista.id) {
-        this.toastService.error('❌ ID de especialista no válido');
-        return;
-      }
-
-      // Obtener pacientes atendidos por este especialista
-      const pacientes = await this.historiaClinicaService.obtenerPacientesAtendidos(especialista.id);
-      
-      // Para cada paciente, obtener su historia clínica completa
-      this.pacientesAtendidos = [];
-      for (const paciente of pacientes) {
-        if (paciente.id) {
-          const historia = await this.historiaClinicaService.obtenerHistoriaPaciente(paciente.id);
-          // Filtrar solo las historias de este especialista
-          const historiasEspecialista = historia.filter(h => h.especialista_id === especialista.id);
-          this.pacientesAtendidos.push({
-            ...paciente,
-            historiaClinica: historiasEspecialista
-          });
-        }
-      }
-
-      if (this.pacientesAtendidos.length === 0) {
-        this.toastService.info('📋 Aún no has atendido pacientes');
-      }
-    } catch (error) {
-      console.error('Error al cargar pacientes atendidos:', error);
-      this.toastService.error('❌ Error al cargar pacientes atendidos');
-    } finally {
-      this.loadingPacientes = false;
-    }
-  }
-
-  verHistoriaPaciente(paciente: Paciente & { historiaClinica: HistoriaClinicaCompleta[] }) {
-    this.pacienteSeleccionado = paciente;
-    this.historiaSeleccionada = paciente.historiaClinica;
-    this.mostrandoHistoria = true;
-  }
-
-  cerrarHistoriaPaciente() {
-    this.mostrandoHistoria = false;
-    this.pacienteSeleccionado = null;
-    this.historiaSeleccionada = [];
   }
 
   obtenerCamposDinamicos(historia: HistoriaClinicaCompleta): { clave: string, valor: string }[] {

@@ -9,6 +9,7 @@ import { HistoriaClinicaService } from '../../services/historia-clinica.service'
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
   selector: 'app-mis-turnos',
@@ -45,11 +46,34 @@ export class MisTurnosComponent implements OnInit {
   mostrarModalCalificar = false;
   mostrarModalEncuesta = false;
   mostrarModalResena = false;
+  mostrarModalHistoria = false;
   
   turnoSeleccionado: Turno | null = null;
   comentarioCancelacion = '';
   comentarioCalificacion = '';
   calificacionSeleccionada = 5;
+  
+  // Propiedades para la encuesta
+  encuesta = {
+    atencionGeneral: 5,
+    tiempoEspera: 5,
+    profesionalismo: 5,
+    instalaciones: 5,
+    recomendaria: true,
+    comentarios: '',
+    sugerencias: ''
+  };
+
+  // Encuesta para especialistas
+  encuestaEspecialista = {
+    experienciaPaciente: 5,
+    complejidadCaso: 5,
+    recursosDisponibles: 5,
+    colaboracionEquipo: 5,
+    seguimientoAdecuado: true,
+    observacionesCaso: '',
+    recomendacionesTratamiento: ''
+  };
 
   constructor(
     private turnosService: TurnosService,
@@ -57,7 +81,8 @@ export class MisTurnosComponent implements OnInit {
     private empleadosService: EmpleadosService,
     private historiaClinicaService: HistoriaClinicaService,
     private toastService: ToastService,
-    private router: Router
+    private router: Router,
+    private navigationService: NavigationService
   ) { }
 
   ngOnInit(): void {
@@ -247,7 +272,17 @@ export class MisTurnosComponent implements OnInit {
   }
 
   puedeCompletarEncuesta(turno: Turno): boolean {
-    return turno.estado === 'realizado' && !!turno.comentarioEspecialista && !turno.encuestaRealizada;
+    // Para pacientes: pueden completar encuesta si el turno está realizado, tiene comentario del especialista y no han completado encuesta
+    if (this.esPaciente) {
+      return turno.estado === 'realizado' && !!turno.comentarioEspecialista && !turno.encuestaRealizada;
+    }
+    
+    // Para especialistas: pueden completar encuesta si el turno está realizado y no han completado encuesta
+    if (this.esEspecialista) {
+      return turno.estado === 'realizado' && !turno.encuestaRealizada;
+    }
+    
+    return false;
   }
 
   puedeCalificar(turno: Turno): boolean {
@@ -270,6 +305,28 @@ export class MisTurnosComponent implements OnInit {
 
   abrirModalEncuesta(turno: Turno) {
     this.turnoSeleccionado = turno;
+    // Resetear valores de la encuesta según el tipo de usuario
+    if (this.esPaciente) {
+      this.encuesta = {
+        atencionGeneral: 5,
+        tiempoEspera: 5,
+        profesionalismo: 5,
+        instalaciones: 5,
+        recomendaria: true,
+        comentarios: '',
+        sugerencias: ''
+      };
+    } else if (this.esEspecialista) {
+      this.encuestaEspecialista = {
+        experienciaPaciente: 5,
+        complejidadCaso: 5,
+        recursosDisponibles: 5,
+        colaboracionEquipo: 5,
+        seguimientoAdecuado: true,
+        observacionesCaso: '',
+        recomendacionesTratamiento: ''
+      };
+    }
     this.mostrarModalEncuesta = true;
   }
 
@@ -278,11 +335,22 @@ export class MisTurnosComponent implements OnInit {
     this.mostrarModalResena = true;
   }
 
+  abrirModalHistoria(turno: Turno) {
+    this.turnoSeleccionado = turno;
+    this.mostrarModalHistoria = true;
+  }
+
+  cerrarModalHistoria() {
+    this.mostrarModalHistoria = false;
+    this.turnoSeleccionado = null;
+  }
+
   cerrarModales() {
     this.mostrarModalCancelar = false;
     this.mostrarModalCalificar = false;
     this.mostrarModalEncuesta = false;
     this.mostrarModalResena = false;
+    this.mostrarModalHistoria = false;
     this.turnoSeleccionado = null;
   }
 
@@ -333,15 +401,40 @@ export class MisTurnosComponent implements OnInit {
   async completarEncuesta() {
     if (!this.turnoSeleccionado) return;
 
+    // Validar campos obligatorios según el tipo de usuario
+    if (this.esPaciente) {
+      if (!this.encuesta.comentarios.trim()) {
+        this.toastService.warning('⚠️ Por favor escribí al menos un comentario sobre tu experiencia');
+        return;
+      }
+    } else if (this.esEspecialista) {
+      if (!this.encuestaEspecialista.observacionesCaso.trim()) {
+        this.toastService.warning('⚠️ Por favor escribí al menos una observación sobre el caso');
+        return;
+      }
+    }
+
     this.loading = true;
     try {
-      await this.turnosService.completarEncuesta(this.turnoSeleccionado.id!);
-      this.toastService.success('✅ Encuesta completada');
+      // Determinar qué encuesta enviar
+      const datosEncuesta = this.esPaciente ? this.encuesta : this.encuestaEspecialista;
+      
+      // Guardar encuesta completa con todos los datos
+      await this.turnosService.completarEncuestaDetallada(
+        this.turnoSeleccionado.id!,
+        datosEncuesta
+      );
+      
+      const mensaje = this.esPaciente 
+        ? '✅ ¡Gracias por completar la encuesta de satisfacción!'
+        : '✅ ¡Encuesta profesional completada exitosamente!';
+        
+      this.toastService.success(mensaje);
       this.cerrarModales();
       await this.cargarDatos();
     } catch (error) {
       console.error(error);
-      this.toastService.error('❌ Error al completar la encuesta');
+      this.toastService.error('❌ Error al guardar la encuesta');
     } finally {
       this.loading = false;
     }
@@ -371,13 +464,17 @@ export class MisTurnosComponent implements OnInit {
 
   // Ir a mi perfil
   irAMiPerfil() {
-    this.router.navigate(['/mi-perfil']);
     this.toastService.info('👤 Accediendo a mi perfil...');
+    this.navigationService.navigateWithSpinner('/mi-perfil', (loading) => {
+      this.loading = loading;
+    });
   }
 
   // Ir a solicitar turno
   irASolicitarTurno() {
-    this.router.navigate(['/solicitar-turno']);
     this.toastService.info('📅 Accediendo a solicitar turno...');
+    this.navigationService.navigateWithSpinner('/solicitar-turno', (loading) => {
+      this.loading = loading;
+    });
   }
 }

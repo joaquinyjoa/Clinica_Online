@@ -29,55 +29,86 @@
 
   <!-- Indicador de progreso -->
   <div class="progress-indicator">
+    <!-- Paso 1: Cliente (solo admin) o Profesional (paciente) -->
     <div class="progress-step" [class.active]="pasoActual === 1" [class.completed]="pasoActual > 1">
       <span class="step-number">1</span>
-      <span class="step-label">Profesional</span>
+      <span class="step-label" *ngIf="esAdmin">Cliente</span>
+      <span class="step-label" *ngIf="!esAdmin">Profesional</span>
     </div>
+    
     <div class="progress-line" [class.completed]="pasoActual > 1"></div>
-    <div class="progress-step" [class.active]="pasoActual === 2" [class.completed]="pasoActual > 2">
+    
+    <!-- Paso 2: Profesional (admin) o Especialidad (paciente) -->
+    <div class="progress-step" [class.active]="(esAdmin && pasoActual === 2) || (!esAdmin && pasoActual === 2)" [class.completed]="(esAdmin && pasoActual > 2) || (!esAdmin && pasoActual > 2)">
       <span class="step-number">2</span>
-      <span class="step-label">Especialidad</span>
+      <span class="step-label" *ngIf="esAdmin">Profesional</span>
+      <span class="step-label" *ngIf="!esAdmin">Especialidad</span>
     </div>
-    <div class="progress-line" [class.completed]="pasoActual > 2"></div>
-    <div class="progress-step" [class.active]="pasoActual === 3" [class.completed]="pasoActual > 3">
+    
+    <div class="progress-line" [class.completed]="(esAdmin && pasoActual > 2) || (!esAdmin && pasoActual > 2)"></div>
+    
+    <!-- Paso 3: Especialidad (admin) o Fecha y Hora (paciente) -->
+    <div class="progress-step" [class.active]="(esAdmin && pasoActual === 3) || (!esAdmin && pasoActual === 3)" [class.completed]="(esAdmin && pasoActual > 3) || (!esAdmin && pasoActual > 3)">
       <span class="step-number">3</span>
-      <span class="step-label">Fecha y Hora</span>
+      <span class="step-label" *ngIf="esAdmin">Especialidad</span>
+      <span class="step-label" *ngIf="!esAdmin">Fecha y Hora</span>
     </div>
+    
+    <!-- Paso 4: Fecha y Hora (solo admin) -->
+    <ng-container *ngIf="esAdmin">
+      <div class="progress-line" [class.completed]="pasoActual > 3"></div>
+      <div class="progress-step" [class.active]="pasoActual === 4" [class.completed]="pasoActual > 4">
+        <span class="step-number">4</span>
+        <span class="step-label">Fecha y Hora</span>
+      </div>
+    </ng-container>
   </div>
 
   <!-- Selector de paciente (solo para admin) -->
-  <div class="form-section" *ngIf="esAdmin && !pacienteSeleccionado">
-    <h3 class="step-title">👥 Seleccionar Paciente</h3>
+  <div class="form-section" *ngIf="esAdmin && pasoActual === 1">
+    <h3 class="step-title">👥 Paso 1: Seleccionar Cliente</h3>
     <div class="step-content">
+      <p class="step-description">Elige el paciente para quien vas a solicitar el turno médico</p>
+      
       <div *ngIf="pacientesDisponibles.length === 0" class="warning-message">
         <span class="warning-icon">😔</span>
         <span class="warning-text">No hay pacientes registrados</span>
       </div>
       
-      <div *ngIf="pacientesDisponibles.length > 0" class="pacientes-grid">
+      <!-- Usamos el mismo diseño de grilla y card que los especialistas -->
+      <div *ngIf="pacientesDisponibles.length > 0" class="profesionales-grid">
         <button 
           *ngFor="let paciente of pacientesDisponibles"
           type="button"
-          class="paciente-card"
+          class="profesional-card"
           (click)="seleccionarPaciente(paciente)"
           [disabled]="loading">
-          <div class="paciente-info">
-            <div class="paciente-avatar">👤</div>
-            <div class="paciente-details">
-              <span class="paciente-nombre">{{ paciente.nombre }} {{ paciente.apellido }}</span>
-              <span class="paciente-email">{{ paciente.email }}</span>
-            </div>
+          
+          <div class="profesional-image">
+            <img 
+              *ngIf="paciente.foto1" 
+              [src]="paciente.foto1" 
+              [alt]="paciente.nombre + ' ' + paciente.apellido"
+              class="imagen-profesional"
+              (error)="paciente.foto1 = null">
+            <div *ngIf="!paciente.foto1" class="imagen-default">👤</div>
+          </div>
+          
+          <div class="profesional-info">
+            <h4 class="profesional-nombre">{{ paciente.nombre }} {{ paciente.apellido }}</h4>
+            <p class="profesional-especialidad">DNI: {{ paciente.dni }}</p>
           </div>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- PASO 1: Seleccionar Profesional -->
-  <div class="form-section" *ngIf="pasoActual === 1 && (!esAdmin || pacienteSeleccionado)" [@slideIn]>
-    <h3 class="step-title">👨‍⚕️ Paso 1: Seleccionar Profesional</h3>
+  <!-- PASO 1/2: Seleccionar Profesional -->
+  <div class="form-section" *ngIf="(!esAdmin && pasoActual === 1) || (esAdmin && pasoActual === 2)" [@slideIn]>
+    <h3 class="step-title">👨‍⚕️ {{ esAdmin ? 'Paso 2' : 'Paso 1' }}: Seleccionar Profesional</h3>
     <div class="step-content">
-      <p class="step-description">Elige el profesional médico con quien deseas agendar tu cita</p>
+      <p class="step-description" *ngIf="!esAdmin">Elige el profesional médico con quien deseas agendar tu cita</p>
+      <p class="step-description" *ngIf="esAdmin">Elige el profesional médico para <strong>{{ pacienteSeleccionado?.nombre }} {{ pacienteSeleccionado?.apellido }}</strong></p>
       
       <div *ngIf="loading" class="loading-section" [@fadeIn]>
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
@@ -118,8 +149,9 @@
   </div>
 
   <!-- PASO 2: Seleccionar Especialidad -->
-  <div class="form-section" *ngIf="pasoActual === 2" [@slideIn]>
-    <h3 class="step-title">🩺 Paso 2: Seleccionar Especialidad</h3>
+    <!-- PASO 2/3: Seleccionar Especialidad -->
+  <div class="form-section" *ngIf="profesionalSeleccionado && ((!esAdmin && pasoActual === 2) || (esAdmin && pasoActual === 3))" [@slideIn]>
+    <h3 class="step-title">🏥 {{ esAdmin ? 'Paso 3' : 'Paso 2' }}: Especialidad de {{ profesionalSeleccionado.nombre }} {{ profesionalSeleccionado.apellido }}</h3>
     <div class="step-content">
       <p class="step-description">Selecciona la especialidad de Dr/a. {{ profesionalSeleccionado?.nombre }} {{ profesionalSeleccionado?.apellido }}</p>
       
@@ -150,9 +182,9 @@
     </div>
   </div>
 
-  <!-- PASO 3: Seleccionar Fecha y Hora -->
-  <div class="form-section" *ngIf="pasoActual === 3" [@slideIn]>
-    <h3 class="step-title">📅 Paso 3: Seleccionar Fecha y Hora</h3>
+  <!-- PASO 3/4: Seleccionar Fecha y Hora -->
+  <div class="form-section" *ngIf="especialidadSeleccionada && ((!esAdmin && pasoActual === 3) || (esAdmin && pasoActual === 4))" [@slideIn]>
+    <h3 class="step-title">📅 {{ esAdmin ? 'Paso 4' : 'Paso 3' }}: Seleccionar Fecha y Hora</h3>
     <div class="step-content">
       <p class="step-description">Elige el día y horario para tu cita con Dr/a. {{ profesionalSeleccionado?.nombre }}</p>
       
@@ -186,34 +218,6 @@
           </div>
         </button>
       </div>
-      
-      <!-- Botón confirmar turno -->
-      <div class="confirm-section" *ngIf="turnoSeleccionado" [@fadeIn]>
-        <div class="resumen-turno">
-          <h4>📋 Resumen del Turno</h4>
-          <div class="resumen-item" *ngIf="esAdmin && pacienteSeleccionado">
-            <span class="label">Paciente:</span>
-            <span class="value">{{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}</span>
-          </div>
-          <div class="resumen-item">
-            <span class="label">Profesional:</span>
-            <span class="value">Dr/a. {{ profesionalSeleccionado.nombre }} {{ profesionalSeleccionado.apellido }}</span>
-          </div>
-          <div class="resumen-item">
-            <span class="label">Especialidad:</span>
-            <span class="value">{{ profesionalSeleccionado.especialidad }}</span>
-          </div>
-          <div class="resumen-item">
-            <span class="label">Fecha y Hora:</span>
-            <span class="value">{{ turnoSeleccionado.formatoCompleto }}</span>
-          </div>
-        </div>
-        
-        <button class="btn-confirmar" (click)="confirmarTurno()" [disabled]="loading">
-          <span *ngIf="loading" class="spinner">⏳</span>
-          <span *ngIf="!loading">✅ Confirmar Turno</span>
-        </button>
-      </div>
     </div>
   </div>
 
@@ -231,4 +235,34 @@
   <!-- Sistema de toasts -->
   <app-toast></app-toast>
 
+</div>
+
+<!-- Modal de resumen de turno - Completamente fuera de la estructura principal -->
+<div class="modal-overlay" *ngIf="mostrarModalResumen">
+  <div class="modal-resumen-turno">
+    <h2 class="modal-title">📋 Resumen del Turno</h2>
+    <div class="modal-resumen-item" *ngIf="esAdmin && pacienteSeleccionado">
+      <span class="modal-label">Paciente:</span>
+      <span class="modal-value">{{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}</span>
+    </div>
+    <div class="modal-resumen-item">
+      <span class="modal-label">Profesional:</span>
+      <span class="modal-value">Dr/a. {{ profesionalSeleccionado.nombre }} {{ profesionalSeleccionado.apellido }}</span>
+    </div>
+    <div class="modal-resumen-item">
+      <span class="modal-label">Especialidad:</span>
+      <span class="modal-value">{{ profesionalSeleccionado.especialidad }}</span>
+    </div>
+    <div class="modal-resumen-item">
+      <span class="modal-label">Fecha y Hora:</span>
+      <span class="modal-value">{{ turnoSeleccionado.formatoCompleto }}</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancelar" (click)="cancelarModalResumen()">Cancelar</button>
+      <button class="btn-confirmar" (click)="confirmarTurno()" [disabled]="loading">
+        <span *ngIf="loading" class="spinner">⏳</span>
+        <span *ngIf="!loading">✅ Confirmar Turno</span>
+      </button>
+    </div>
+  </div>
 </div>

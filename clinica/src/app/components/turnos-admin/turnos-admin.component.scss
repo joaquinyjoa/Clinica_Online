@@ -390,24 +390,39 @@
   margin-bottom: 25px;
 }
 
-.btn-secondary {
-  background: linear-gradient(45deg, #6c757d, #5a6268);
+/* Estilo actualizado para el botón Crear nuevo turno con animación consistente */
+.no-turnos-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-create-turno {
+  background: linear-gradient(45deg, #28a745, #218838);
   color: white;
   border: none;
-  padding: 12px 25px;
+  padding: 12px 20px;
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
   }
+}
+
+.btn-create-turno .icon {
+  font-size: 1.2rem;
+}
+
+.btn-create-turno .text {
+  font-size: 1rem;
 }
 
 /* Loading */

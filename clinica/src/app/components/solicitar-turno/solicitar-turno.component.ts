@@ -9,6 +9,7 @@ import { EmpleadosService } from '../../services/empleados.service';
 import { PacientesService } from '../../services/pacientes.service';
 import { TurnosService } from '../../services/turnos.service';
 import { slideInAnimation, fadeInAnimation, fadeIn, listAnimation } from '../../animations/animations';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
   selector: 'app-solicitar-turno',
@@ -37,14 +38,17 @@ export class SolicitarTurnoComponent implements OnInit {
   turnosDisponibles: any[] = [];
   turnoSeleccionado: any = null;
   pacienteSeleccionado: any = null; // Solo para admin
+    mostrarModalResumen = false;
 
   private router = inject(Router);
   private toastService = inject(ToastService);
   private empleadosService = inject(EmpleadosService);
   private pacientesService = inject(PacientesService);
   private turnosService = inject(TurnosService);
+  private navigationService = inject(NavigationService);
 
   ngOnInit() {
+    console.log('=== INICIALIZANDO SOLICITAR TURNO ===');
     this.detectarTipoUsuario();
     this.cargarProfesionales();
     if (this.esAdmin) {
@@ -106,8 +110,10 @@ export class SolicitarTurnoComponent implements OnInit {
 
   seleccionarPaciente(paciente: any) {
     this.pacienteSeleccionado = paciente;
+    this.pasoActual = 2; // Ir al paso de selección de profesional
     const nombreCompleto = `${paciente.nombre} ${paciente.apellido}`;
     this.toastService.success(`✅ Paciente seleccionado: ${nombreCompleto}`);
+    this.toastService.info(`👨‍⚕️ Ahora selecciona un profesional...`);
   }
 
   async confirmarTurno() {
@@ -157,15 +163,11 @@ export class SolicitarTurnoComponent implements OnInit {
       
       // Resetear formulario
       this.resetearFormulario();
-      
-      // Redirigir según el tipo de usuario
-      setTimeout(() => {
-        if (this.esAdmin) {
-          this.router.navigate(['/panel-admin']);
-        } else {
-          this.router.navigate(['/mis-turnos']);
-        }
-      }, 2000);
+      // Redirigir siempre a mis-turnos tras confirmar
+      this.toastService.info('📅 Redirigiendo a mis turnos...');
+      this.navigationService.navigateWithSpinner('/mis-turnos', (loading) => {
+        this.loading = loading;
+      });
       
     } catch (error) {
       console.error('Error al crear turno:', error);
@@ -205,6 +207,8 @@ export class SolicitarTurnoComponent implements OnInit {
   }
 
   private resetearFormulario() {
+    // Para admin: comenzar con selección de cliente (paso 1)
+    // Para pacientes: comenzar con especialidad (paso 1, pero sin selección de cliente)
     this.pasoActual = 1;
     this.profesionalSeleccionado = null;
     this.especialidadSeleccionada = '';
@@ -219,12 +223,19 @@ export class SolicitarTurnoComponent implements OnInit {
   async cargarProfesionales() {
     this.loading = true;
     try {
+      // Obtener TODOS los empleados de la base de datos
       const empleados = await this.empleadosService.obtenerTodos();
+      
+      // Filtrar solo profesionales médicos (excluir administradores) y que estén aprobados
       this.profesionalesDisponibles = empleados.filter(
         emp => emp.especialidad && 
                emp.especialidad.toLowerCase() !== 'administrador' &&
                emp.aprobado === true
       );
+      
+      console.log('Profesionales cargados:', this.profesionalesDisponibles.length);
+      console.log('Datos de profesionales:', this.profesionalesDisponibles);
+      
     } catch (error) {
       console.error('Error al cargar profesionales:', error);
       this.toastService.error('Error al cargar profesionales disponibles');
@@ -235,19 +246,30 @@ export class SolicitarTurnoComponent implements OnInit {
 
   seleccionarProfesional(profesional: any) {
     this.profesionalSeleccionado = profesional;
-    this.pasoActual = 2;
+    this.pasoActual = this.esAdmin ? 3 : 2; // Ajustar paso según el tipo de usuario
     
-    // Cargar especialidades del profesional
-    this.especialidades = this.profesionalSeleccionado.especialidades || [this.profesionalSeleccionado.especialidad];
+    // Cargar TODAS las especialidades del profesional seleccionado
+    // Si el profesional tiene múltiples especialidades (array), usar todas
+    // Si no, usar la especialidad principal como array de una sola especialidad
+    if (profesional.especialidades && Array.isArray(profesional.especialidades)) {
+      this.especialidades = profesional.especialidades;
+    } else if (profesional.especialidad) {
+      this.especialidades = [profesional.especialidad];
+    } else {
+      this.especialidades = [];
+    }
     
     const nombreCompleto = `${profesional.nombre} ${profesional.apellido}`;
     this.toastService.success(`✅ Profesional seleccionado: Dr/a. ${nombreCompleto}`);
-    this.toastService.info(`🔧 Cargando especialidades disponibles...`);
+    this.toastService.info(`🔧 Especialidades disponibles: ${this.especialidades.join(', ')}`);
+    
+    console.log('Profesional seleccionado:', profesional);
+    console.log('Especialidades cargadas:', this.especialidades);
   }
 
   seleccionarEspecialidad(especialidad: string) {
     this.especialidadSeleccionada = especialidad;
-    this.pasoActual = 3;
+    this.pasoActual = this.esAdmin ? 4 : 3; // Ajustar paso según el tipo de usuario
     this.cargarTurnosDisponibles();
     this.toastService.success(`✅ Especialidad seleccionada: ${especialidad}`);
   }
@@ -255,11 +277,25 @@ export class SolicitarTurnoComponent implements OnInit {
   volverPasoAnterior() {
     if (this.pasoActual > 1) {
       this.pasoActual--;
-      if (this.pasoActual === 1) {
-        this.profesionalSeleccionado = null;
-      } else if (this.pasoActual === 2) {
-        this.especialidadSeleccionada = '';
-        this.turnoSeleccionado = null;
+      
+      if (this.esAdmin) {
+        // Flujo para admin: 1=Cliente, 2=Profesional, 3=Especialidad, 4=Turno
+        if (this.pasoActual === 1) {
+          this.pacienteSeleccionado = null;
+        } else if (this.pasoActual === 2) {
+          this.profesionalSeleccionado = null;
+        } else if (this.pasoActual === 3) {
+          this.especialidadSeleccionada = '';
+          this.turnoSeleccionado = null;
+        }
+      } else {
+        // Flujo para paciente: 1=Profesional, 2=Especialidad, 3=Turno
+        if (this.pasoActual === 1) {
+          this.profesionalSeleccionado = null;
+        } else if (this.pasoActual === 2) {
+          this.especialidadSeleccionada = '';
+          this.turnoSeleccionado = null;
+        }
       }
     }
   }
@@ -269,6 +305,10 @@ export class SolicitarTurnoComponent implements OnInit {
   async cargarTurnosDisponibles() {
     this.loading = true;
     try {
+      console.log('=== INICIANDO CARGA DE TURNOS ===');
+      console.log('Profesional seleccionado:', this.profesionalSeleccionado);
+      console.log('Especialidad seleccionada:', this.especialidadSeleccionada);
+      
       // Obtener horarios del especialista desde la base de datos
       const horariosEspecialista = await this.turnosService.obtenerHorariosEspecialista(
         this.profesionalSeleccionado.id
@@ -483,5 +523,10 @@ export class SolicitarTurnoComponent implements OnInit {
       profesional: this.profesionalSeleccionado.nombre,
       especialidad: this.especialidadSeleccionada
     });
+      this.mostrarModalResumen = true;
   }
+    cancelarModalResumen() {
+      this.mostrarModalResumen = false;
+      this.turnoSeleccionado = null;
+    }
 }

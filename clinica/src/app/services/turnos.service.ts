@@ -20,6 +20,22 @@ export interface Turno {
   comentarioespecialista?: string; 
   encuestarealizada?: boolean; 
   calificacion?: number; // 1-5 estrellas
+  // Historia clínica (solo para turnos realizados)
+  historiaClinica?: {
+    id?: number;
+    altura?: number;
+    peso?: number;
+    temperatura?: number;
+    presion?: string;
+    campo_dinamico_1_clave?: string;
+    campo_dinamico_1_valor?: string;
+    campo_dinamico_2_clave?: string;
+    campo_dinamico_2_valor?: string;
+    campo_dinamico_3_clave?: string;
+    campo_dinamico_3_valor?: string;
+    created_at?: string;
+    updated_at?: string;
+  } | null;
 }
 
 @Injectable({
@@ -50,6 +66,30 @@ export class TurnosService {
     return normalized;
   }
 
+  // Obtener todos los turnos (para administradores)
+  async obtenerTodosTurnos(): Promise<Turno[]> {
+    const { data, error } = await supabase
+      .from(this.table)
+      .select(`
+        *,
+        pacientes:pacienteid (nombre, apellido),
+        empleados:especialistaid (nombre, apellido, especialidad)
+      `)
+      .order('fecha', { ascending: false });
+
+    if (error) throw error;
+    
+    if (!data) return [];
+    
+    // Enriquecer con nombres completos
+    return data.map((turno: any) => {
+      const normalizedTurno = this.normalizeTurno(turno);
+      normalizedTurno.pacienteNombre = `${turno.pacientes?.nombre || ''} ${turno.pacientes?.apellido || ''}`.trim();
+      normalizedTurno.especialistaNombre = `Dr./Dra. ${turno.empleados?.nombre || ''} ${turno.empleados?.apellido || ''}`.trim();
+      return normalizedTurno;
+    });
+  }
+
   // Obtener turnos de un paciente específico
   async obtenerTurnosPaciente(pacienteId: number): Promise<Turno[]> {
     // Intento original con nombres de columna corregidos
@@ -67,13 +107,39 @@ export class TurnosService {
     
     if (!data) return [];
     
-    // Enriquecer con nombres completos
-    return data.map((turno: any) => this.normalizeTurno({
-      ...turno,
-      pacienteNombre: turno.pacientes ? `${turno.pacientes.nombre} ${turno.pacientes.apellido}` : '',
-      especialistaNombre: turno.empleados ? `${turno.empleados.nombre} ${turno.empleados.apellido}` : '',
-      especialidad: turno.empleados?.especialidad || turno.especialidad
+    // Enriquecer con nombres completos y historia clínica
+    const turnosEnriquecidos = await Promise.all(data.map(async (turno: any) => {
+      const turnoNormalizado = this.normalizeTurno({
+        ...turno,
+        pacienteNombre: turno.pacientes ? `${turno.pacientes.nombre} ${turno.pacientes.apellido}` : '',
+        especialistaNombre: turno.empleados ? `${turno.empleados.nombre} ${turno.empleados.apellido}` : '',
+        especialidad: turno.empleados?.especialidad || turno.especialidad
+      });
+
+      // Cargar historia clínica si el turno está realizado
+      if (turno.estado === 'realizado' && turno.id) {
+        try {
+          // Obtener todos los campos de historia clínica según la estructura real
+          const { data: historiaData, error: historiaError } = await supabase
+            .from('historia_clinica')
+            .select('id, altura, peso, temperatura, presion, campo_dinamico_1_clave, campo_dinamico_1_valor, campo_dinamico_2_clave, campo_dinamico_2_valor, campo_dinamico_3_clave, campo_dinamico_3_valor, created_at, updated_at')
+            .eq('turno_id', turno.id)
+            .limit(1);
+
+          if (!historiaError && historiaData && historiaData.length > 0) {
+            turnoNormalizado.historiaClinica = historiaData[0];
+          } else if (historiaError) {
+            console.warn('Error al cargar historia clínica para turno:', turno.id, historiaError.message);
+          }
+        } catch (error) {
+          console.warn('No se pudo cargar historia clínica para turno:', turno.id, error);
+        }
+      }
+
+      return turnoNormalizado;
     }));
+
+    return turnosEnriquecidos;
   }
 
   // Fallback: consulta simple sin joins para diagnosticar problemas de relación
@@ -148,13 +214,39 @@ export class TurnosService {
     
     if (!data) return [];
     
-    // Enriquecer con información completa
-    return data.map((turno: any) => this.normalizeTurno({
-      ...turno,
-      pacienteNombre: turno.pacientes ? `${turno.pacientes.nombre} ${turno.pacientes.apellido}` : '',
-      especialistaNombre: turno.empleados ? `${turno.empleados.nombre} ${turno.empleados.apellido}` : '',
-      especialidad: turno.empleados?.especialidad || turno.especialidad
+    // Enriquecer con información completa e historia clínica
+    const turnosEnriquecidos = await Promise.all(data.map(async (turno: any) => {
+      const turnoNormalizado = this.normalizeTurno({
+        ...turno,
+        pacienteNombre: turno.pacientes ? `${turno.pacientes.nombre} ${turno.pacientes.apellido}` : '',
+        especialistaNombre: turno.empleados ? `${turno.empleados.nombre} ${turno.empleados.apellido}` : '',
+        especialidad: turno.empleados?.especialidad || turno.especialidad
+      });
+
+      // Cargar historia clínica si el turno está realizado
+      if (turno.estado === 'realizado' && turno.id) {
+        try {
+          // Obtener todos los campos de historia clínica según la estructura real
+          const { data: historiaData, error: historiaError } = await supabase
+            .from('historia_clinica')
+            .select('id, altura, peso, temperatura, presion, campo_dinamico_1_clave, campo_dinamico_1_valor, campo_dinamico_2_clave, campo_dinamico_2_valor, campo_dinamico_3_clave, campo_dinamico_3_valor, created_at, updated_at')
+            .eq('turno_id', turno.id)
+            .limit(1);
+
+          if (!historiaError && historiaData && historiaData.length > 0) {
+            turnoNormalizado.historiaClinica = historiaData[0];
+          } else if (historiaError) {
+            console.warn('Error al cargar historia clínica para turno:', turno.id, historiaError.message);
+          }
+        } catch (error) {
+          console.warn('No se pudo cargar historia clínica para turno:', turno.id, error);
+        }
+      }
+
+      return turnoNormalizado;
     }));
+
+    return turnosEnriquecidos;
   }
 
   // Método simple para especialistas (fallback)
@@ -190,6 +282,48 @@ export class TurnosService {
     const { data, error } = await supabase
       .from(this.table)
       .update({ encuestarealizada: true })
+      .eq('id', turnoId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return this.normalizeTurno(data);
+  }
+
+  // Completar encuesta detallada con todos los datos
+  async completarEncuestaDetallada(turnoId: number, encuesta: any): Promise<Turno> {
+    // Crear un comentario estructurado con toda la información de la encuesta
+    const comentarioEncuesta = `
+📊 ENCUESTA DE SATISFACCIÓN
+════════════════════════════
+🌟 Calidad de atención: ${encuesta.atencionGeneral}/5
+⏰ Tiempo de espera: ${encuesta.tiempoEspera}/5
+👨‍⚕️ Profesionalismo: ${encuesta.profesionalismo}/5
+🏥 Instalaciones: ${encuesta.instalaciones}/5
+💯 Recomendaría: ${encuesta.recomendaria ? 'Sí' : 'No'}
+
+💬 COMENTARIOS:
+${encuesta.comentarios}
+
+💡 SUGERENCIAS:
+${encuesta.sugerencias || 'Ninguna'}
+
+════════════════════════════
+📅 Fecha de encuesta: ${new Date().toLocaleString('es-AR')}
+    `.trim();
+
+    // Calcular puntuación promedio
+    const puntuacionPromedio = Math.round(
+      (encuesta.atencionGeneral + encuesta.tiempoEspera + encuesta.profesionalismo + encuesta.instalaciones) / 4
+    );
+
+    const { data, error } = await supabase
+      .from(this.table)
+      .update({ 
+        encuestarealizada: true,
+        comentariopaciente: comentarioEncuesta,
+        calificacion: puntuacionPromedio
+      })
       .eq('id', turnoId)
       .select()
       .single();

@@ -9,6 +9,7 @@ import { ToastComponent } from '../toast/toast.component';
 import { EmpleadosService } from '../../services/empleados.service';
 import { PacientesService } from '../../services/pacientes.service';
 import { HistoriaClinicaService, HistoriaClinica } from '../../services/historia-clinica.service';
+import { NavigationService } from '../../services/navigation.service';
 
 import { Turno } from '../../services/turnos.service';
 
@@ -67,6 +68,7 @@ export class TurnosEspecialistaComponent implements OnInit {
   private empleadosService = inject(EmpleadosService);
   private pacientesService = inject(PacientesService);
   private historiaClinicaService = inject(HistoriaClinicaService);
+  private navigationService = inject(NavigationService);
 
   ngOnInit() {
     this.detectarUsuarioYCargarTurnos();
@@ -155,8 +157,10 @@ export class TurnosEspecialistaComponent implements OnInit {
   }
 
   irAMiPerfil() {
-    this.router.navigate(['/mi-perfil']);
     this.toastService.info('👤 Accediendo a mi perfil...');
+    this.navigationService.navigateWithSpinner('/mi-perfil', (loading) => {
+      this.loading = loading;
+    });
   }
 
   volver() {

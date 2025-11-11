@@ -15,7 +15,24 @@ export class AdminGuard implements CanActivate {
   ) {}
 
   canActivate(): boolean {
-    const usuario = this.empleadosService.usuarioActual; // guardá en el servicio el usuario logueado
+    // Intentar obtener usuario del servicio primero
+    let usuario = this.empleadosService.usuarioActual;
+    
+    // Si no hay usuario en el servicio, intentar desde localStorage
+    if (!usuario) {
+      const usuarioLocalStorage = localStorage.getItem('currentUser');
+      if (usuarioLocalStorage) {
+        try {
+          usuario = JSON.parse(usuarioLocalStorage);
+          // Si encontramos usuario en localStorage, actualizamos el servicio
+          if (usuario) {
+            this.empleadosService.usuarioActual = usuario;
+          }
+        } catch (error) {
+          console.error('Error parsing user from localStorage:', error);
+        }
+      }
+    }
 
     if (!usuario) {
       // No hay usuario logueado → redirigir al login

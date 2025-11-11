@@ -34,7 +34,7 @@ export const fadeIn = trigger('fadeIn', [
 ]);
 
 // Animación de slide desde abajo (para modales o secciones especiales)
-export const slideFromBottomAnimation = trigger('slideFromBottom', [
+export const slideFromBottomAnimation = trigger('slideFromBottomAnimation', [
   transition(':enter', [
     style({ transform: 'translateY(100%)', opacity: 0 }),
     animate('500ms cubic-bezier(0.25, 0.8, 0.25, 1)', 

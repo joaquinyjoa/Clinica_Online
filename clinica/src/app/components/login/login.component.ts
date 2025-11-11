@@ -10,11 +10,13 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
 import { slideFromBottomAnimation, fadeInAnimation } from '../../animations/animations';
+import { RecaptchaModule } from 'ng-recaptcha';
+import { RECAPTCHA_CONFIG } from '../../config/recaptcha.config';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatProgressSpinnerModule, ToastComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatProgressSpinnerModule, ToastComponent, RecaptchaModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   animations: [slideFromBottomAnimation, fadeInAnimation]
@@ -39,6 +41,10 @@ export class LoginComponent implements OnInit {
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
+  // reCAPTCHA
+  recaptchaToken: string | null = null;
+  recaptchaSiteKey = RECAPTCHA_CONFIG.siteKey;
+
   get f() { return this.loginForm.controls; }
 
   constructor(
@@ -51,6 +57,32 @@ export class LoginComponent implements OnInit {
 
   async ngOnInit() {
     await this.cargarImagenesDesdeBaseDatos();
+  }
+
+  /**
+   * Callback cuando reCAPTCHA es resuelto exitosamente
+   */
+  onCaptchaResolved(token: string | null): void {
+    if (token) {
+      this.recaptchaToken = token;
+      console.log('reCAPTCHA resuelto exitosamente');
+    }
+  }
+
+  /**
+   * Callback cuando reCAPTCHA expira
+   */
+  onCaptchaExpired(): void {
+    this.recaptchaToken = null;
+    this.toastService.warning('🔒 El captcha ha expirado, por favor verificá de nuevo');
+  }
+
+  /**
+   * Callback cuando hay error en reCAPTCHA
+   */
+  onCaptchaError(): void {
+    this.recaptchaToken = null;
+    this.toastService.error('❌ Error en el captcha, intentá de nuevo');
   }
 
   async cargarImagenesDesdeBaseDatos() {
@@ -154,13 +186,19 @@ export class LoginComponent implements OnInit {
       return;
     }
     
-    this.loading = true;
-
     const { email: rawEmail, password: rawPassword } = this.loginForm.value;
     const email: string = rawEmail || '';
     const password: string = rawPassword || '';
 
     try {
+      // Validar reCAPTCHA
+      if (!this.recaptchaToken) {
+        this.toastService.warning('⚠️ Por favor completá la verificación de seguridad (reCAPTCHA)');
+        return;
+      }
+
+      this.loading = true;
+
       // Limpiar cualquier sesión previa
       this.pacientesService.logout();
       this.empleadosService.logout();
@@ -171,8 +209,8 @@ export class LoginComponent implements OnInit {
       if (paciente) {
         // Verifico que el mail esté verificado
         if (paciente.emailVerificado == null) {
-          this.toastService.warning('📧 Tu cuenta no fue verificada por mail. Revisá tu correo.');
           this.loading = false;
+          this.toastService.warning('📧 Tu cuenta no fue verificada por mail. Revisá tu correo.');
           return;
         }
 
@@ -185,9 +223,9 @@ export class LoginComponent implements OnInit {
         // Registrar ingreso en estadísticas
         await this.registrarIngresoUsuario(paciente, 'paciente');
         
-        this.toastService.success(`🏥 Bienvenido paciente ${paciente.nombre}`);
-        // Redirigir al panel de turnos del paciente
+        // Redirigir con spinner y luego mostrar toast
         await this.navigateWithSpinner('/mis-turnos');
+        this.toastService.success(`🏥 Bienvenido paciente ${paciente.nombre}`);
         return;
       }
 
@@ -197,14 +235,14 @@ export class LoginComponent implements OnInit {
       if (empleado) {
         // Validar ambas condiciones
         if (empleado.emailVerificado == null) {
-          this.toastService.warning('📧 Tu cuenta de especialista no fue verificada por mail.');
           this.loading = false;
+          this.toastService.warning('📧 Tu cuenta de especialista no fue verificada por mail.');
           return;
         }
 
         if (!empleado.aprobado) {
-          this.toastService.warning('⏳ Tu cuenta aún no fue aprobada por el administrador.');
           this.loading = false;
+          this.toastService.warning('⏳ Tu cuenta aún no fue aprobada por el administrador.');
           return;
         }
 
@@ -219,23 +257,23 @@ export class LoginComponent implements OnInit {
         await this.registrarIngresoUsuario(empleado, tipoUsuario);
 
         if (empleado.especialidad?.toLowerCase() === 'administrador') {
-            this.toastService.success(`👨‍💼 Bienvenido administrador ${empleado.nombre}`);
             await this.navigateWithSpinner('/panel-admin');
+            this.toastService.success(`👨‍💼 Bienvenido administrador ${empleado.nombre}`);
         } else {
-            this.toastService.success(`👨‍⚕️ Bienvenido especialista ${empleado.nombre}`);
             await this.navigateWithSpinner('/turnos-especialista');
+            this.toastService.success(`👨‍⚕️ Bienvenido especialista ${empleado.nombre}`);
         }
        
         return;
       }
 
+      this.loading = false;
       this.toastService.error('🔐 Usuario o contraseña incorrecta');
 
     } catch (error) {
       console.error(error);
-      this.toastService.error('⚠️ Error al iniciar sesión');
-    } finally {
       this.loading = false;
+      this.toastService.error('⚠️ Error al iniciar sesión');
     }
   }
 
@@ -243,6 +281,7 @@ export class LoginComponent implements OnInit {
   // Acceso rápido
   loginRapido(email: string, password: string) {
     this.loginForm.patchValue({ email, password });
+    // Con reCAPTCHA no necesitamos auto-completar nada - el usuario debe resolver el reCAPTCHA manualmente
   }
 
   // Método para manejar errores de imagen

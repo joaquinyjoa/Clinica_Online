@@ -1,3 +1,87 @@
+/* Modal de resumen de turno */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.modal-resumen-turno {
+  background: #fff;
+  border-radius: 18px;
+  padding: 40px 32px 32px 32px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  min-width: 340px;
+  max-width: 95vw;
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #17a2b8;
+  margin-bottom: 28px;
+}
+
+.modal-resumen-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.35rem;
+  margin-bottom: 18px;
+}
+.modal-label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-right: 10px;
+}
+.modal-value {
+  font-weight: 500;
+  color: #218838;
+}
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 32px;
+}
+.btn-confirmar {
+  background: linear-gradient(45deg, #28a745, #218838);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-confirmar:hover {
+  background: linear-gradient(45deg, #218838, #28a745);
+  transform: translateY(-2px);
+}
+.btn-cancelar {
+  background: #fff;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-cancelar:hover {
+  background: #dc3545;
+  color: #fff;
+}
 /* Fuentes optimizadas con fallback del sistema */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 

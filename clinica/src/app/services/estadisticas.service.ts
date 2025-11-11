@@ -184,8 +184,8 @@ export class EstadisticasService {
       supabase
         .from('turnos')
         .select(`
-          especialista_id,
-          especialista_nombre,
+          especialistaid,
+          empleados:especialistaid (nombre, apellido, especialidad),
           especialidad,
           fecha,
           created_at
@@ -204,12 +204,15 @@ export class EstadisticasService {
 
         // Agrupar y contar por médico
         turnos.forEach((turno: any) => {
-          const medicoId = turno.especialista_id;
+          const medicoId = turno.especialistaid;
+          const medicoNombre = turno.empleados ? `${turno.empleados.nombre} ${turno.empleados.apellido}` : 'Sin nombre';
+          const especialidad = turno.empleados?.especialidad || turno.especialidad || 'Sin especialidad';
+          
           if (!medicoStats[medicoId]) {
             medicoStats[medicoId] = {
               medico_id: medicoId,
-              medico_nombre: turno.especialista_nombre || 'Sin nombre',
-              especialidad: turno.especialidad || 'Sin especialidad',
+              medico_nombre: medicoNombre,
+              especialidad: especialidad,
               cantidad_solicitados: 0,
               fecha_inicio: fechaInicio,
               fecha_fin: fechaFin
@@ -231,9 +234,8 @@ export class EstadisticasService {
       supabase
         .from('turnos')
         .select(`
-          especialista_id,
-          especialista_nombre,
-          especialidad,
+          especialistaid,
+          empleados!inner(nombre, apellido, especialidad),
           fecha,
           estado,
           updated_at
@@ -253,12 +255,13 @@ export class EstadisticasService {
 
         // Agrupar y contar por médico
         turnos.forEach((turno: any) => {
-          const medicoId = turno.especialista_id;
+          const medicoId = turno.especialistaid;
+          const empleado = turno.empleados;
           if (!medicoStats[medicoId]) {
             medicoStats[medicoId] = {
               medico_id: medicoId,
-              medico_nombre: turno.especialista_nombre || 'Sin nombre',
-              especialidad: turno.especialidad || 'Sin especialidad',
+              medico_nombre: empleado ? `${empleado.nombre} ${empleado.apellido}` : 'Sin nombre',
+              especialidad: empleado?.especialidad || 'Sin especialidad',
               cantidad_finalizados: 0,
               fecha_inicio: fechaInicio,
               fecha_fin: fechaFin

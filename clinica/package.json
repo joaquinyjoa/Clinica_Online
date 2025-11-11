@@ -22,6 +22,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^20.3.9",
     "@angular/cdk": "^20.2.7",
     "@angular/common": "^20.3.0",
     "@angular/compiler": "^20.3.0",
@@ -38,6 +39,7 @@
     "ionicons": "^8.0.13",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
+    "ng-recaptcha": "^13.2.1",
     "ng2-charts": "^8.0.0",
     "ngx-spinner": "^19.0.0",
     "rxjs": "~7.8.0",

@@ -61,8 +61,18 @@
       <h2 class="section-title">📅 Turnos de la Clínica ({{ turnosFiltrados.length }})</h2>
     </div>
 
-    <div *ngIf="turnosFiltrados.length === 0" class="no-turnos">
-      <span class="no-turnos-icon">📭</span>
+    <div *ngIf="turnos.length === 0" class="no-turnos">
+      <p>Aún no hay turnos en la clínica.</p>
+      <div class="no-turnos-actions">
+        <button class="btn-create-turno" (click)="irASolicitarTurno()">
+          <span class="icon">📅</span>
+          <span class="text">Crear nuevo turno</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="turnos.length > 0 && turnosFiltrados.length === 0" class="no-turnos">
+      <span class="no-turnos-icon">�</span>
       <p>No se encontraron turnos que coincidan con los filtros.</p>
       <button class="btn-secondary" (click)="limpiarFiltros()">Ver todos los turnos</button>
     </div>

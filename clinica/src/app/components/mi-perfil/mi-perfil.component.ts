@@ -12,6 +12,7 @@ import { supabase } from '../../services/supabase.service';
 import { Empleado } from '../../services/empleados.service';
 import { Paciente } from '../../services/pacientes.service';
 import { fadeInAnimation, fadeIn, slideUpAnimation } from '../../animations/animations';
+import { NavigationService } from '../../services/navigation.service';
 
 // Interfaces para horarios
 interface HorarioDia {
@@ -69,6 +70,7 @@ export class MiPerfilComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
+  private navigationService = inject(NavigationService);
 
   userType: 'admin' | 'especialista' | 'paciente' | null = null;
   currentUser: Empleado | Paciente | null = null;
@@ -266,7 +268,10 @@ export class MiPerfilComponent implements OnInit {
   }
 
   volver() {
-    this.router.navigate(['/mis-turnos']);
+    this.toastService.info('📅 Regresando a mis turnos...');
+    this.navigationService.navigateWithSpinner('/mis-turnos', (loading) => {
+      this.isLoading = loading;
+    });
   }
 
   // ========== MÉTODOS PARA DATOS PERSONALES ==========

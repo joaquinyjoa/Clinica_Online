@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../toast/toast.component';
 import { Router } from '@angular/router';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
   selector: 'app-panel-admin',
@@ -185,7 +186,8 @@ export class PanelAdminComponent implements OnInit {
     private historiaClinicaService: HistoriaClinicaService,
     private exportService: ExportService,
     private toastService: ToastService,
-    private router: Router
+    private router: Router,
+    private navigationService: NavigationService
   ) {}
 
   ngOnInit() {
@@ -405,26 +407,34 @@ export class PanelAdminComponent implements OnInit {
 
   // Método para ir a la gestión de turnos
   irAGestionTurnos() {
-    this.router.navigate(['/turnos']);
     this.toastService.info('📅 Accediendo a la gestión de turnos...');
+    this.navigationService.navigateWithSpinner('/turnos', (loading) => {
+      this.loading = loading;
+    });
   }
 
   // Método para ir a mi perfil
   irAMiPerfil() {
-    this.router.navigate(['/mi-perfil']);
     this.toastService.info('👤 Accediendo a mi perfil...');
+    this.navigationService.navigateWithSpinner('/mi-perfil', (loading) => {
+      this.loading = loading;
+    });
   }
 
   // Método para ir a solicitar turno
   irASolicitarTurno() {
-    this.router.navigate(['/solicitar-turno']);
     this.toastService.info('📅 Accediendo a solicitar turno...');
+    this.navigationService.navigateWithSpinner('/solicitar-turno', (loading) => {
+      this.loading = loading;
+    });
   }
 
   // Método para ir a estadísticas
   irAEstadisticas() {
-    this.router.navigate(['/estadisticas']);
     this.toastService.info('📈 Accediendo a estadísticas y reportes...');
+    this.navigationService.navigateWithSpinner('/estadisticas', (loading) => {
+      this.loading = loading;
+    });
   }
 
   // Método para volver al login
@@ -463,24 +473,28 @@ export class PanelAdminComponent implements OnInit {
 
   // Métodos para Historia Clínica
   async verHistoriaClinica(paciente: Paciente) {
-    this.pacienteSeleccionado = paciente;
-    this.mostrandoHistoria = true;
-    this.loadingHistoria = true;
-    this.historiaClinicaPaciente = [];
+    this.loading = true;
 
     try {
       if (paciente.id) {
-        this.historiaClinicaPaciente = await this.historiaClinicaService.obtenerHistoriaPaciente(paciente.id);
+        // Obtener la historia clínica del paciente
+        const historiaClinica = await this.historiaClinicaService.obtenerHistoriaPaciente(paciente.id);
         
-        if (this.historiaClinicaPaciente.length === 0) {
+        if (historiaClinica.length === 0) {
           this.toastService.info('📋 Este paciente no tiene historia clínica registrada');
+          this.loading = false;
+          return;
         }
+
+        // Generar y descargar PDF de la historia clínica
+        await this.exportService.exportarHistoriaClinicaPDF(paciente.id);
+        this.toastService.success(`📄 Historia clínica de ${paciente.nombre} ${paciente.apellido} descargada exitosamente`);
       }
     } catch (error) {
-      console.error('Error al cargar historia clínica:', error);
-      this.toastService.error('❌ Error al cargar la historia clínica');
+      console.error('Error al generar PDF de historia clínica:', error);
+      this.toastService.error('❌ Error al generar el PDF de la historia clínica');
     } finally {
-      this.loadingHistoria = false;
+      this.loading = false;
     }
   }
 

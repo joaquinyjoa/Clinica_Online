@@ -576,3 +576,32 @@ input.error:focus {
     height: 40px;
   }
 }
+
+/* reCAPTCHA styling */
+.captcha-group {
+  margin-bottom: 18px;
+}
+
+.recaptcha-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  
+  /* Estilos para el widget de reCAPTCHA */
+  ::ng-deep .grecaptcha-badge {
+    visibility: hidden;
+  }
+  
+  /* Responsive para dispositivos móviles */
+  ::ng-deep iframe {
+    max-width: 100%;
+    transform-origin: 0 0;
+  }
+  
+  @media (max-width: 480px) {
+    ::ng-deep iframe {
+      transform: scale(0.85);
+    }
+  }
+}

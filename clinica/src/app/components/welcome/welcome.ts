@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
 import { fadeInAnimation, bounceInAnimation, slideUpFromBottom, bounceEnterAnimation } from '../../animations/animations';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
   selector: 'app-welcome',
@@ -14,25 +15,22 @@ import { fadeInAnimation, bounceInAnimation, slideUpFromBottom, bounceEnterAnima
   animations: [fadeInAnimation, bounceInAnimation, slideUpFromBottom, bounceEnterAnimation]
 })
 export class Welcome {
-
-  constructor(private router: Router) { }
   loading = false;
-  private async navigateWithSpinner(target: string) {
-    this.loading = true;
-    // Espera un pequeño tiempo para que el spinner se muestre
-    setTimeout(() => {
-      this.router.navigate([target]).finally(() => {
-        this.loading = false;
-      });
-    }, 3000);
-  }
+
+  constructor(
+    private router: Router,
+    private navigationService: NavigationService
+  ) { }
 
   NavegarLogin() {
-    void this.navigateWithSpinner('/login');
+    this.navigationService.navigateWithSpinner('/login', (loading) => {
+      this.loading = loading;
+    });
   }
 
   NavegarRegistro() {
-    void this.navigateWithSpinner('/register');
+    this.navigationService.navigateWithSpinner('/register', (loading) => {
+      this.loading = loading;
+    });
   }
-
 }

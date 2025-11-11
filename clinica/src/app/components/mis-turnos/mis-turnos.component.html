@@ -93,21 +93,10 @@
     </div>
 
     <div *ngIf="turnosFiltrados.length === 0" class="no-turnos">
-      <span class="no-turnos-icon">📭</span>
       <p *ngIf="esPaciente && turnos.length === 0">No tienes turnos registrados aún.</p>
       <p *ngIf="esPaciente && turnos.length > 0">No se encontraron turnos que coincidan con los filtros.</p>
       <p *ngIf="!esPaciente && turnos.length === 0">No tienes turnos asignados aún.</p>
       <p *ngIf="!esPaciente && turnos.length > 0">No se encontraron turnos que coincidan con los filtros.</p>
-      
-      <!-- Botón principal para pacientes sin turnos -->
-      <button 
-        *ngIf="esPaciente && turnos.length === 0" 
-        class="btn-primary btn-solicitar-principal" 
-        (click)="irASolicitarTurno()"
-        [disabled]="loading">
-        <span class="btn-icon">📅</span>
-        <span class="btn-text">Solicitar mi primer turno</span>
-      </button>
       
       <!-- Botón ver todos solo cuando hay turnos pero están filtrados -->
       <button 
@@ -177,6 +166,15 @@
             <span class="btn-text">Ver Reseña</span>
           </button>
 
+          <!-- Ver historial clínico -->
+          <button *ngIf="turno.estado === 'realizado' && turno?.historiaClinica" 
+                  class="action-btn history-btn" 
+                  (click)="abrirModalHistoria(turno)"
+                  [disabled]="loading">
+            <span class="btn-icon">📋</span>
+            <span class="btn-text">Historial Clínico</span>
+          </button>
+
           <!-- Completar encuesta -->
           <button *ngIf="puedeCompletarEncuesta(turno)" 
                   class="action-btn survey-btn" 
@@ -196,7 +194,7 @@
           </button>
           
           <!-- Sin acciones disponibles -->
-          <div *ngIf="!puedecancelar(turno) && !puedeVerResena(turno) && !puedeCompletarEncuesta(turno) && !puedeCalificar(turno)" 
+          <div *ngIf="!puedecancelar(turno) && !puedeVerResena(turno) && !puedeCompletarEncuesta(turno) && !puedeCalificar(turno) && !(turno.estado === 'realizado' && turno?.historiaClinica)" 
                class="no-actions">
             <span>Sin acciones disponibles</span>
           </div>
@@ -285,19 +283,212 @@
 
   <!-- Modal Encuesta -->
   <div *ngIf="mostrarModalEncuesta" class="modal-overlay" (click)="cerrarModales()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-content survey-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>📊 Encuesta de Satisfacción</h3>
+        <h3>📊 {{ esPaciente ? 'Encuesta de Satisfacción' : 'Encuesta Profesional' }}</h3>
         <button class="modal-close" (click)="cerrarModales()">✖️</button>
       </div>
       <div class="modal-body">
         <p><strong>Turno:</strong> {{ turnoSeleccionado?.fecha }} - {{ turnoSeleccionado?.horario }}</p>
-        <p>¿Te gustaría completar una breve encuesta sobre tu experiencia?</p>
-        <p><em>Esta acción marcará la encuesta como completada.</em></p>
+        <p *ngIf="esPaciente"><strong>Especialista:</strong> {{ turnoSeleccionado?.especialistaNombre }}</p>
+        <p *ngIf="esEspecialista"><strong>Paciente:</strong> {{ turnoSeleccionado?.pacienteNombre }}</p>
+        
+        <!-- Formulario para Pacientes -->
+        <div *ngIf="esPaciente" class="survey-form">
+          <h4>🌟 Califica tu experiencia</h4>
+          
+          <!-- Atención General -->
+          <div class="rating-group">
+            <label>💊 Calidad de la atención médica:</label>
+            <div class="rating-stars">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    class="star" 
+                    [class.active]="star <= encuesta.atencionGeneral"
+                    (click)="encuesta.atencionGeneral = star">
+                ⭐
+              </span>
+              <span class="rating-text">({{ encuesta.atencionGeneral }}/5)</span>
+            </div>
+          </div>
+
+          <!-- Tiempo de Espera -->
+          <div class="rating-group">
+            <label>⏰ Tiempo de espera:</label>
+            <div class="rating-stars">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    class="star" 
+                    [class.active]="star <= encuesta.tiempoEspera"
+                    (click)="encuesta.tiempoEspera = star">
+                ⭐
+              </span>
+              <span class="rating-text">({{ encuesta.tiempoEspera }}/5)</span>
+            </div>
+          </div>
+
+          <!-- Profesionalismo -->
+          <div class="rating-group">
+            <label>👨‍⚕️ Profesionalismo del especialista:</label>
+            <div class="rating-stars">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    class="star" 
+                    [class.active]="star <= encuesta.profesionalismo"
+                    (click)="encuesta.profesionalismo = star">
+                ⭐
+              </span>
+              <span class="rating-text">({{ encuesta.profesionalismo }}/5)</span>
+            </div>
+          </div>
+
+          <!-- Instalaciones -->
+          <div class="rating-group">
+            <label>🏥 Instalaciones de la clínica:</label>
+            <div class="rating-stars">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    class="star" 
+                    [class.active]="star <= encuesta.instalaciones"
+                    (click)="encuesta.instalaciones = star">
+                ⭐
+              </span>
+              <span class="rating-text">({{ encuesta.instalaciones }}/5)</span>
+            </div>
+          </div>
+
+          <!-- Recomendación -->
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="encuesta.recomendaria">
+              <span class="checkmark">✅</span>
+              ¿Recomendarías esta clínica a otros pacientes?
+            </label>
+          </div>
+
+          <!-- Comentarios -->
+          <div class="form-group">
+            <label for="comentarios">💬 Comentarios sobre tu experiencia: *</label>
+            <textarea 
+              id="comentarios"
+              [(ngModel)]="encuesta.comentarios" 
+              placeholder="Cuéntanos cómo fue tu experiencia, qué te gustó o qué podríamos mejorar..."
+              rows="4"
+              class="form-textarea"
+              required>
+            </textarea>
+          </div>
+
+          <!-- Sugerencias -->
+          <div class="form-group">
+            <label for="sugerencias">💡 Sugerencias para mejorar nuestro servicio:</label>
+            <textarea 
+              id="sugerencias"
+              [(ngModel)]="encuesta.sugerencias" 
+              placeholder="¿Qué sugerencias tienes para mejorar nuestros servicios?"
+              rows="3"
+              class="form-textarea">
+            </textarea>
+          </div>
+        </div>
+
+        <!-- Formulario para Especialistas -->
+        <div *ngIf="esEspecialista" class="survey-form">
+          <h4>🩺 Evaluación del caso clínico</h4>
+          
+          <!-- Experiencia con el paciente -->
+          <div class="rating-group">
+            <label>👤 Colaboración del paciente:</label>
+            <div class="rating-stars">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    class="star" 
+                    [class.active]="star <= encuestaEspecialista.experienciaPaciente"
+                    (click)="encuestaEspecialista.experienciaPaciente = star">
+                ⭐
+              </span>
+              <span class="rating-text">({{ encuestaEspecialista.experienciaPaciente }}/5)</span>
+            </div>
+          </div>
+
+          <!-- Complejidad del caso -->
+          <div class="rating-group">
+            <label>🧩 Complejidad del caso:</label>
+            <div class="rating-stars">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    class="star" 
+                    [class.active]="star <= encuestaEspecialista.complejidadCaso"
+                    (click)="encuestaEspecialista.complejidadCaso = star">
+                ⭐
+              </span>
+              <span class="rating-text">({{ encuestaEspecialista.complejidadCaso }}/5)</span>
+            </div>
+          </div>
+
+          <!-- Recursos disponibles -->
+          <div class="rating-group">
+            <label>🏥 Recursos médicos disponibles:</label>
+            <div class="rating-stars">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    class="star" 
+                    [class.active]="star <= encuestaEspecialista.recursosDisponibles"
+                    (click)="encuestaEspecialista.recursosDisponibles = star">
+                ⭐
+              </span>
+              <span class="rating-text">({{ encuestaEspecialista.recursosDisponibles }}/5)</span>
+            </div>
+          </div>
+
+          <!-- Colaboración del equipo -->
+          <div class="rating-group">
+            <label>👥 Colaboración del equipo médico:</label>
+            <div class="rating-stars">
+              <span *ngFor="let star of [1,2,3,4,5]" 
+                    class="star" 
+                    [class.active]="star <= encuestaEspecialista.colaboracionEquipo"
+                    (click)="encuestaEspecialista.colaboracionEquipo = star">
+                ⭐
+              </span>
+              <span class="rating-text">({{ encuestaEspecialista.colaboracionEquipo }}/5)</span>
+            </div>
+          </div>
+
+          <!-- Seguimiento adecuado -->
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="encuestaEspecialista.seguimientoAdecuado">
+              <span class="checkmark">✅</span>
+              ¿El paciente requiere seguimiento adicional?
+            </label>
+          </div>
+
+          <!-- Observaciones del caso -->
+          <div class="form-group">
+            <label for="observaciones">📝 Observaciones sobre el caso: *</label>
+            <textarea 
+              id="observaciones"
+              [(ngModel)]="encuestaEspecialista.observacionesCaso" 
+              placeholder="Describe las observaciones más relevantes del caso, evolución del paciente, aspectos a destacar..."
+              rows="4"
+              class="form-textarea"
+              required>
+            </textarea>
+          </div>
+
+          <!-- Recomendaciones de tratamiento -->
+          <div class="form-group">
+            <label for="recomendaciones">💊 Recomendaciones adicionales:</label>
+            <textarea 
+              id="recomendaciones"
+              [(ngModel)]="encuestaEspecialista.recomendacionesTratamiento" 
+              placeholder="Recomendaciones de tratamiento, derivaciones, estudios complementarios..."
+              rows="3"
+              class="form-textarea">
+            </textarea>
+          </div>
+        </div>
       </div>
       <div class="modal-actions">
-        <button class="btn-primary" (click)="completarEncuesta()" [disabled]="loading">
-          Completar Encuesta
+        <button class="btn-primary" (click)="completarEncuesta()" 
+                [disabled]="loading || (esPaciente && !encuesta.comentarios.trim()) || (esEspecialista && !encuestaEspecialista.observacionesCaso.trim())">
+          <span *ngIf="loading">⏳</span>
+          <span *ngIf="!loading">📋</span>
+          {{ esPaciente ? 'Enviar Encuesta' : 'Completar Evaluación' }}
         </button>
         <button class="btn-secondary" (click)="cerrarModales()" [disabled]="loading">
           Cancelar
@@ -343,4 +534,121 @@
   <!-- Toast Component -->
   <app-toast></app-toast>
 
+</div>
+
+<!-- Modal Historial Clínico -->
+<div *ngIf="mostrarModalHistoria" class="modal-overlay" (click)="cerrarModalHistoria()">
+  <div class="modal-historia" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>📋 Historial Clínico</h2>
+      <button class="close-btn" (click)="cerrarModalHistoria()">✖</button>
+    </div>
+    
+    <div class="modal-body" *ngIf="turnoSeleccionado?.historiaClinica">
+      <div class="historia-info">
+        <!-- Información del turno -->
+        <div class="turno-info-header">
+          <h3>📅 Información del Turno</h3>
+          <div class="turno-details">
+            <p><strong>Fecha:</strong> {{ turnoSeleccionado?.fecha }}</p>
+            <p><strong>Horario:</strong> {{ turnoSeleccionado?.horario }}</p>
+            <p><strong>Especialidad:</strong> {{ turnoSeleccionado?.especialidad }}</p>
+            <p><strong>Especialista:</strong> {{ turnoSeleccionado?.especialistaNombre }}</p>
+          </div>
+        </div>
+
+        <!-- Datos vitales -->
+        <div *ngIf="turnoSeleccionado?.historiaClinica?.altura || turnoSeleccionado?.historiaClinica?.peso || turnoSeleccionado?.historiaClinica?.temperatura || turnoSeleccionado?.historiaClinica?.presion" 
+             class="datos-vitales-modal">
+          <h3>📊 Datos Vitales</h3>
+          <div class="vitales-grid-modal">
+            <div *ngIf="turnoSeleccionado?.historiaClinica?.altura" class="vital-card">
+              <div class="vital-icon">📏</div>
+              <div class="vital-info">
+                <span class="vital-label">Altura</span>
+                <span class="vital-value">{{ turnoSeleccionado?.historiaClinica?.altura }} cm</span>
+              </div>
+            </div>
+            <div *ngIf="turnoSeleccionado?.historiaClinica?.peso" class="vital-card">
+              <div class="vital-icon">⚖️</div>
+              <div class="vital-info">
+                <span class="vital-label">Peso</span>
+                <span class="vital-value">{{ turnoSeleccionado?.historiaClinica?.peso }} kg</span>
+              </div>
+            </div>
+            <div *ngIf="turnoSeleccionado?.historiaClinica?.temperatura" class="vital-card">
+              <div class="vital-icon">🌡️</div>
+              <div class="vital-info">
+                <span class="vital-label">Temperatura</span>
+                <span class="vital-value">{{ turnoSeleccionado?.historiaClinica?.temperatura }}°C</span>
+              </div>
+            </div>
+            <div *ngIf="turnoSeleccionado?.historiaClinica?.presion" class="vital-card">
+              <div class="vital-icon">💓</div>
+              <div class="vital-info">
+                <span class="vital-label">Presión Arterial</span>
+                <span class="vital-value">{{ turnoSeleccionado?.historiaClinica?.presion }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Campos Dinámicos -->
+        <div *ngIf="turnoSeleccionado?.historiaClinica?.campo_dinamico_1_clave || turnoSeleccionado?.historiaClinica?.campo_dinamico_2_clave || turnoSeleccionado?.historiaClinica?.campo_dinamico_3_clave" 
+             class="campos-dinamicos-modal">
+          <h3>🔧 Información Adicional</h3>
+          
+          <div class="campos-dinamicos-grid">
+            <!-- Campo dinámico 1 -->
+            <div *ngIf="turnoSeleccionado?.historiaClinica?.campo_dinamico_1_clave" class="campo-dinamico-card">
+              <div class="campo-header">
+                <span class="campo-icon">📌</span>
+                <span class="campo-label">{{ turnoSeleccionado?.historiaClinica?.campo_dinamico_1_clave }}</span>
+              </div>
+              <div class="campo-valor">{{ turnoSeleccionado?.historiaClinica?.campo_dinamico_1_valor }}</div>
+            </div>
+
+            <!-- Campo dinámico 2 -->
+            <div *ngIf="turnoSeleccionado?.historiaClinica?.campo_dinamico_2_clave" class="campo-dinamico-card">
+              <div class="campo-header">
+                <span class="campo-icon">📌</span>
+                <span class="campo-label">{{ turnoSeleccionado?.historiaClinica?.campo_dinamico_2_clave }}</span>
+              </div>
+              <div class="campo-valor">{{ turnoSeleccionado?.historiaClinica?.campo_dinamico_2_valor }}</div>
+            </div>
+
+            <!-- Campo dinámico 3 -->
+            <div *ngIf="turnoSeleccionado?.historiaClinica?.campo_dinamico_3_clave" class="campo-dinamico-card">
+              <div class="campo-header">
+                <span class="campo-icon">📌</span>
+                <span class="campo-label">{{ turnoSeleccionado?.historiaClinica?.campo_dinamico_3_clave }}</span>
+              </div>
+              <div class="campo-valor">{{ turnoSeleccionado?.historiaClinica?.campo_dinamico_3_valor }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información adicional del registro -->
+        <div *ngIf="turnoSeleccionado?.historiaClinica?.created_at" class="info-registro-modal">
+          <h3>ℹ️ Información del Registro</h3>
+          <div class="info-registro-content">
+            <div class="info-item">
+              <span class="info-label">📅 Fecha de registro:</span>
+              <span class="info-value">{{ turnoSeleccionado?.historiaClinica?.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div *ngIf="turnoSeleccionado?.historiaClinica?.updated_at !== turnoSeleccionado?.historiaClinica?.created_at" class="info-item">
+              <span class="info-label">🔄 Última actualización:</span>
+              <span class="info-value">{{ turnoSeleccionado?.historiaClinica?.updated_at | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-cerrar" (click)="cerrarModalHistoria()">
+        Cerrar
+      </button>
+    </div>
+  </div>
 </div>

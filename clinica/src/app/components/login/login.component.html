@@ -63,6 +63,18 @@
           }
         </div>
 
+        <!-- reCAPTCHA -->
+        <div class="form-group captcha-group">
+          <label>🛡️ Verificación de seguridad</label>
+          <div class="recaptcha-container">
+            <re-captcha 
+              (resolved)="onCaptchaResolved($event)"
+              (expired)="onCaptchaExpired()"
+              (error)="onCaptchaError()">
+            </re-captcha>
+          </div>
+        </div>
+
         <!-- Botón de ingreso -->
         <button type="submit" class="btn btn-primary login-btn" [disabled]="loading || loginForm.invalid">
           <span class="btn-icon">🚪</span>
