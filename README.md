@@ -280,73 +280,12 @@
 
 ---
 
-## 🔧 Arquitectura del Proyecto
-
-```
-clinica/
-├── src/
-│   ├── app/
-│   │   ├── components/          # Componentes de la aplicación
-│   │   │   ├── login/           # Sistema de autenticación
-│   │   │   ├── register/        # Registro de usuarios
-│   │   │   ├── solicitar-turno/ # Flujo de reserva de turnos
-│   │   │   ├── mis-turnos/      # Gestión de turnos pacientes
-│   │   │   ├── panel-admin/     # Panel administrativo
-│   │   │   └── welcome/         # Página de bienvenida
-│   │   ├── services/            # Servicios de datos
-│   │   │   ├── firebase.ts      # Configuración Firebase
-│   │   │   ├── supabase.service.ts # Servicio de base de datos
-│   │   │   └── turnos.service.ts   # Lógica de turnos
-│   │   └── guards/              # Protección de rutas
-│   └── assets/                  # Recursos estáticos
-├── firebase.json               # Configuración de despliegue
-└── angular.json               # Configuración de Angular
-```
-
 ---
 
-## 📊 Base de Datos
-
-### **Tablas Principales**
-- `usuarios` - Información de todos los usuarios
-- `pacientes` - Datos específicos de pacientes
-- `especialistas` - Información de médicos
-- `turnos` - Registro de citas médicas
-- `horarios_especialistas` - Disponibilidad de médicos
-- `especialidades` - Catálogo de especialidades médicas
-
----
-
-## 🤝 Contribución
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
----
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
----
 
 ## 👨‍💻 Desarrollador
 
 **Joaquín**
 - GitHub: [@joaquinyjoa](https://github.com/joaquinyjoa)
-- Email: joaquin@email.com
+- Email: joaquinalfredogreco@gmail.com
 
----
-
-## 📞 Soporte
-
-Si tienes preguntas o necesitas ayuda:
-- 🐛 Reporta bugs en [Issues](https://github.com/joaquinyjoa/Clinica_Online/issues)
-- 💬 Discusiones en [Discussions](https://github.com/joaquinyjoa/Clinica_Online/discussions)
-
----
-
-*⭐ Si este proyecto te fue útil, no olvides darle una estrella en GitHub*
